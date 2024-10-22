@@ -1,4 +1,5 @@
 import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export function Pagination({
   currentPage,
@@ -12,6 +13,7 @@ export function Pagination({
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
       >
+        <ChevronLeft />
         Previous
       </button>
       <span>{currentPage}</span>
@@ -20,6 +22,7 @@ export function Pagination({
         disabled={isLastPage}
       >
         Next
+        <ChevronRight />
       </button>
     </div>
   );
