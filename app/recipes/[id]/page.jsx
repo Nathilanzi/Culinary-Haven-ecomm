@@ -136,6 +136,46 @@ export default function RecipeDetail({ params }) {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          {/* Title and Description */}
+          <div className="p-4">
+            <h1 className="text-3xl font-bold mb-2">{recipe.title}</h1>
+            <p className="text-gray-700 mb-4">{recipe.description}</p>
+
+            {/* Recipe Tags */}
+            {recipe.tags && recipe.tags.length > 0 && (
+              <div className="mb-4">
+                {recipe.tags.map((tag, index) => (
+                  <span key={index} className="bg-teal-500 text-white rounded-full px-3 py-1 text-sm mr-2">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Prep, Cook, Total Time and Servings */}
+            <div className="text-sm text-gray-600 mb-4">
+              {recipe.prepTime && recipe.cookTime && recipe.totalTime && recipe.servings && (
+                <p>
+                  Prep: {recipe.prepTime}, Cook: {recipe.cookTime}, Total: {recipe.totalTime}, Serves: {recipe.servings}
+                </p>
+              )}
+            </div>
+
+            {/* Nutritional Information */}
+            {recipe.nutrition && (
+              <div className="mb-4">
+                <h3 className="text-xl font-semibold mb-2">Nutritional Information:</h3>
+                <ul className="list-disc list-inside">
+                  {Object.entries(recipe.nutrition).map(([key, value], index) => (
+                    <li key={index} className="text-gray-700">
+                      {key}: {value}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
           {/* Main Gallery Section */}
           {recipe.images && recipe.images.length > 0 && (
             <div className="relative">
@@ -191,6 +231,16 @@ export default function RecipeDetail({ params }) {
               </ol>
             </div>
           )}
+          
+          {/* Back Button Section */}
+          <div className="p-4">
+            <button
+              onClick={() => router.back()}
+              className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
+            >
+              Back
+            </button>
+          </div>
         </div>
       </div>
     </div>
