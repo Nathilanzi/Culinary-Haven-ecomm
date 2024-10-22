@@ -59,7 +59,7 @@ export default function RecipeGrid() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div>
         <div className="md:col-span-3">
           {loading ? (
             <div className="flex justify-center items-center min-h-[400px]">
