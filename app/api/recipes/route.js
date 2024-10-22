@@ -12,7 +12,7 @@ export async function GET(request) {
     // Extract and parse pagination parameters from URL
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page")) || 1;  // Default to page 1
-    const limit = parseInt(searchParams.get("limit")) || 12; // Default to 12 items per page
+    const limit = parseInt(searchParams.get("limit")) || 20; // Default to 20 items per page
 
     // Connect to MongoDB
     const client = await clientPromise;
