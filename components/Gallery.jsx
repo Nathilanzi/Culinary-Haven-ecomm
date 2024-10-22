@@ -23,6 +23,7 @@ const Gallery = ({ images }) => {
     if (animation) return;
     setDirection(1);
     setAnimation(true);
+    
     setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
   };
 
