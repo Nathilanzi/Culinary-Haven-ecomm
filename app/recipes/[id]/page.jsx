@@ -165,6 +165,18 @@ export default function RecipeDetail({ params }) {
               )}
             </div>
           )}
+          
+          {/* Instructions Section */}
+          {recipe.instructions && (
+            <div className="p-4">
+              <h3 className="text-xl font-semibold mb-2">Instructions:</h3>
+              <ol className="list-decimal list-inside text-gray-700">
+                {recipe.instructions.map((step, index) => (
+                  <li key={index} className="mb-2">{step}</li>
+                ))}
+              </ol>
+            </div>
+          )}
         </div>
       </div>
     </div>
