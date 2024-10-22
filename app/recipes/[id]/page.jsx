@@ -166,8 +166,22 @@ export default function RecipeDetail({ params }) {
             </div>
           )}
           
+          {/* Ingredients Section */}
+          {recipe.ingredients && Object.keys(recipe.ingredients).length > 0 && (
+            <div className="p-4">
+              <h3 className="text-xl font-semibold mb-2">Ingredients:</h3>
+              <ul className="list-disc list-inside">
+                {Object.entries(recipe.ingredients).map(([ingredient, amount], index) => (
+                  <li key={index} className="text-gray-700">
+                    {amount} {ingredient}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
           {/* Instructions Section */}
-          {recipe.instructions && (
+          {recipe.instructions && recipe.instructions.length > 0 && (
             <div className="p-4">
               <h3 className="text-xl font-semibold mb-2">Instructions:</h3>
               <ol className="list-decimal list-inside text-gray-700">
