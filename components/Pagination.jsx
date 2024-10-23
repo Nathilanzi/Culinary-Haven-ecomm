@@ -1,4 +1,6 @@
-import React from "react";
+// Pagination.js
+import React, { useState, useEffect } from "react";
+import Loader from "./Loader";
 
 export function Pagination({
   currentPage,
@@ -6,6 +8,28 @@ export function Pagination({
   onPageChange,
   isLastPage,
 }) {
+  const [loading, setLoading] = useState(false);
+
+  const handlePageChange = (page) => {
+    setLoading(true); 
+    onPageChange(page);
+  };
+
+  useEffect(() => {
+    
+    if (loading) {
+      const timer = setTimeout(() => {
+        setLoading(false); 
+      }, 1000); 
+
+      return () => clearTimeout(timer); 
+    }
+  }, [loading]);
+
+  if (loading) {
+    return <Loader />; 
+  }
+
   return (
     <div className="flex justify-center items-center space-x-2 my-8">
       <button
