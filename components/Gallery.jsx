@@ -34,6 +34,7 @@ const Gallery = ({ images }) => {
 
   return (
     <div className="relative overflow-hidden shadow-md group">
+      {/* Set the height for uniformity */}
       <div className="w-full h-[15rem]">
         {images.map((image, index) => (
           <div
@@ -53,13 +54,13 @@ const Gallery = ({ images }) => {
               alt={`Product image ${index + 1}`}
               width={400}
               height={300}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-center" // Updated to ensure all images fit uniformly
             />
           </div>
         ))}
       </div>
 
-    
+      {/* Image navigation controls */}
       {images.length > 1 && (
         <div className="w-full flex justify-center py-4">
           <ArrowButtons
@@ -69,31 +70,8 @@ const Gallery = ({ images }) => {
           />
         </div>
       )}
-
-      {/* Dots navigation below the image 
-      {images.length > 1 && (
-        <div className="flex justify-center space-x-2 py-2">
-          {images.map((_, index) => (
-            <button
-              key={index}
-              onClick={(e) => {
-                e.preventDefault();
-                if (animation) return;
-                setDirection(index > currentIndex ? 1 : -1);
-                setAnimation(true);
-                setCurrentIndex(index);
-              }}
-              className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                index === currentIndex ? "bg-[#0c3b2e]" : "bg-[#6D9773]"
-              }`}
-              disabled={animation}
-            />
-          ))}
-        </div>
-      )}*/}
     </div>
   );
 };
 
 export default Gallery;
-
