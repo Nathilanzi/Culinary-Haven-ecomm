@@ -3,13 +3,17 @@
 import { useState, useEffect } from "react";
 import { getRecipes } from "@/lib/api";
 import RecipeCard from "./RecipeCard";
-import { Pagination } from "./pagination";
+import Pagination from "./Pagination";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function RecipeGrid() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentPageFromURL = Number(searchParams.get("page")) || 1;
+
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [filters, setFilters] = useState({
     category: "",
@@ -17,12 +21,12 @@ export default function RecipeGrid() {
     search: "",
   });
 
-  const fetchData = async () => {
+  const fetchData = async (page) => {
     try {
       setLoading(true);
       const [recipesData] = await Promise.all([
         getRecipes({
-          page: currentPage,
+          page: page,
           limit: 20,
           ...filters,
         }),
@@ -38,13 +42,8 @@ export default function RecipeGrid() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [currentPage, filters]);
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+    fetchData(currentPageFromURL);
+  }, [currentPageFromURL, filters]);
 
   if (error) {
     return (
@@ -74,12 +73,12 @@ export default function RecipeGrid() {
               </div>
 
               {recipes.length > 0 ? (
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                  isLastPage={currentPage >= totalPages}
-                />
+                <div className="mt-8">
+                  <Pagination
+                    currentPage={currentPageFromURL}
+                    totalPages={totalPages}
+                  />
+                </div>
               ) : (
                 <div className="text-center py-12">
                   <p className="text-gray-500">No recipes found.</p>
