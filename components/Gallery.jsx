@@ -20,7 +20,6 @@ const Gallery = ({ images }) => {
     if (animation) return;
     setDirection(1);
     setAnimation(true);
-    
     setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
   };
 
@@ -34,8 +33,8 @@ const Gallery = ({ images }) => {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-xl shadow-sm group">
-      <div className="w-full h-[22rem] relative">
+    <div className="relative overflow-hidden rounded-t-2xl shadow-sm group">
+      <div className="w-full h-[15rem] relative">
         {images.map((image, index) => (
           <div
             key={index}
@@ -52,44 +51,49 @@ const Gallery = ({ images }) => {
             <Image
               src={image}
               alt={`Product image ${index + 1}`}
-              width={300}
+              width={400}
               height={300}
-              className="w-full h-[20rem] block justify-center items-start object-contain rounded-lg"
+              className="w-full h-full object-cover rounded-t-2xl"
             />
           </div>
         ))}
       </div>
 
+    
       {images.length > 1 && (
-        <>
+        <div className="w-full flex justify-center py-4">
           <ArrowButtons
             onPrevClick={prevImage}
             onNextClick={nextImage}
             disabled={animation}
           />
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-            {images.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  if (animation) return;
-                  setDirection(index > currentIndex ? 1 : -1);
-                  setAnimation(true);
-                  setCurrentIndex(index);
-                }}
-                className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                  index === currentIndex
-                    ? "bg-teal-600 scale-125"
-                    : "bg-teal-700 bg-opacity-50"
-                }`}
-                disabled={animation}
-              />
-            ))}
-          </div>
-        </>
+        </div>
       )}
+
+      {/* Dots navigation below the image 
+      {images.length > 1 && (
+        <div className="flex justify-center space-x-2 py-2">
+          {images.map((_, index) => (
+            <button
+              key={index}
+              onClick={(e) => {
+                e.preventDefault();
+                if (animation) return;
+                setDirection(index > currentIndex ? 1 : -1);
+                setAnimation(true);
+                setCurrentIndex(index);
+              }}
+              className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                index === currentIndex ? "bg-[#0c3b2e]" : "bg-[#6D9773]"
+              }`}
+              disabled={animation}
+            />
+          ))}
+        </div>
+      )}*/}
     </div>
   );
 };
 
 export default Gallery;
+
