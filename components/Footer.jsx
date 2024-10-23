@@ -1,52 +1,90 @@
-"use client"
-
 export default function Footer() {
-    return (
-      <footer className="bg-gray-600 text-white py-6 mt-12">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center">
-            
-            <div>
-              <ul className="flex space-x-4">
-                <li>
-                  <a href="/about" className="hover:underline">About Us</a>
-                </li>
-                <li>
-                  <a href="/contact" className="hover:underline">Contact</a>
-                </li>
-                <li>
-                  <a href="/terms" className="hover:underline">Terms of Service</a>
-                </li>
-              </ul>
-            </div>
-  
-            {/* Social Media Icons */}
-            <div className="flex space-x-4">
-              <a href="https://www.facebook.com" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
-                <svg className="w-6 h-6 hover:text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M22.675 0h-21.35c-.73 0-1.325.596-1.325 1.325v21.351c0 .729.596 1.324 1.325 1.324h11.475v-9.294h-3.131v-3.622h3.131v-2.671c0-3.1 1.894-4.787 4.659-4.787 1.325 0 2.463.099 2.796.143v3.24h-1.918c-1.504 0-1.795.716-1.795 1.763v2.311h3.589l-.467 3.622h-3.122v9.293h6.118c.73 0 1.325-.595 1.325-1.324v-21.35c0-.729-.595-1.325-1.325-1.325z"/>
-                </svg>
-              </a>
-              <a href="https://www.twitter.com" aria-label="Twitter" target="_blank" rel="noopener noreferrer">
-                <svg className="w-6 h-6 hover:text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 4.557c-.883.392-1.83.656-2.825.775 1.014-.609 1.794-1.574 2.163-2.723-.949.564-2.002.974-3.127 1.195-.896-.957-2.173-1.555-3.59-1.555-2.717 0-4.917 2.2-4.917 4.917 0 .385.043.76.127 1.122-4.083-.205-7.702-2.16-10.125-5.134-.423.725-.666 1.567-.666 2.465 0 1.701.867 3.2 2.186 4.078-.805-.025-1.563-.247-2.228-.616v.062c0 2.374 1.688 4.354 3.932 4.801-.411.112-.844.171-1.292.171-.316 0-.623-.03-.924-.086.624 1.951 2.434 3.376 4.579 3.416-1.68 1.317-3.809 2.102-6.115 2.102-.397 0-.79-.023-1.175-.069 2.179 1.396 4.768 2.21 7.548 2.21 9.058 0 14.01-7.507 14.01-14.009 0-.214-.005-.428-.014-.64.962-.694 1.797-1.56 2.457-2.549z"/>
-                </svg>
-              </a>
-              <a href="https://www.instagram.com" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
-                <svg className="w-6 h-6 hover:text-pink-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.849.07 1.366.062 2.633.325 3.608 1.299.974.975 1.237 2.242 1.299 3.608.058 1.265.07 1.645.07 4.849s-.012 3.584-.07 4.849c-.062 1.366-.325 2.633-1.299 3.608-.975.974-2.242 1.237-3.608 1.299-1.265.058-1.645.07-4.849.07s-3.584-.012-4.849-.07c-1.366-.062-2.633-.325-3.608-1.299-.974-.975-1.237-2.242-1.299-3.608-.058-1.265-.07-1.645-.07-4.849s.012-3.584.07-4.849c.062-1.366.325-2.633 1.299-3.608.975-.974 2.242-1.237 3.608-1.299 1.265-.058 1.645-.07 4.849-.07m0-2.163c-3.257 0-3.667.012-4.947.072-1.479.065-2.91.357-4.007 1.454-1.097 1.097-1.39 2.528-1.455 4.007-.059 1.28-.072 1.69-.072 4.947s.012 3.667.072 4.947c.065 1.479.357 2.91 1.455 4.007 1.097 1.097 2.528 1.39 4.007 1.455 1.28.059 1.69.072 4.947.072s3.667-.012 4.947-.072c1.479-.065 2.91-.357 4.007-1.455 1.097-1.097 1.39-2.528 1.455-4.007.059-1.28.072-1.69.072-4.947s-.012-3.667-.072-4.947c-.065-1.479-.357-2.91-1.455-4.007-1.097-1.097-2.528-1.39-4.007-1.455-1.28-.059-1.69-.072-4.947-.072z"/>
-                </svg>
-              </a>
-            </div>
-  
-            {/* Copyright */}
-            <div className="text-sm">
-              &copy; {new Date().getFullYear()} RecipeApp. All rights reserved.
-            </div>
+  return (
+    <footer className="bg-[#0C3B2E] text-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Main Footer Content */}
+        <div className="py-8 grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+          {/* Navigation Links */}
+          <nav className="flex justify-center md:justify-start">
+            <ul className="flex flex-wrap gap-6 text-sm">
+              <li>
+                <a
+                  href="/about"
+                  className="hover:text-[#6D9773] transition-colors duration-200"
+                >
+                  About Us
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/contact"
+                  className="hover:text-[#6D9773] transition-colors duration-200"
+                >
+                  Contact
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/terms"
+                  className="hover:text-[#6D9773] transition-colors duration-200"
+                >
+                  Terms of Service
+                </a>
+              </li>
+            </ul>
+          </nav>
+
+          {/* Social Media Icons */}
+          <div className="flex justify-center gap-6">
+            <a
+              href="https://www.facebook.com"
+              aria-label="Facebook"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#6D9773] transition-colors duration-200"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 1.089.016 1.723.08v3.077h-1.184c-1.39 0-1.806.704-1.806 2.155v2.246h3.666l-.823 3.667h-2.843v7.98h4.044c.264 0 .478-.214.478-.478V.478c0-.264-.214-.478-.478-.478H.478C.214 0 0 .214 0 .478v22.735c0 .264.214.478.478.478h8.623z" />
+              </svg>
+            </a>
+            <a
+              href="https://twitter.com"
+              aria-label="Twitter"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#6D9773] transition-colors duration-200"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </a>
+            <a
+              href="https://www.instagram.com"
+              aria-label="Instagram"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#6D9773] transition-colors duration-200"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+              </svg>
+            </a>
+          </div>
+
+          {/* Copyright */}
+          <div className="text-sm text-center md:text-right">
+            <p>&copy; {new Date().getFullYear()} RecipeApp.</p>
+            <p className="text-green-400">All rights reserved.</p>
           </div>
         </div>
-      </footer>
-    );
-  }
-  
-  
+
+        {/* Decorative Border */}
+        <div className="border-t border-green-800 py-4">
+          <p className="text-xs text-center text-gray-400">
+            Crafted with passion for food lovers everywhere
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
