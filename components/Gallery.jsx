@@ -33,8 +33,8 @@ const Gallery = ({ images }) => {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-t-2xl shadow-sm group">
-      <div className="w-full h-[15rem] relative">
+    <div className="relative overflow-hidden shadow-md group">
+      <div className="w-full h-[15rem]">
         {images.map((image, index) => (
           <div
             key={index}
@@ -53,7 +53,7 @@ const Gallery = ({ images }) => {
               alt={`Product image ${index + 1}`}
               width={400}
               height={300}
-              className="w-full h-full object-cover rounded-t-2xl"
+              className="w-full h-full object-cover"
             />
           </div>
         ))}
