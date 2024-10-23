@@ -57,36 +57,25 @@ export default function RecipeGrid() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div>
-        <div className="md:col-span-3">
-          {loading ? (
-            <div className="flex justify-center items-center min-h-[400px]">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-                {recipes.map((recipe) => (
-                  <RecipeCard key={recipe._id} recipe={recipe} />
-                ))}
-              </div>
-
-              {recipes.length > 0 ? (
-                <div className="mt-8">
-                  <Pagination
-                    currentPage={currentPageFromURL}
-                    totalPages={totalPages}
-                  />
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">No recipes found.</p>
-                </div>
-              )}
-            </>
-          )}
-        </div>
+    <div className="max-w-7xl mx-auto my-8 px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        {recipes.map((recipe) => (
+          <RecipeCard key={recipe._id} recipe={recipe} />
+        ))}
+      </div>
+      <div> 
+        {recipes.length > 0 ? (
+          <div className="my-8">
+            <Pagination
+              currentPage={currentPageFromURL}
+              totalPages={totalPages}
+            />
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No recipes found.</p>
+          </div>
+        )}
       </div>
     </div>
   );
