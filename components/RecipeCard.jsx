@@ -3,25 +3,15 @@ import Gallery from "./Gallery";
 
 export default function RecipeCard({ recipe }) {
   return (
-    <div class="container" className="border rounded-2xl overflow-hidden bg-white shadow-md transition-transform transform hover:scale-105">
-      <Link
-        href={`/recipes/${recipe._id}`}
-        key={recipe._id}
-      >
+    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-400 hover:shadow-lg hover:scale-[1.02]">
         {/* Image Section */}
-        <div className="-m-3 overflow-hidden relative">
+        <div className="relative overflow-hidden">
           <Gallery images={[...recipe.images]} />
-
         </div>
 
         {/* Text Section */}
-        <div className="flex-1 flex flex-col p-4">
-            <div className="flex-1">
-                <header className="flex-2">
-             <h3 className="font-bold text-lg mb-2 text-gray-800 leading-snug">{recipe.title}</h3>
-             </header>
-            </div>
-          
+        <div className="p-4">
+          <h3 className="font-bold text-lg text-gray-800 mb-2">{recipe.title}</h3>
 
           {/* Prep and Cook Time */}
           <div className="flex justify-between text-sm text-gray-500 mb-4">
@@ -37,7 +27,6 @@ export default function RecipeCard({ recipe }) {
             View Recipe
           </Link>
         </div>
-      </Link>
     </div>
   );
 }
