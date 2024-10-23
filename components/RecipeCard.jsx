@@ -9,14 +9,19 @@ export default function RecipeCard({ recipe }) {
         key={recipe._id}
       >
         {/* Image Section */}
-        <div className="-m-3">
+        <div className="-m-3 overflow-hidden relative">
           <Gallery images={[...recipe.images]} />
 
         </div>
 
         {/* Text Section */}
-        <div className="p-4">
-          <h3 className="font-bold text-lg mb-2 text-gray-800 line-clamp-1">{recipe.title}</h3>
+        <div className="flex-1 flex flex-col p-4">
+            <div className="flex-1">
+                <header className="flex-2">
+             <h3 className="font-bold text-lg mb-2 text-gray-800 leading-snug">{recipe.title}</h3>
+             </header>
+            </div>
+          
 
           {/* Prep and Cook Time */}
           <div className="flex justify-between text-sm text-gray-500 mb-4">
