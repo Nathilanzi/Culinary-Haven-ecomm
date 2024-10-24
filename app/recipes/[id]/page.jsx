@@ -2,7 +2,6 @@ import { getRecipeById } from "../../../lib/api";
 import ImageSelector from "../../../components/ImageSelector.jsx";
 import BackButton from "../../../components/BackButton";
 
-// Custom SVG Icons
 const TimeIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -56,7 +55,7 @@ const ServingsIcon = () => (
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="5"
-      ></path>
+      />
       <line
         id="Line_51"
         data-name="Line 51"
@@ -67,7 +66,7 @@ const ServingsIcon = () => (
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="5"
-      ></line>
+      />
       <line
         id="Line_52"
         data-name="Line 52"
@@ -78,7 +77,7 @@ const ServingsIcon = () => (
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="5"
-      ></line>
+      />
     </g>
   </svg>
 );
@@ -99,62 +98,6 @@ const CookIcon = () => (
   </svg>
 );
 
-export async function generateMetadata({ params }) {
-  const { id } = params;
-  
-  try {
-    const recipe = await getRecipeById(id);
-    
-    if (!recipe) {
-      return {
-        title: "Recipe Not Found",
-        description: "The requested recipe could not be found.",
-      };
-    }
-
-    const ingredients = Object.keys(recipe.ingredients).join(", ");
-    
-    return {
-      title: recipe.title,
-      description: `${recipe.description.slice(0, 155)}...`,
-      keywords: [...recipe.tags, "recipe", "cooking", "food", ...ingredients.split(", ")],
-      openGraph: {
-        title: recipe.title,
-        description: recipe.description,
-        images: recipe.images.map(image => ({
-          url: image,
-          width: 1200,
-          height: 630,
-          alt: `${recipe.title} - Recipe Image`,
-        })),
-        type: "article",
-        article: {
-          publishedTime: recipe.publishedDate,
-          modifiedTime: recipe.updatedDate,
-          tags: recipe.tags,
-        },
-      },
-      twitter: {
-        card: "summary_large_image",
-        title: recipe.title,
-        description: recipe.description,
-        images: recipe.images[0],
-      },
-      other: {
-        "prep-time": recipe.prep,
-        "cook-time": recipe.cook,
-        "total-time": `${parseInt(recipe.prep) + parseInt(recipe.cook)} minutes`,
-        "recipe-yield": recipe.servings,
-      },
-    };
-  } catch (error) {
-    return {
-      title: "Error Loading Recipe",
-      description: "There was an error loading the recipe.",
-    };
-  }
-}
-
 export default async function RecipeDetail({ params }) {
   const { id } = params;
 
@@ -164,22 +107,22 @@ export default async function RecipeDetail({ params }) {
   } catch (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-center">
-          <p className="text-red-500 font-medium mb-4">
-            Error: {error.message}
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-2 bg-teal-500 text-white rounded-lg transition-colors hover:bg-teal-600 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
-          >
-            Retry
-          </button>
-          <button
-            onClick={() => router.push("/")}
-            className="px-6 py-2 bg-teal-500 text-white rounded-lg transition-colors hover:bg-teal-600 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
-          >
-            Return to HomePage
-          </button>
+        <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-center space-y-4">
+          <p className="text-red-500 font-medium">Error: {error.message}</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-teal-500 text-white rounded-lg transition-colors hover:bg-teal-600 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => router.push("/")}
+              className="px-6 py-2 bg-teal-500 text-white rounded-lg transition-colors hover:bg-teal-600 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+            >
+              Return to HomePage
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -196,50 +139,50 @@ export default async function RecipeDetail({ params }) {
   }
 
   return (
-    <div className="font-sans bg-gray-50 min-h-screen pb-12">
-      <div className="p-4 lg:max-w-7xl max-w-2xl mx-auto">
-        {/* Back Button at the top */}
-        <div className="mb-4">
-          <BackButton />
-        </div>
+    <div className="font-sans pt-16 bg-gray-50 min-h-screen">
+      {/* Fixed position back button */}
+      <div className="fixed top-4 -left-20 z-50">
+        <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors" />
+      </div>
 
-        <div className="grid items-start grid-cols-1 lg:grid-cols-5 gap-12">
+      <div className="px-4 py-8 lg:py-12 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery Section */}
-          <div className="lg:col-span-3 w-full lg:sticky top-4">
-            <div className="bg-white p-4 rounded-2xl shadow-sm">
+          <div className="w-full">
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <ImageSelector images={recipe.images} />
             </div>
           </div>
 
           {/* Recipe Details Section */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="space-y-6">
             {/* Header Section */}
             <div className="bg-white p-6 rounded-2xl shadow-sm">
-              <h2 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">
                 {recipe.title}
-              </h2>
-              <p className="mt-4 text-gray-600 leading-relaxed">
+              </h1>
+              <p className="text-gray-600 leading-relaxed">
                 {recipe.description}
               </p>
 
               {/* Recipe Meta Info */}
               <div className="grid grid-cols-3 gap-4 mt-6">
-                <div className="flex flex-col items-center p-3 bg-gray-50 rounded-xl">
+                <div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                   <TimeIcon />
                   <span className="text-sm font-medium mt-2">
-                    {recipe.prep}
+                    Prep: {recipe.prep}
                   </span>
                 </div>
-                <div className="flex flex-col items-center p-3 bg-gray-50 rounded-xl">
+                <div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                   <ServingsIcon />
                   <span className="text-sm font-medium mt-2">
-                    {recipe.servings}
+                    Serves: {recipe.servings}
                   </span>
                 </div>
-                <div className="flex flex-col items-center p-3 bg-gray-50 rounded-xl">
+                <div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                   <CookIcon />
                   <span className="text-sm font-medium mt-2">
-                    {recipe.cook}
+                    Cook: {recipe.cook}
                   </span>
                 </div>
               </div>
@@ -247,13 +190,16 @@ export default async function RecipeDetail({ params }) {
 
             {/* Ingredients Section */}
             <div className="bg-white p-6 rounded-2xl shadow-sm">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                 Ingredients
-              </h3>
-              <ul className="space-y-3">
+              </h2>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(recipe.ingredients).map(
                   ([ingredient, amount], index) => (
-                    <li key={index} className="flex items-center text-gray-700">
+                    <li
+                      key={index}
+                      className="flex items-center text-gray-700 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
                       <span className="w-2 h-2 bg-teal-500 rounded-full mr-3"></span>
                       <span className="font-medium">{amount}</span>
                       <span className="mx-2">·</span>
@@ -266,13 +212,16 @@ export default async function RecipeDetail({ params }) {
 
             {/* Instructions Section */}
             <div className="bg-white p-6 rounded-2xl shadow-sm">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                 Instructions
-              </h3>
+              </h2>
               <ol className="space-y-4">
                 {recipe.instructions.map((step, index) => (
-                  <li key={index} className="flex">
-                    <span className="w-6 h-6 bg-teal-100 text-teal-700 rounded-full flex items-center justify-center font-medium mr-3 flex-shrink-0">
+                  <li
+                    key={index}
+                    className="flex bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <span className="w-8 h-8 bg-teal-100 text-teal-700 rounded-full flex items-center justify-center font-medium mr-4 flex-shrink-0">
                       {index + 1}
                     </span>
                     <span className="text-gray-700 leading-relaxed">
@@ -286,14 +235,14 @@ export default async function RecipeDetail({ params }) {
             {/* Recipe Tags */}
             {recipe.tags && recipe.tags.length > 0 && (
               <div className="bg-white p-6 rounded-2xl shadow-sm">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   Tags
-                </h3>
+                </h2>
                 <div className="flex flex-wrap gap-2">
                   {recipe.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors"
+                      className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors cursor-pointer"
                     >
                       #{tag}
                     </span>
@@ -307,4 +256,3 @@ export default async function RecipeDetail({ params }) {
     </div>
   );
 }
-
