@@ -146,14 +146,14 @@ export default async function RecipeDetail({ params }) {
       </div>
 
       <div className="px-4 py-8 lg:py-12 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 relative">
           {/* Image Gallery Section */}
-          <div className="w-full">
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="w-full lg:h-fit lg:sticky lg:top-20 lg:self-start">
+            {/* Updated classes */}
+            <div className="bg-white rounded-2xl p-2 shadow-sm overflow-hidden">
               <ImageSelector images={recipe.images} />
             </div>
           </div>
-
           {/* Recipe Details Section */}
           <div className="space-y-6">
             {/* Header Section */}
