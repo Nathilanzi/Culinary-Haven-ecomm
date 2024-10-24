@@ -3,10 +3,10 @@ import Pagination from "@/components/Pagination";
 import { getRecipes } from "@/lib/api";
 
 export const metadata = {
-  title: "Browse All Recipes",
+  title: "Culinary Haven: Online Recipes | SA's leading online recipe app ",
   description: "Browse through our collection of delicious recipes. Find everything from quick weeknight dinners to gourmet dishes.",
   openGraph: {
-    title: "Browse All Recipes | Culinary Haven",
+    title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
     description: "Browse through our collection of delicious recipes. Find everything from quick weeknight dinners to gourmet dishes.",
   }
 };
