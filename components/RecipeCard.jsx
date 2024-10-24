@@ -37,7 +37,7 @@ export default function RecipeCard({ recipe }) {
       </div>
 
       {/* Text Section */}
-      <div className="p-4 flex-grow flex flex-col justify-between">
+      <div className="p-4 flex-grow flex flex-col justify-between text-center">
         <div>
           <h3 className="font-bold text-lg text-[#6D9773] mb-2 line-clamp-2">
             {recipe.title}
@@ -46,7 +46,7 @@ export default function RecipeCard({ recipe }) {
         <div>
         
       {/* Prep, Cook, and Serves */}
-      <div className="flex justify-between text-sm text-gray-500 mb-4">
+      <div className="flex justify-center space-x-8 text-xs text-gray-500 mb-4">
         {/* Prep Time */}
         <div className="flex flex-col items-center">
           <svg
@@ -55,7 +55,7 @@ export default function RecipeCard({ recipe }) {
             viewBox="0 0 512 512"
             strokeWidth="1.5"
             stroke="currentColor"
-            className="w-6 h-6 text-[#0C3B2E]"
+            className="w-5 h-5 text-[#0C3B2E]"
           >
             <path
               fill="#0C3B2E"
@@ -75,7 +75,7 @@ export default function RecipeCard({ recipe }) {
             />
           </svg>
 
-          <span className="mt-2 font-semibold">Prep:</span>
+          <span className="mt-2 font-semibold text-sm">Prep:</span>
           <span>{recipe.prep} mins</span>
         </div>
 
@@ -87,14 +87,14 @@ export default function RecipeCard({ recipe }) {
             viewBox="0 0 256 256"
             strokeWidth="1.0"
             stroke="currentColor"
-            className="w-6 h-6 text-[#0C3B2E]"
+            className="w-5 h-5 text-[#0C3B2E]"
           >
             <path
               fill="#0C3B2E"
               d="M76,40V16a12,12,0,0,1,24,0V40a12,12,0,0,1-24,0Zm52,12a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,128,52Zm40,0a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,168,52Zm83.2002,53.6001L224,126v58a36.04061,36.04061,0,0,1-36,36H68a36.04061,36.04061,0,0,1-36-36V126L4.7998,105.6001A12.0002,12.0002,0,0,1,19.2002,86.3999L32,96V88A20.02229,20.02229,0,0,1,52,68H204a20.02229,20.02229,0,0,1,20,20v8l12.7998-9.6001a12.0002,12.0002,0,0,1,14.4004,19.2002ZM200,92H56v92a12.01375,12.01375,0,0,0,12,12H188a12.01375,12.01375,0,0,0,12-12Z"
             />
           </svg>
-          <span className="mt-2 font-semibold">Cook:</span>
+          <span className="mt-2 font-semibold text-sm">Cook:</span>
           <span>{recipe.cook} mins</span>
         </div>
 
@@ -106,9 +106,9 @@ export default function RecipeCard({ recipe }) {
             height="64px"
             viewBox="0 -4.83 52 52"
             fill="none"
-            strokeWidth="1.5"
+            strokeWidth="2"
             stroke="currentColor"
-            className="w-6 h-6 text-[#0C3B2E]"
+            className="w-5 h-5 text-[#0C3B2E]"
           >
             <g id="Group_49" data-name="Group 49" transform="translate(-788.946 -1785.428)">
               <path
@@ -145,7 +145,7 @@ export default function RecipeCard({ recipe }) {
               ></line>
             </g>
           </svg>
-          <span className="mt-2 font-semibold">Serves:</span>
+          <span className="mt-2 font-semibold text-sm">Serves:</span>
           <span>{recipe.servings} people</span>
         </div>
       </div>
