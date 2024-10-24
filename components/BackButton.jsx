@@ -4,7 +4,7 @@ export default function BackButton() {
   return (
     <button
       onClick={() => window.history.back()} 
-      className="w-[85%] px-4 mx-auto block text-center bg-[#DB8C28] text-white font-semibold py-2 rounded-full shadow hover:bg-[#0C3B2E] transition-colors mt-auto"
+      className="w-[40%] px-4 ml-[119px] block text-center bg-[#DB8C28] text-white font-semibold py-2 rounded-full shadow hover:bg-[#0C3B2E] transition-colors mt-[62px]"
     >
       Back
     </button>
