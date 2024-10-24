@@ -15,14 +15,6 @@ const Loader = () => {
             83.33% { -webkit-mask: conic-gradient(#0000 300deg, #000 0); }
             100%   { -webkit-mask: conic-gradient(#0000 360deg, #000 0); }
           }
-
-          @keyframes rotate {
-            0% {
-              transform: rotate(0deg);
-            }
-            100% {
-              transform: rotate(360deg);
-            }
           }
         `}
       </style>
@@ -60,7 +52,7 @@ const styles = {
       #f6d353
     `,
     backgroundSize: "20px 20px, 8px 8px",
-    animation: "l4 3s infinite, rotate 3s linear infinite",
+    animation: "l4 5s infinite, rotate 3s linear infinite",
   },
 };
 
