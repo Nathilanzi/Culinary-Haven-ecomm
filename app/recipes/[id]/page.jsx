@@ -99,6 +99,62 @@ const CookIcon = () => (
   </svg>
 );
 
+export async function generateMetadata({ params }) {
+  const { id } = params;
+  
+  try {
+    const recipe = await getRecipeById(id);
+    
+    if (!recipe) {
+      return {
+        title: "Recipe Not Found",
+        description: "The requested recipe could not be found.",
+      };
+    }
+
+    const ingredients = Object.keys(recipe.ingredients).join(", ");
+    
+    return {
+      title: recipe.title,
+      description: `${recipe.description.slice(0, 155)}...`,
+      keywords: [...recipe.tags, "recipe", "cooking", "food", ...ingredients.split(", ")],
+      openGraph: {
+        title: recipe.title,
+        description: recipe.description,
+        images: recipe.images.map(image => ({
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: `${recipe.title} - Recipe Image`,
+        })),
+        type: "article",
+        article: {
+          publishedTime: recipe.publishedDate,
+          modifiedTime: recipe.updatedDate,
+          tags: recipe.tags,
+        },
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: recipe.title,
+        description: recipe.description,
+        images: recipe.images[0],
+      },
+      other: {
+        "prep-time": recipe.prep,
+        "cook-time": recipe.cook,
+        "total-time": `${parseInt(recipe.prep) + parseInt(recipe.cook)} minutes`,
+        "recipe-yield": recipe.servings,
+      },
+    };
+  } catch (error) {
+    return {
+      title: "Error Loading Recipe",
+      description: "There was an error loading the recipe.",
+    };
+  }
+}
+
 export default async function RecipeDetail({ params }) {
   const { id } = params;
 
