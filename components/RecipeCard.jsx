@@ -151,7 +151,7 @@ export default function RecipeCard({ recipe }) {
         {/* View Recipe Button */}
         <Link
           href={`/recipes/${recipe._id}`}
-          className="block text-center bg-[#6D9773] text-white font-semibold py-2 rounded-full shadow hover:bg-[#0C3B2E] transition-colors mt-auto"
+          className="w-[85%] mx-auto block text-center bg-[#DB8C28] text-white font-semibold py-2 rounded-full shadow hover:bg-[#0C3B2E] transition-colors mt-auto"
         >
           View Recipe
         </Link>
