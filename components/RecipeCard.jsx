@@ -6,10 +6,20 @@ export default function RecipeCard({ recipe }) {
   const [ isHovered, setIsHovered ] =useState(false);
 
   return (
-    <div className="bg-white rounded-3xl shadow-md overflow-hidden transition-all duration-500 hover:shadow-lg hover:scale-[1.02] flex flex-col justify-between">
+    <div className="bg-white rounded-3xl shadow-md overflow-hidden transition-all duration-500 hover:shadow-lg hover:scale-[1.02] flex flex-col justify-between"
+         onMouseEnter={() => setIsHovered(true)}
+         onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Image Section */}
       <div className="relative overflow-hidden object-contain">
         <Gallery images={[...recipe.images]} />
+          <div
+            className={`absolute bottom-0 left-0 right-0 p-4 bg-black bg-opacity-75 text-white transition-all duration-500 transform ${
+              isHovered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+            }`}
+          >
+            {recipe.description}
+          </div>
       </div>
 
       {/* Text Section */}
