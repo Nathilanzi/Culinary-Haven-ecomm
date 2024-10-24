@@ -13,13 +13,25 @@ export default function RecipeCard({ recipe }) {
       {/* Image Section */}
       <div className="relative overflow-hidden object-contain">
         <Gallery images={[...recipe.images]} />
-          <div
-            className={`absolute bottom-0 left-0 right-0 p-4 bg-black bg-opacity-75 text-white transition-all duration-500 transform ${
-              isHovered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
-            }`}
-          >
-            {recipe.description}
-          </div>
+        <div
+          className={`absolute bottom-0 left-0 right-0 p-2 bg-black bg-opacity-75 text-white text-sm transition-all duration-500 transform ${
+            isHovered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+          }`}
+        >
+          {recipe.description.length > 100 
+            ? (
+                <>
+                {recipe.description.slice(0, 100)}
+                <span className="text-sm text-green-400 cursor-pointer">        
+                  <Link href={`/recipes/${recipe._id}`}>
+                    ...read more
+                  </Link>
+                </span>
+                </>
+              ) 
+            : recipe.description
+          }
+        </div>
       </div>
 
       {/* Text Section */}
