@@ -169,19 +169,19 @@ export default async function RecipeDetail({ params }) {
               <div className="grid grid-cols-3 gap-4 mt-6">
                 <div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                   <TimeIcon />
-                  <span className="text-sm font-medium mt-2">
+                  <span className="text-sm text-gray-500 font-medium mt-2">
                     Prep: {recipe.prep}
                   </span>
                 </div>
                 <div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                   <ServingsIcon />
-                  <span className="text-sm font-medium mt-2">
+                  <span className="text-sm text-gray-500 font-medium mt-2">
                     Serves: {recipe.servings}
                   </span>
                 </div>
                 <div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                   <CookIcon />
-                  <span className="text-sm font-medium mt-2">
+                  <span className="text-sm text-gray-500 font-medium mt-2">
                     Cook: {recipe.cook}
                   </span>
                 </div>
