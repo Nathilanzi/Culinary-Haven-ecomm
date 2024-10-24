@@ -93,7 +93,7 @@ const Header = () => {
   );
 
   return (
-    <nav className="bg-[#0C3B2E] shadow-md sticky z-50 top-0" ref={navbarRef}>
+    <nav className="bg-[#0C3B2E] shadow-md fixed z-50 w-full" ref={navbarRef}>
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute left-0 bottom-0 w-64 h-64 bg-white rounded-full blur-2xl transform -translate-x-1/2 translate-y-1/2" />
