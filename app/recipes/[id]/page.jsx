@@ -236,7 +236,7 @@ export default async function RecipeDetail({ params }) {
             )}
 
             {/* Back Button */}
-            <div className="pt-4">
+            <div className="pt-4 ">
               <BackButton />
             </div>
           </div>
