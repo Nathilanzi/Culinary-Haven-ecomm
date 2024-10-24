@@ -1,7 +1,10 @@
 import Link from "next/link";
 import Gallery from "./Gallery";
+import { useState } from "react";
 
 export default function RecipeCard({ recipe }) {
+  const [ isHovered, setIsHovered ] =useState(false);
+
   return (
     <div className="bg-white rounded-3xl shadow-md overflow-hidden transition-all duration-500 hover:shadow-lg hover:scale-[1.02] flex flex-col justify-between">
       {/* Image Section */}
