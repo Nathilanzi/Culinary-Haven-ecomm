@@ -98,12 +98,29 @@ const CookIcon = () => (
   </svg>
 );
 
+const NutritionIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth="1.5"
+    stroke="currentColor"
+    className="w-6 h-6 text-[#0C3B2E]"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.589-1.202L18.75 4.97zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.589-1.202L5.25 4.97z"
+    />
+  </svg>
+);
+
 export async function generateMetadata({ params }) {
   const { id } = params;
-  
+
   try {
     const recipe = await getRecipeById(id);
-    
+
     if (!recipe) {
       return {
         title: "Recipe Not Found",
@@ -112,19 +129,25 @@ export async function generateMetadata({ params }) {
     }
 
     const ingredients = Object.keys(recipe.ingredients).join(", ");
-    
+
     return {
       title: recipe.title,
-      description: `${recipe.description.slice(0, 155)}...`, // Corrected
-      keywords: [...recipe.tags, "recipe", "cooking", "food", ...ingredients.split(", ")],
+      description: `${recipe.description.slice(0, 155)}...`,
+      keywords: [
+        ...recipe.tags,
+        "recipe",
+        "cooking",
+        "food",
+        ...ingredients.split(", "),
+      ],
       openGraph: {
         title: recipe.title,
         description: recipe.description,
-        images: recipe.images.map(image => ({
+        images: recipe.images.map((image) => ({
           url: image,
           width: 1200,
           height: 630,
-          alt: `${recipe.title} - Recipe Image`, // Corrected
+          alt: `${recipe.title} - Recipe Image`,
         })),
         type: "article",
         article: {
@@ -153,6 +176,39 @@ export async function generateMetadata({ params }) {
     };
   }
 }
+
+const formatNutritionData = (nutrition) => {
+  // If nutrition is already an array, return it
+  if (Array.isArray(nutrition)) {
+    return nutrition;
+  }
+
+  // If nutrition is an object, convert it to array format
+  if (nutrition && typeof nutrition === "object") {
+    return Object.entries(nutrition).map(([label, value]) => {
+      // Handle cases where value might be a string with unit
+      if (typeof value === "string") {
+        const match = value.match(/(\d+(?:\.\d+)?)\s*(\w+)?/);
+        if (match) {
+          return {
+            label,
+            value: match[1],
+            unit: match[2] || "",
+          };
+        }
+      }
+      // Handle cases where value is a number
+      return {
+        label,
+        value: value.toString(),
+        unit: "",
+      };
+    });
+  }
+
+  // If nutrition is not in a valid format, return null
+  return null;
+};
 
 export default async function RecipeDetail({ params }) {
   const { id } = params;
@@ -193,6 +249,9 @@ export default async function RecipeDetail({ params }) {
       </div>
     );
   }
+
+  // Format nutrition data
+  const nutritionData = formatNutritionData(recipe.nutrition);
 
   return (
     <div className="font-sans pt-16 bg-gray-50 min-h-screen">
@@ -243,6 +302,34 @@ export default async function RecipeDetail({ params }) {
                 </div>
               </div>
             </div>
+
+            {/* Nutrition Section */}
+            {nutritionData && nutritionData.length > 0 && (
+              <div className="bg-white p-6 rounded-2xl shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <NutritionIcon />
+                  <h2 className="text-2xl font-semibold text-gray-900">
+                    Nutrition Facts
+                  </h2>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {nutritionData.map((item, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-50 p-4 rounded-xl hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="text-lg font-semibold text-teal-700">
+                        {item.value}
+                        <span className="text-sm ml-1 text-teal-600">
+                          {item.unit}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-600">{item.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Ingredients Section */}
             <div className="bg-white p-6 rounded-2xl shadow-sm">
