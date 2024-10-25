@@ -30,6 +30,36 @@ const TimeIcon = () => (
   </svg>
 );
 
+const TotalTime = () => (
+  <svg className="h-7 text-black" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  {/* <!-- Clock face --> */}
+  <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="2"/>
+  
+  {/* <!-- Hour markers --> */}
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(0 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(30 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(60 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(90 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(120 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(150 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(180 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(210 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(240 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(270 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(300 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(330 50 50)"/>
+  
+  {/* <!-- Hour hand (pointing to 10) --> */}
+  <line x1="50" y1="50" x2="50" y2="25" stroke="currentColor" stroke-width="3" stroke-linecap="round" transform="rotate(-60 50 50)"/>
+  
+  {/* <!-- Minute hand (pointing to 2) --> */}
+  <line x1="50" y1="50" x2="50" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" transform="rotate(60 50 50)"/>
+  
+  {/* <!-- Center dot --> */}
+  <circle cx="50" cy="50" r="2" fill="currentColor"/>
+</svg>
+);
+
 const ServingsIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -250,6 +280,11 @@ export default async function RecipeDetail({ params }) {
     );
   }
 
+  // Calculate total time
+  const prepTime = parseInt(recipe.prep) || 0;
+  const cookTime = parseInt(recipe.cook) || 0;
+  const totalTime = prepTime + cookTime;
+
   // Format nutrition data
   const nutritionData = formatNutritionData(recipe.nutrition);
 
@@ -281,7 +316,7 @@ export default async function RecipeDetail({ params }) {
               </p>
 
               {/* Recipe Meta Info */}
-              <div className="grid grid-cols-3 gap-4 mt-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mt-4 sm:mt-6 max-w-3xl mx-auto px-2 sm:px-0">
                 <div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                   <TimeIcon />
                   <span className="text-sm text-gray-500 font-medium mt-2">
@@ -298,6 +333,12 @@ export default async function RecipeDetail({ params }) {
                   <CookIcon />
                   <span className="text-sm text-gray-500 font-medium mt-2">
                     Cook: {recipe.cook}
+                  </span>
+                </div>
+                <div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                  <TotalTime />
+                  <span className="text-sm text-gray-500 font-medium mt-2">
+                    Total: {totalTime} min
                   </span>
                 </div>
               </div>
