@@ -15,6 +15,9 @@ export async function GET(request) {
     const search = searchParams.get("search");
     const tags = searchParams.getAll("tags"); // Get all tags parameters
     const matchType = searchParams.get("matchType") || "all"; // 'all' or 'any', defaults to 'all'
+// Sorting parameters
+    const sortBy = searchParams.get("sortBy") || "creationDate"; // Default to 'creationDate'
+    const order = searchParams.get("order") === "desc" ? -1 : 1; // Default to ascending order
 
     // Connect to MongoDB
     const client = await clientPromise;
@@ -44,11 +47,15 @@ export async function GET(request) {
     // Calculate number of documents to skip
     const skip = (page - 1) * limit;
 
+     // Build the sort object based on the requested sort field and order
+     const sort = { [sortBy]: order };
+
     // Execute queries in parallel for better performance
     const [recipes, total] = await Promise.all([
       // Query for paginated and filtered recipes
       db.collection("recipes")
         .find(query)
+        .sort(sort) // Apply sorting
         .skip(skip)
         .limit(limit)
         .toArray(),
@@ -65,6 +72,8 @@ export async function GET(request) {
         tags,
         matchType,
         search,
+        sortBy,
+        order: order === 1 ? "asc" : "desc"
       },
     });
   } catch (error) {
