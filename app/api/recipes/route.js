@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server"; 
+import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
 /**
- * Handles GET requests for recipes with pagination, tag filtering, and ingredient filtering
+ * Handles GET requests for recipes with pagination and tag filtering
  * @param {Request} request - The incoming HTTP request
  * @returns {Promise<NextResponse>} JSON response with filtered recipes data or error
  */
@@ -10,12 +10,11 @@ export async function GET(request) {
   try {
     // Extract and parse URL parameters
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page")) || 1;
-    const limit = parseInt(searchParams.get("limit")) || 20;
+    const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
+    const limit = parseInt(searchParams.get("limit")) || 20; // Default to 20 items per page
     const search = searchParams.get("search");
     const tags = searchParams.getAll("tags"); // Get all tags parameters
     const matchType = searchParams.get("matchType") || "all"; // 'all' or 'any', defaults to 'all'
-    const ingredients = searchParams.getAll("ingredients"); // Get all ingredients parameters
 // Sorting parameters
     const sortBy = searchParams.get("sortBy") || "creationDate"; // Default to 'creationDate'
     const order = searchParams.get("order") === "desc" ? -1 : 1; // Default to ascending order
@@ -32,26 +31,16 @@ export async function GET(request) {
       query.$or = [{ title: { $regex: search, $options: "i" } }];
     }
 
-    // Initialize conditions array for $and operator
-    const conditions = [];
-
     // Add tags filtering if tags are provided
     if (tags && tags.length > 0) {
+      // If matchType is 'all', use $all operator to match all tags
+      // If matchType is 'any', use $in operator to match any tag
       const tagsOperator = matchType === "all" ? "$all" : "$in";
-      conditions.push({ tags: { [tagsOperator]: tags } });
-    }
-
-    // Add ingredients filtering if ingredients are provided
-    if (ingredients && ingredients.length > 0) {
-      const ingredientsOperator = matchType === "all" ? "$all" : "$in";
-      conditions.push({ "ingredients.name": { [ingredientsOperator]: ingredients } });
-    }
-
-    // Combine conditions with existing query
-    if (conditions.length > 0) {
+      
+      // Merge with existing query
       query = {
         ...query,
-        $and: conditions
+        tags: { [tagsOperator]: tags }
       };
     }
 
@@ -63,23 +52,24 @@ export async function GET(request) {
 
     // Execute queries in parallel for better performance
     const [recipes, total] = await Promise.all([
+      // Query for paginated and filtered recipes
       db.collection("recipes")
         .find(query)
         .sort(sort) // Apply sorting
         .skip(skip)
         .limit(limit)
         .toArray(),
+      // Query for total count of filtered recipes
       db.collection("recipes").countDocuments(query),
     ]);
 
     // Return successful response with recipes data
     return NextResponse.json({
-      recipes,
-      total,
-      totalPages: Math.ceil(total / limit),
+      recipes, // Array of recipe documents
+      total, // Total number of filtered recipes
+      totalPages: Math.ceil(total / limit), // Calculate total pages
       appliedFilters: {
         tags,
-        ingredients,
         matchType,
         search,
         sortBy,
@@ -87,8 +77,9 @@ export async function GET(request) {
       },
     });
   } catch (error) {
+    // Return error response if something goes wrong
     return NextResponse.json(
-      { error: error.message },
+      { error: error.message }, 
       { status: 500 }
     );
   }
