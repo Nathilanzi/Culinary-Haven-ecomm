@@ -13,9 +13,12 @@ export async function GET(request) {
     const page = parseInt(searchParams.get("page")) || 1;
     const limit = parseInt(searchParams.get("limit")) || 20;
     const search = searchParams.get("search");
-    const tags = searchParams.getAll("tags");
+    const tags = searchParams.getAll("tags"); // Get all tags parameters
+    const matchType = searchParams.get("matchType") || "all"; // 'all' or 'any', defaults to 'all'
     const ingredients = searchParams.getAll("ingredients"); // Get all ingredients parameters
-    const matchType = searchParams.get("matchType") || "all"; // 'all' or 'any', applies to both tags and ingredients
+// Sorting parameters
+    const sortBy = searchParams.get("sortBy") || "creationDate"; // Default to 'creationDate'
+    const order = searchParams.get("order") === "desc" ? -1 : 1; // Default to ascending order
 
     // Connect to MongoDB
     const client = await clientPromise;
@@ -55,10 +58,14 @@ export async function GET(request) {
     // Calculate number of documents to skip
     const skip = (page - 1) * limit;
 
+     // Build the sort object based on the requested sort field and order
+     const sort = { [sortBy]: order };
+
     // Execute queries in parallel for better performance
     const [recipes, total] = await Promise.all([
       db.collection("recipes")
         .find(query)
+        .sort(sort) // Apply sorting
         .skip(skip)
         .limit(limit)
         .toArray(),
@@ -75,6 +82,8 @@ export async function GET(request) {
         ingredients,
         matchType,
         search,
+        sortBy,
+        order: order === 1 ? "asc" : "desc"
       },
     });
   } catch (error) {
