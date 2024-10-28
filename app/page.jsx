@@ -21,7 +21,7 @@ export default async function Home({ searchParams }) {
   return (
     <div>
       <div className="pt-3">
-        <HeroSection />
+        {/* <HeroSection /> */}
       </div>
       <div className="container mx-auto px-4 py-8">
         <RecipeGrid recipes={recipes} />
