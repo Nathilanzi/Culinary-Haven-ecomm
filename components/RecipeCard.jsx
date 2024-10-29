@@ -59,6 +59,21 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
             {highlightText(recipe.title, searchQuery)}
           </h3>
         </div>
+        <div>
+          <h3 className="font-light text-sm text-[#6D9773] mb-2 line-clamp-2">
+            {new Date(recipe.published).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </h3>
+        </div>
+        <div>
+          <h3 className="font-light text-sm text-[#6D9773] mb-2 line-clamp-2">
+            {recipe.instructions.length}{" "}
+            {recipe.instructions.length === 1 ? "instruction" : "instructions"}
+          </h3>
+        </div>
 
         {/* Prep, Cook, and Serves */}
         <div className="flex justify-center space-x-8 text-xs text-gray-500 mb-4">
