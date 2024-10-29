@@ -41,6 +41,12 @@ export default function SortOrder({ currentSort, currentOrder }) {
         <option value="cook-desc" className="bg-emerald-950">
           Cook Time (High to Low)
         </option>
+        <option value="published-asc" className="bg-emerald-950">
+          Date Published (Oldest to Newest)
+        </option>
+        <option value="published-desc" className="bg-emerald-950">
+          Date Published (Newest to Oldest)
+        </option>
       </select>
       <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-emerald-600">
         <svg
