@@ -1,11 +1,27 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import Gallery from "./Gallery";
 import { useState } from "react";
 
-export default function RecipeCard({ recipe }) {
-  const [ isHovered, setIsHovered ] =useState(false);
+// Highlight text function
+function highlightText(text, query) {
+  console.log("Search Query in highlightText:", query); // Log query to see if it's undefined
+  if (!query) return text;
+  const regex = new RegExp(`(${query})`, 'gi');
+  return text.split(regex).map((part, index) =>
+    part.toLowerCase() === query.toLowerCase() ? (
+      <span key={index} className="bg-red-200">{part}</span>
+    ) : (
+      part
+    )
+  );
+}
+
+export default function RecipeCard({ recipe, searchQuery = "" }) {
+  console.log("Search Query in RecipeCard:", searchQuery); // Log searchQuery at the RecipeCard level
+
+  const [isHovered, setIsHovered] = useState(false);
   const images = Array.isArray(recipe?.images) ? recipe.images : [];
 
   return (
@@ -24,15 +40,15 @@ export default function RecipeCard({ recipe }) {
           {recipe.description.length > 100 
             ? (
                 <>
-                {recipe.description.slice(0, 100)}
-                <span className="text-sm text-green-400 cursor-pointer">        
-                  <Link href={`/recipes/${recipe._id}`}>
-                    ...read more
-                  </Link>
-                </span>
+                  {highlightText(recipe.description.slice(0, 100), searchQuery)}
+                  <span className="text-sm text-green-400 cursor-pointer">        
+                    <Link href={`/recipes/${recipe._id}`}>
+                      ...read more
+                    </Link>
+                  </span>
                 </>
               ) 
-            : recipe.description
+            : highlightText(recipe.description, searchQuery)
           }
         </div>
       </div>
@@ -41,10 +57,10 @@ export default function RecipeCard({ recipe }) {
       <div className="p-4 flex-grow flex flex-col justify-between text-center">
         <div>
           <h3 className="font-bold text-lg text-[#6D9773] mb-2 line-clamp-2">
-            {recipe.title}
+            {highlightText(recipe.title, searchQuery)}
           </h3>          
         </div>
-        <div>
+
         
       {/* Prep, Cook, and Serves */}
       <div className="flex justify-center space-x-8 text-xs text-gray-500 mb-4">
@@ -160,6 +176,6 @@ export default function RecipeCard({ recipe }) {
         </Link>
         </div>
       </div>
-    </div>
+    
   );
 }
