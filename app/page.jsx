@@ -4,7 +4,7 @@ import { getRecipes } from "@/lib/api";
 import HeroSection from "@/components/HeroSection";
 
 export const metadata = {
-  title: "Culinary Haven: Online Recipes | SA's leading online recipe app ",
+  title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
   description:
     "Browse through our collection of delicious recipes. Find everything from quick weeknight dinners to gourmet dishes.",
   openGraph: {
@@ -15,19 +15,25 @@ export const metadata = {
 };
 
 export default async function Home({ searchParams }) {
+  // Extract all query parameters with defaults
   const page = Number(searchParams?.page) || 1;
   const { recipes, totalPages } = await getRecipes(page, 20);
 
   return (
     <div>
-      <div className="pt-3">
-        {/* <HeroSection /> */}
-      </div>
+      <div className="pt-3">{/* <HeroSection /> */}</div>
       <div className="container mx-auto px-4 py-8">
-        <RecipeGrid recipes={recipes} />
+        <div className="mt-8">
+          <RecipeGrid recipes={recipes} />
+        </div>
+
         {recipes.length > 0 ? (
           <div className="mt-8">
-            <Pagination currentPage={page} totalPages={totalPages} />
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              preserveParams={true}
+            />
           </div>
         ) : (
           <div className="text-center py-12">
