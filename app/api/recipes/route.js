@@ -1,4 +1,3 @@
-// Import required dependencies
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
@@ -11,9 +10,10 @@ export async function GET(request) {
   try {
     // Extract and parse pagination parameters from URL
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
-    const limit = parseInt(searchParams.get("limit")) || 20; // Default to 20 items per page
+    const page = parseInt(searchParams.get("page")) || 1;
+    const limit = parseInt(searchParams.get("limit")) || 20;
     const search = searchParams.get("search");
+    const category = searchParams.get("category");
 
     // Connect to MongoDB
     const client = await clientPromise;
@@ -22,25 +22,35 @@ export async function GET(request) {
     let query = {};
 
     if (search) {
-      query.$or = [{ title: { $regex: search, $options: "i" } }];
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        // { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (category) {
+      query.category = category;
     }
 
     // Calculate number of documents to skip
     const skip = (page - 1) * limit;
 
-    // Execute queries in parallel for better performance
-    const [recipes, total] = await Promise.all([
-      // Query for paginated recipes
-      db.collection("recipes").find(query).skip(skip).limit(limit).toArray(),
-      // Query for total count of recipes
+    const [recipes, total, categories] = await Promise.all([
+      db
+        .collection("recipes")
+        .find(query)
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
       db.collection("recipes").countDocuments(query),
+      db.collection("categories").find({}).toArray(),
     ]);
 
-    // Return successful response with recipes data
     return NextResponse.json({
-      recipes, // Array of recipe documents
-      total, // Total number of recipes
-      totalPages: Math.ceil(total / limit), // Calculate total pages
+      recipes,
+      total,
+      totalPages: Math.ceil(total / limit),
+      categories,
     });
   } catch (error) {
     // Return error response if something goes wrong
