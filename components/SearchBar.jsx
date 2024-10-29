@@ -1,35 +1,41 @@
-"use client";
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-/**
- * A React component that renders a search bar.
- * @param {Object} props - The component props.
- * @param {boolean} props.isVisible - Determines whether the search bar should be visible.
- * @param {function} props.onToggle - A function to toggle the visibility of the search bar.
- * @returns {JSX.Element} - The search bar component.
- */
+// Metadata setup for page
+export const metadata = {
+  title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
+  description:
+    "Browse through our collection of delicious recipes. Find everything from quick weeknight dinners to gourmet dishes.",
+  openGraph: {
+    title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
+    description:
+      "Browse through our collection of delicious recipes. Find everything from quick weeknight dinners to gourmet dishes.",
+  },
+};
+
+// Debounce function to limit the rate of search execution
+function debounce(func, delay) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
 export default function SearchBar({ isVisible, onToggle }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [loading, setLoading] = useState(false);
   const searchInputRef = useRef(null);
 
-  /**
-   * Updates the search state when the searchParams change.
-   */
   const updateSearch = useCallback(() => {
-    // Updating search state when searchParams change
     const currentSearch = searchParams.get("search") || "";
     if (currentSearch !== search) {
       setSearch(currentSearch);
     }
   }, [searchParams, search]);
 
-  /**
-   * Focuses the search input when the search bar becomes visible.
-   */
   useEffect(() => {
     updateSearch();
   }, [updateSearch]);
@@ -40,43 +46,32 @@ export default function SearchBar({ isVisible, onToggle }) {
     }
   }, [isVisible]);
 
-  /**
-   * Handles the search input change and updates the URL search parameters.
-   * @param {React.ChangeEvent<HTMLInputElement>} e - The change event object.
-   */
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    setSearch(value);
+  // Handle search input change with debounce for delay
+  const handleSearch = useCallback(
+    debounce((value) => {
+      setLoading(true);
+      setSearch(value);
+      const params = new URLSearchParams(searchParams);
+      if (value) params.set("search", value);
+      else params.delete("search");
+      params.delete("page");
+      router.push(`/?${params.toString()}`);
+      setLoading(false);
+    }, 500),
+    [searchParams]
+  );
 
-    const params = new URLSearchParams(searchParams);
-    if (value) {
-      params.set("search", value);
-    } else {
-      params.delete("search");
-    }
-    params.delete("page");
-    router.push(`/?${params.toString()}`);
-  };
-
-  /**
-   * Handles the search form submission and updates the URL search parameters.
-   * @param {React.FormEvent<HTMLFormElement>} e - The form submit event object.
-   */
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoading(true);
     const params = new URLSearchParams(searchParams);
-    if (search) {
-      params.set("search", search);
-    } else {
-      params.delete("search");
-    }
+    if (search) params.set("search", search);
+    else params.delete("search");
     params.delete("page");
     router.push(`/?${params.toString()}`);
+    setLoading(false);
   };
 
-  /**
-   * Resets the search and updates the URL search parameters.
-   */
   const resetSearch = () => {
     setSearch("");
     onToggle();
@@ -88,7 +83,6 @@ export default function SearchBar({ isVisible, onToggle }) {
 
   return (
     <form onSubmit={handleSubmit} className="relative w-full">
-      {/* Main container for the search bar */}
       <div className="flex items-center justify-end">
         <div
           className={`
@@ -104,13 +98,17 @@ export default function SearchBar({ isVisible, onToggle }) {
             type="text"
             placeholder="Search Recipes..."
             value={search}
-            onChange={handleSearch}
+            onChange={(e) => handleSearch(e.target.value)}
             className={`
               w-full px-3 py-2 pr-10 rounded-3xl text-sm text-gray-800 bg-white
               border border-gray-300
               focus:ring-2 focus:outline-none
               transition-all duration-300 ease-in-out
-              ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"}
+              ${
+                isVisible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 translate-x-full"
+              }
             `}
           />
           {/* Search button */}
@@ -123,12 +121,18 @@ export default function SearchBar({ isVisible, onToggle }) {
               text-teal-700 bg-gray-50 hover:bg-gray-100
               focus:outline-none focus:ring-2
               transition-all duration-300 ease-in-out
-              ${isVisible ? "rounded-r-full border border-l-0 border-gray-300" : "rounded-full"}
+              ${
+                isVisible
+                  ? "rounded-r-full border border-l-0 border-gray-300"
+                  : "rounded-full"
+              }
             `}
           >
             {/* Search icon SVG */}
             <svg
-              className={`w-5 h-5 transition-transform duration-300 ${isVisible ? "rotate-90" : ""}`}
+              className={`w-5 h-5 transition-transform duration-300 ${
+                isVisible ? "rotate-90" : ""
+              }`}
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
               fill="currentColor"
@@ -167,6 +171,7 @@ export default function SearchBar({ isVisible, onToggle }) {
           <span className="sr-only">Clear search</span>
         </button>
       )}
+      {loading && <p className="loading-text">Searching...</p>}
     </form>
   );
 }
