@@ -6,6 +6,7 @@ import { useState } from "react";
 
 export default function RecipeCard({ recipe }) {
   const [ isHovered, setIsHovered ] =useState(false);
+  const images = Array.isArray(recipe?.images) ? recipe.images : [];
 
   return (
     <div className="bg-white rounded-3xl shadow-md overflow-hidden transition-all duration-500 hover:shadow-lg hover:scale-[1.02] flex flex-col justify-between"
@@ -14,7 +15,7 @@ export default function RecipeCard({ recipe }) {
     >
       {/* Image Section */}
       <div className="relative overflow-hidden object-contain">
-        <Gallery images={[...recipe.images]} />
+        <Gallery images={images} />
         <div
           className={`absolute bottom-0 left-0 right-0 p-2 bg-black bg-opacity-75 text-white text-sm transition-all duration-500 transform ${
             isHovered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
