@@ -1,8 +1,8 @@
 import RecipeGrid from "@/components/RecipeGrid";
 import Pagination from "@/components/Pagination";
-import { getRecipes } from "@/lib/api";
+import { getRecipes, getCategories } from "@/lib/api";
 import HeroSection from "@/components/HeroSection";
-import SortOrder from "@/components/SortOrder";
+import CategoryFilter from "@/components/CategoryFilter";
 
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
@@ -19,26 +19,33 @@ export default async function Home({ searchParams }) {
   // Extract all query parameters with defaults
   const page = Number(searchParams?.page) || 1;
   const limit = Number(searchParams?.limit) || 20;
-  const sortBy = searchParams?.sortBy || "$natural";
-  const order = searchParams?.order || "asc";
-  const search = searchParams?.search || "";
+  const sortBy = searchParams?.sortBy || "title";
+const order = searchParams?.order || "asc";
+  const search = searchParams?.search || ""; 
+  const category = searchParams?.category || "";
 
   // Fetch recipes
   const { recipes, totalPages } = await getRecipes({
     page,
     limit,
     search,
-    sortBy,
+    sortBy, 
     order,
+    category
   });
+
+  const categories = await getCategories();
 
   return (
     <div>
       <div className="pt-3">{/* <HeroSection /> */}</div>
       <div className="container mx-auto px-4 py-8">
         <div className="mt-8">
-          <SortOrder currentSort={sortBy} currentOrder={order} />
-          <RecipeGrid recipes={recipes} searchQuery={search} />
+          <div>
+            <CategoryFilter currentCategory={category}categories={categories}/>
+          </div>
+          <RecipeGrid recipes={recipes} searchQuery={search} /> {/* Pass searchQuery here */}
+
         </div>
 
         {recipes.length > 0 ? (
