@@ -15,30 +15,28 @@ export const metadata = {
 };
 
 export default async function Home({ searchParams }) {
-// Extract all query parameters with defaults
-const page = Number(searchParams?.page) || 1;
-const limit = Number(searchParams?.limit) || 20;
-const search = searchParams?.search || "";
-const sortBy = searchParams?.sortBy || "title";
+  // Extract all query parameters with defaults
+  const page = Number(searchParams?.page) || 1;
+  const limit = Number(searchParams?.limit) || 20;
+  const sortBy = searchParams?.sortBy || "title";
 const order = searchParams?.order || "asc";
+  const search = searchParams?.search || ""; 
 
-
-// Fetch recipes
-const { recipes, totalPages } = await getRecipes({
-  page,
-  limit,
-  search,
-  sortBy, 
-  order
-  
-});
+  // Fetch recipes
+  const { recipes, totalPages } = await getRecipes({
+    page,
+    limit,
+    search,
+    sortBy, 
+    order
+  });
 
   return (
     <div>
       <div className="pt-3">{/* <HeroSection /> */}</div>
       <div className="container mx-auto px-4 py-8">
         <div className="mt-8">
-          <RecipeGrid recipes={recipes} />
+          <RecipeGrid recipes={recipes} searchQuery={search} /> {/* Pass searchQuery here */}
         </div>
 
         {recipes.length > 0 ? (
