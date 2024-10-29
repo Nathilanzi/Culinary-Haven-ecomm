@@ -19,12 +19,18 @@ export default async function Home({ searchParams }) {
 const page = Number(searchParams?.page) || 1;
 const limit = Number(searchParams?.limit) || 20;
 const search = searchParams?.search || "";
+const sortBy = searchParams?.sortBy || "title";
+const order = searchParams?.order || "asc";
+
 
 // Fetch recipes
 const { recipes, totalPages } = await getRecipes({
   page,
   limit,
   search,
+  sortBy, 
+  order
+  
 });
 
   return (
