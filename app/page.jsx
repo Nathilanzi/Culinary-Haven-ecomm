@@ -2,6 +2,7 @@ import RecipeGrid from "@/components/RecipeGrid";
 import Pagination from "@/components/Pagination";
 import { getRecipes } from "@/lib/api";
 import HeroSection from "@/components/HeroSection";
+import SortOrder from "@/components/SortOrder";
 
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
@@ -18,17 +19,17 @@ export default async function Home({ searchParams }) {
   // Extract all query parameters with defaults
   const page = Number(searchParams?.page) || 1;
   const limit = Number(searchParams?.limit) || 20;
-  const sortBy = searchParams?.sortBy || "title";
-const order = searchParams?.order || "asc";
-  const search = searchParams?.search || ""; 
+  const sortBy = searchParams?.sortBy || "$natural";
+  const order = searchParams?.order || "asc";
+  const search = searchParams?.search || "";
 
   // Fetch recipes
   const { recipes, totalPages } = await getRecipes({
     page,
     limit,
     search,
-    sortBy, 
-    order
+    sortBy,
+    order,
   });
 
   return (
@@ -36,7 +37,8 @@ const order = searchParams?.order || "asc";
       <div className="pt-3">{/* <HeroSection /> */}</div>
       <div className="container mx-auto px-4 py-8">
         <div className="mt-8">
-          <RecipeGrid recipes={recipes} searchQuery={search} /> {/* Pass searchQuery here */}
+          <SortOrder currentSort={sortBy} currentOrder={order} />
+          <RecipeGrid recipes={recipes} searchQuery={search} />
         </div>
 
         {recipes.length > 0 ? (
