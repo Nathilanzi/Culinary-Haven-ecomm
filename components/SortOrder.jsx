@@ -23,7 +23,11 @@ export default function SortOrder({ currentSort, currentOrder }) {
         value={`${currentSort}-${currentOrder}`}
         onChange={handleSortChange}
       >
-        {/* Options will be added here */}
+        <option value="$natural-asc">Default Sort</option>
+        <option value="prep-asc">Prep Time (Low to High)</option>
+        <option value="prep-desc">Prep Time (High to Low)</option>
+        <option value="cook-asc">Cook Time (Low to High)</option>
+        <option value="cook-desc">Cook Time (High to Low)</option>
       </select>
     </div>
   );
