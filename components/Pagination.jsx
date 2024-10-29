@@ -21,19 +21,20 @@ export default function Pagination({ currentPage, totalPages }) {
   }, []);
 
   useEffect(() => {
-    setPage(currentPage)
+    setPage(currentPage);
   }, [currentPage]);
+
+  const createQueryString = (newPage) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("page", newPage.toString());
+    return params.toString();
+  };
 
   const onPageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
-      const currentQuery = Object.fromEntries(searchParams.entries());
-      const newQuery = {
-        ...currentQuery,
-        page: newPage,
-      };
-      const currentQueryString = new URLSearchParams(newQuery).toString();
-      router.push(`?${currentQueryString}`);
+      const queryString = createQueryString(newPage);
+      router.push(`?${queryString}`);
     }
   };
 
@@ -41,7 +42,7 @@ export default function Pagination({ currentPage, totalPages }) {
     const pageNumbers = [];
     const maxPagesToShow = isMobile ? 3 : 5;
 
-    // Always show first page, regardless of current page
+    // Always show first page
     pageNumbers.push(
       <button
         key={1}
@@ -52,13 +53,13 @@ export default function Pagination({ currentPage, totalPages }) {
             ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
             : "bg-white hover:bg-gray-50 text-gray-700 hover:text-emerald-600"
         } 
-        rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md`}
+        rounded-lg border border-gray-200 hover:border-emerald-300 hover:shadow-md`}
       >
         1
       </button>
     );
 
-    // Show "..." if there are pages between the first and the current page window
+    // Show "..." if there are pages between first and current page window
     if (page > maxPagesToShow) {
       pageNumbers.push(
         <span key="dots-start" className="px-1 sm:px-2 text-gray-500">
@@ -67,13 +68,12 @@ export default function Pagination({ currentPage, totalPages }) {
       );
     }
 
-    // Show pages around the current page
+    // Show pages around current page
     const startPage = Math.max(2, page - Math.floor(maxPagesToShow / 2));
     const endPage = Math.min(totalPages - 1, startPage + maxPagesToShow - 1);
 
     for (let i = startPage; i <= endPage; i++) {
-      // Skip page 1 since it's already shown
-      if (i === 1) continue;
+      if (i === 1) continue; // Skip page 1 since it's already shown
 
       pageNumbers.push(
         <button
@@ -92,7 +92,7 @@ export default function Pagination({ currentPage, totalPages }) {
       );
     }
 
-    // Show "..." if there are pages between the current page window and the last page
+    // Show "..." if there are pages between current window and last page
     if (page < totalPages - maxPagesToShow) {
       pageNumbers.push(
         <span key="dots-end" className="px-1 sm:px-2 text-gray-500">
@@ -101,7 +101,7 @@ export default function Pagination({ currentPage, totalPages }) {
       );
     }
 
-    // Always show last page
+    // Always show last page if there is more than one page
     if (totalPages > 1) {
       pageNumbers.push(
         <button
@@ -168,7 +168,7 @@ export default function Pagination({ currentPage, totalPages }) {
               ? "bg-gray-100 text-gray-400 cursor-not-allowed"
               : "bg-white hover:bg-gray-50 text-gray-700 hover:text-emerald-600"
           } 
-          rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md`}
+          rounded-lg border border-gray-200 hover:border-emerald-300 hover:shadow-md`}
         >
           <svg
             className="w-4 h-4 sm:w-5 sm:h-5"
