@@ -17,5 +17,15 @@ export default function SortOrder({ currentSort, currentOrder }) {
   };
 
 
-  return <div>Sort Order Component</div>;
+  return (
+    <div className="relative">
+      <select
+        value={`${currentSort}-${currentOrder}`}
+        onChange={handleSortChange}
+      >
+        {/* Options will be added here */}
+      </select>
+    </div>
+  );
+
 }
