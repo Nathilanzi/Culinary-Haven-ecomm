@@ -29,7 +29,6 @@ export async function GET(request) {
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
       ];
     }
 
