@@ -13,7 +13,7 @@ export async function GET(request) {
     const page = parseInt(searchParams.get("page")) || 1;
     const limit = parseInt(searchParams.get("limit")) || 20;
     const search = searchParams.get("search") || "";
-    const sortBy = searchParams.get("sortBy") || "title";
+    const sortBy = searchParams.get("sortBy") || "$natural";
     const order = searchParams.get("order") || "asc";
     const category = searchParams.get("category") || "";
     const tags = searchParams.getAll("tags[]");
@@ -27,9 +27,7 @@ export async function GET(request) {
     const query = {};
 
     if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: "i" } },
-      ];
+      query.$or = [{ title: { $regex: search, $options: "i" } }];
     }
 
     if (category) {
@@ -47,11 +45,15 @@ export async function GET(request) {
 
     // Calculate number of documents to skip
     const skip = (page - 1) * limit;
-    const sortObject = { [sortBy]: order === "asc" ? 1 : -1 };
+    const sortObject =
+      sortBy === "$natural"
+        ? { $natural: 1 }
+        : { [sortBy]: order === "asc" ? 1 : -1 };
 
     // Fetch recipes, total count, and categories concurrently
     const [recipes, total, categories] = await Promise.all([
-      db.collection("recipes")
+      db
+        .collection("recipes")
         .find(query)
         .sort(sortObject)
         .skip(skip)
@@ -69,6 +71,9 @@ export async function GET(request) {
     });
   } catch (error) {
     console.error("Error fetching recipes:", error);
-    return NextResponse.json({ error: "Error fetching recipes" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error fetching recipes" },
+      { status: 500 }
+    );
   }
 }
