@@ -15,9 +15,17 @@ export const metadata = {
 };
 
 export default async function Home({ searchParams }) {
-  // Extract all query parameters with defaults
-  const page = Number(searchParams?.page) || 1;
-  const { recipes, totalPages } = await getRecipes(page, 20);
+// Extract all query parameters with defaults
+const page = Number(searchParams?.page) || 1;
+const limit = Number(searchParams?.limit) || 20;
+const search = searchParams?.search || "";
+
+// Fetch recipes
+const { recipes, totalPages } = await getRecipes({
+  page,
+  limit,
+  search,
+});
 
   return (
     <div>
