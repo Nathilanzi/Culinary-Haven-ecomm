@@ -26,7 +26,7 @@ export default async function Home({ searchParams }) {
   const category = searchParams?.category || "";
 
   // Fetch recipes
-  const { recipes, totalPages } = await getRecipes({
+  const { recipes, total, totalPages } = await getRecipes({
     page,
     limit,
     search,
@@ -38,36 +38,36 @@ export default async function Home({ searchParams }) {
   const categories = await getCategories();
 
   return (
-    <div>
-      <div className="pt-3">{/* <HeroSection /> */}</div>
+    <div className="min-h-screen">
+      {/* <HeroSection /> */}
       <div className="container mx-auto px-4 py-8">
-        <div className="mt-8">
-          <div>
+        <div className="rounded-lg">
+          <div className="flex flex-wrap justify-between gap-4 mt-10 mb-8">
             <CategoryFilter
               currentCategory={category}
               categories={categories}
             />
-          </div>
-          <div className="mt-3">
             <SortOrder currentSort={sortBy} currentOrder={order} />
           </div>
-          <RecipeGrid recipes={recipes} searchQuery={search} />{" "}
-          {/* Pass searchQuery here */}
-        </div>
 
-        {recipes.length > 0 ? (
-          <div className="mt-8">
-            <Pagination
-              currentPage={page}
-              totalPages={totalPages}
-              preserveParams={true}
-            />
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No recipes found.</p>
-          </div>
-        )}
+          {total > 0 && (
+            <div className="mb-4 text-gray-600">
+              Found {total} matching recipes
+            </div>
+          )}
+
+          <RecipeGrid recipes={recipes} searchQuery={search} />
+
+          {recipes.length > 0 ? (
+            <div className="mt-8">
+              <Pagination currentPage={page} totalPages={totalPages} />
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No recipes found.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
