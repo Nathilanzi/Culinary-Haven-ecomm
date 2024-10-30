@@ -3,6 +3,7 @@ import Pagination from "@/components/Pagination";
 import { getRecipes, getCategories } from "@/lib/api";
 import HeroSection from "@/components/HeroSection";
 import CategoryFilter from "@/components/CategoryFilter";
+import SortOrder from "@/components/SortOrder";
 
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
@@ -19,9 +20,9 @@ export default async function Home({ searchParams }) {
   // Extract all query parameters with defaults
   const page = Number(searchParams?.page) || 1;
   const limit = Number(searchParams?.limit) || 20;
-  const sortBy = searchParams?.sortBy || "title";
-const order = searchParams?.order || "asc";
-  const search = searchParams?.search || ""; 
+  const sortBy = searchParams?.sortBy || "$natural";
+  const order = searchParams?.order || "asc";
+  const search = searchParams?.search || "";
   const category = searchParams?.category || "";
 
   // Fetch recipes
@@ -29,9 +30,9 @@ const order = searchParams?.order || "asc";
     page,
     limit,
     search,
-    sortBy, 
+    sortBy,
     order,
-    category
+    category,
   });
 
   const categories = await getCategories();
@@ -42,10 +43,16 @@ const order = searchParams?.order || "asc";
       <div className="container mx-auto px-4 py-8">
         <div className="mt-8">
           <div>
-            <CategoryFilter currentCategory={category}categories={categories}/>
+            <CategoryFilter
+              currentCategory={category}
+              categories={categories}
+            />
           </div>
-          <RecipeGrid recipes={recipes} searchQuery={search} /> {/* Pass searchQuery here */}
-
+          <div className="mt-3">
+            <SortOrder currentSort={sortBy} currentOrder={order} />
+          </div>
+          <RecipeGrid recipes={recipes} searchQuery={search} />{" "}
+          {/* Pass searchQuery here */}
         </div>
 
         {recipes.length > 0 ? (
