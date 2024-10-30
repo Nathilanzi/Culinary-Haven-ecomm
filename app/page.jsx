@@ -4,6 +4,7 @@ import { getRecipes, getCategories } from "@/lib/api";
 import HeroSection from "@/components/HeroSection";
 import CategoryFilter from "@/components/CategoryFilter";
 import SortOrder from "@/components/SortOrder";
+import FilterSection from "@/components/FilterSection";
 
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
@@ -42,14 +43,12 @@ export default async function Home({ searchParams }) {
       {/* <HeroSection /> */}
       <div className="container mx-auto px-4 py-8">
         <div className="rounded-lg">
-          <div className="flex flex-wrap justify-between gap-4 mt-10 mb-8">
-            <CategoryFilter
+            <FilterSection
               currentCategory={category}
               categories={categories}
+              currentSort={sortBy}
+              currentOrder={order}
             />
-            <SortOrder currentSort={sortBy} currentOrder={order} />
-          </div>
-
           {total > 0 && (
             <div className="mb-4 text-gray-600">
               Found {total} matching recipes
