@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import CategoryFilter from "@/components/CategoryFilter";
 import SortOrder from "@/components/SortOrder";
 
@@ -14,11 +14,36 @@ export default function FilterSection({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Get current filter values from URL
-  const category = searchParams.get("category") || initialCategory;
-  const sortBy = searchParams.get("sortBy") || initialSort;
-  const order = searchParams.get("order") || initialOrder;
-  const search = searchParams.get("search") || "";
+  // States for filter values
+  const [category, setCategory] = useState(initialCategory);
+  const [sortBy, setSortBy] = useState(initialSort);
+  const [order, setOrder] = useState(initialOrder);
+  const [search, setSearch] = useState("");
+
+  // On mount, read values from local storage if available
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedCategory = searchParams.get("category") || localStorage.getItem("category") || initialCategory;
+      const storedSortBy = searchParams.get("sortBy") || localStorage.getItem("sortBy") || initialSort;
+      const storedOrder = searchParams.get("order") || localStorage.getItem("order") || initialOrder;
+      const storedSearch = searchParams.get("search") || localStorage.getItem("search") || "";
+
+      setCategory(storedCategory);
+      setSortBy(storedSortBy);
+      setOrder(storedOrder);
+      setSearch(storedSearch);
+    }
+  }, [searchParams, initialCategory, initialSort, initialOrder]);
+
+  // Save filter values to local storage whenever they change
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("category", category);
+      localStorage.setItem("sortBy", sortBy);
+      localStorage.setItem("order", order);
+      localStorage.setItem("search", search);
+    }
+  }, [category, sortBy, order, search]);
 
   // Check if any filters are active by comparing with initial/default values
   const isFilterActive = useMemo(() => {
@@ -42,6 +67,9 @@ export default function FilterSection({
   const handleReset = () => {
     const baseUrl = window.location.pathname;
     router.push(baseUrl);
+    if (typeof window !== "undefined") {
+      localStorage.clear();
+    }
   };
 
   return (
