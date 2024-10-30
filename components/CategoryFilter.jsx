@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 // SVG Icons as components
 const ChevronDownIcon = () => (
@@ -40,6 +40,12 @@ export default function CategoryFilter({ categories, currentCategory }) {
   const searchParams = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(currentCategory);
+
+  // Add useEffect to sync with URL changes
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get("category") || "";
+    setSelectedCategory(categoryFromUrl);
+  }, [searchParams]);
 
   const handleCategoryChange = (value) => {
     setSelectedCategory(value);
@@ -103,9 +109,7 @@ export default function CategoryFilter({ categories, currentCategory }) {
                     {category}
                   </option>
                 ))}
-                <ChevronDownIcon />
               </select>
-              
             </div>
 
             <div className="flex justify-end items-center gap-4">
