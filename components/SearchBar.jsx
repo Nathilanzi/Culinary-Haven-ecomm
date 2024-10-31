@@ -49,6 +49,8 @@ const SearchBar = ({ isVisible, onToggle }) => {
     }
   }, [isVisible]);
 
+  const [noResults, setNoResults] = useState(false); // Add state for no results
+
   const fetchSuggestions = useCallback(async (value) => {
     if (!value.trim()) {
       setSuggestions([]);
@@ -58,10 +60,12 @@ const SearchBar = ({ isVisible, onToggle }) => {
     try {
       const results = await getRecipeSuggestions(value);
       setSuggestions(results);
+      setNoResults(results.length === 0);
       setShowSuggestions(true);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
       setSuggestions([]);
+      setNoResults(false);
     }
   }, []);
 
@@ -266,6 +270,14 @@ const SearchBar = ({ isVisible, onToggle }) => {
               ))}
             </div>
           )}
+
+          {showSuggestions && noResults && ( // Show no results message
+          <div className="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg max-h-20 overflow-hidden border border-gray-100">
+            <div className="px-4 py-3 text-sm text-gray-700">
+              No recipes found.
+            </div>
+          </div>
+        )}
 
           <button
             type="button"
