@@ -47,6 +47,12 @@ export default function SortOrder({ currentSort, currentOrder }) {
         <option value="published-desc" className="bg-emerald-950">
           Date Published (Newest to Oldest)
         </option>
+        <option value="instructionCount-asc" className="bg-emerald-950">
+          Steps (Fewest to Most)
+        </option>
+        <option value="instructionCount-desc" className="bg-emerald-950">
+          Steps (Most to Fewest)
+        </option>
       </select>
       <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-emerald-600">
         <svg
