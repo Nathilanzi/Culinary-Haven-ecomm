@@ -45,12 +45,43 @@ export async function GET(request) {
 
     // Calculate number of documents to skip
     const skip = (page - 1) * limit;
-    const sortObject =
-      sortBy === "$natural"
-        ? { $natural: 1 }
-        : { [sortBy]: order === "asc" ? 1 : -1 };
 
-    // Fetch recipes, total count, and categories concurrently
+    // Handle sorting
+    let sortObject = { $natural: 1 };
+    if (sortBy !== "$natural") {
+      if (sortBy === "instructionCount") {
+        // Add a pipeline stage to count instructions
+        const pipeline = [
+          { $match: query },
+          {
+            $addFields: {
+              instructionCount: { $size: "$instructions" },
+            },
+          },
+          { $sort: { instructionCount: order === "asc" ? 1 : -1 } },
+          { $skip: skip },
+          { $limit: limit },
+        ];
+
+        const recipes = await db
+          .collection("recipes")
+          .aggregate(pipeline)
+          .toArray();
+        const total = await db.collection("recipes").countDocuments(query);
+        const categories = await db.collection("categories").find({}).toArray();
+
+        return NextResponse.json({
+          recipes,
+          total,
+          totalPages: Math.ceil(total / limit),
+          categories,
+        });
+      } else {
+        sortObject = { [sortBy]: order === "asc" ? 1 : -1 };
+      }
+    }
+
+    // Fetch recipes, total count, and categories concurrently (for non-instruction count sorts)
     const [recipes, total, categories] = await Promise.all([
       db
         .collection("recipes")
