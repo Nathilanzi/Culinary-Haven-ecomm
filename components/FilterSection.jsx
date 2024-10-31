@@ -2,130 +2,111 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
-import CategoryFilter from "@/components/CategoryFilter";
-import SortOrder from "@/components/SortOrder";
 import AdvancedFilter from "@/components/AdvancedFilters";
 import NumberOfStepsFilter from "@/components/NumberOfStepsFilter";
 
+// Define default values as constants
+const DEFAULT_VALUES = {
+  category: "",
+  sortBy: "$natural",
+  order: "asc",
+  search: "",
+  numberOfSteps: "",
+  tags: [],
+  tagMatchType: "all"
+};
+
 export default function FilterSection({
-  categories,
-  initialCategory = "",
-  initialSort = "$natural",
-  initialOrder = "asc",
+  initialCategory = DEFAULT_VALUES.category,
+  initialSort = DEFAULT_VALUES.sortBy,
+  initialOrder = DEFAULT_VALUES.order,
   availableTags = [],
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [category, setCategory] = useState(initialCategory);
-  const [sortBy, setSortBy] = useState(initialSort);
-  const [order, setOrder] = useState(initialOrder);
-  const [search, setSearch] = useState("");
-  const [numberOfSteps, setNumberOfSteps] = useState(
-    searchParams.get("numberOfSteps") || ""
-  );
+  const [filters, setFilters] = useState({
+    category: initialCategory,
+    sortBy: initialSort,
+    order: initialOrder,
+    search: DEFAULT_VALUES.search,
+    numberOfSteps: DEFAULT_VALUES.numberOfSteps,
+  });
 
   const updateUrl = (newParams) => {
-    const params = new URLSearchParams(searchParams);
-    
+    const params = new URLSearchParams(searchParams.toString());
+
+    // Reset to defaults if value matches default
     Object.entries(newParams).forEach(([key, value]) => {
-      if (value === null) {
+      if (Array.isArray(value)) {
         params.delete(key);
-      } else if (Array.isArray(value)) {
+        if (value.length > 0) {
+          value.forEach((v) => params.append(key, v));
+        }
+      } else if (value === DEFAULT_VALUES[key]) {
         params.delete(key);
-        value.forEach((v) => params.append(key, v));
       } else if (value) {
         params.set(key, value);
       } else {
         params.delete(key);
       }
     });
-    
+
     router.push(`${pathname}?${params.toString()}`);
   };
 
   useEffect(() => {
-    const currentCategory = searchParams.get("category") || initialCategory;
-    const currentSort = searchParams.get("sortBy") || initialSort;
-    const currentOrder = searchParams.get("order") || initialOrder;
-    const currentSearch = searchParams.get("search") || "";
-    const currentNumberOfSteps = searchParams.get("numberOfSteps") || "";
-
-    setCategory(currentCategory);
-    setSortBy(currentSort);
-    setOrder(currentOrder);
-    setSearch(currentSearch);
-    setNumberOfSteps(currentNumberOfSteps);
-  }, [searchParams, initialCategory, initialSort, initialOrder]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("category", category);
-      localStorage.setItem("sortBy", sortBy);
-      localStorage.setItem("order", order);
-      localStorage.setItem("search", search);
-      localStorage.setItem("numberOfSteps", numberOfSteps);
-    }
-  }, [category, sortBy, order, search, numberOfSteps]);
+    if (!searchParams) return;
+    
+    setFilters({
+      category: searchParams.get("category") || DEFAULT_VALUES.category,
+      sortBy: searchParams.get("sortBy") || DEFAULT_VALUES.sortBy,
+      order: searchParams.get("order") || DEFAULT_VALUES.order,
+      search: searchParams.get("search") || DEFAULT_VALUES.search,
+      numberOfSteps: searchParams.get("numberOfSteps") || DEFAULT_VALUES.numberOfSteps,
+    });
+  }, [searchParams]);
 
   const isFilterActive = useMemo(() => {
+    if (!searchParams) return false;
+
     const hasAdvancedFilters =
-      searchParams.has("tags[]") || searchParams.has("tagMatchType");
+      searchParams.has("tags[]") || 
+      (searchParams.get("tagMatchType") && searchParams.get("tagMatchType") !== DEFAULT_VALUES.tagMatchType);
 
     return (
-      category !== initialCategory ||
-      search !== "" ||
-      sortBy !== initialSort ||
-      order !== initialOrder ||
-      numberOfSteps !== "" ||
+      filters.category !== DEFAULT_VALUES.category ||
+      filters.search !== DEFAULT_VALUES.search ||
+      filters.sortBy !== DEFAULT_VALUES.sortBy ||
+      filters.order !== DEFAULT_VALUES.order ||
+      filters.numberOfSteps !== DEFAULT_VALUES.numberOfSteps ||
       hasAdvancedFilters
     );
-  }, [
-    category,
-    search,
-    sortBy,
-    order,
-    numberOfSteps,
-    searchParams,
-    initialCategory,
-    initialSort,
-    initialOrder,
-  ]);
+  }, [filters, searchParams]);
 
   const handleReset = () => {
-    const baseUrl = window.location.pathname;
-    router.push(baseUrl);
-    if (typeof window !== "undefined") {
-      localStorage.clear();
-    }
+    // Reset all filters to default values
+    setFilters(DEFAULT_VALUES);
+    router.push(pathname);
   };
 
   return (
-    <div className="mt-20 space-y-4">
-      <div className="flex flex-wrap justify-between gap-4 mt-10 mb-8">
-        <div className="flex flex-wrap gap-4 items-start">
-          <CategoryFilter
-            categories={categories}
-            currentCategory={category}
-            searchParams={searchParams}
-            updateUrl={updateUrl}
-          />
-          <NumberOfStepsFilter
-            searchParams={searchParams}
-            updateUrl={updateUrl}
-          />
-          <AdvancedFilter
-            availableTags={availableTags}
-            searchParams={searchParams}
-            updateUrl={updateUrl}
-          />
-        </div>
-        <SortOrder
-          currentSort={sortBy}
-          currentOrder={order}
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-4 items-start">
+        <NumberOfStepsFilter
           searchParams={searchParams}
           updateUrl={updateUrl}
+          defaultValue={DEFAULT_VALUES.numberOfSteps}
+        />
+        <AdvancedFilter
+          availableTags={availableTags}
+          searchParams={searchParams}
+          updateUrl={updateUrl}
+          defaultValues={{
+            tags: DEFAULT_VALUES.tags,
+            tagMatchType: DEFAULT_VALUES.tagMatchType
+          }}
         />
       </div>
 
