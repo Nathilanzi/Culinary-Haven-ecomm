@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from "react";
 import CategoryFilter from "@/components/CategoryFilter";
 import SortOrder from "@/components/SortOrder";
 import AdvancedFilter from "@/components/AdvancedFilters";
+import NumberOfStepsFilter from "@/components/NumberOfStepsFilter";
 
 export default function FilterSection({
   categories,
@@ -17,17 +18,21 @@ export default function FilterSection({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // States for filter values
   const [category, setCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState(initialSort);
   const [order, setOrder] = useState(initialOrder);
   const [search, setSearch] = useState("");
+  const [numberOfSteps, setNumberOfSteps] = useState(
+    searchParams.get("numberOfSteps") || ""
+  );
 
-  // Update URL with current filter state
   const updateUrl = (newParams) => {
     const params = new URLSearchParams(searchParams);
+    
     Object.entries(newParams).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
+      if (value === null) {
+        params.delete(key);
+      } else if (Array.isArray(value)) {
         params.delete(key);
         value.forEach((v) => params.append(key, v));
       } else if (value) {
@@ -36,33 +41,34 @@ export default function FilterSection({
         params.delete(key);
       }
     });
+    
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Effect to sync URL params with state
   useEffect(() => {
     const currentCategory = searchParams.get("category") || initialCategory;
     const currentSort = searchParams.get("sortBy") || initialSort;
     const currentOrder = searchParams.get("order") || initialOrder;
     const currentSearch = searchParams.get("search") || "";
+    const currentNumberOfSteps = searchParams.get("numberOfSteps") || "";
 
     setCategory(currentCategory);
     setSortBy(currentSort);
     setOrder(currentOrder);
     setSearch(currentSearch);
+    setNumberOfSteps(currentNumberOfSteps);
   }, [searchParams, initialCategory, initialSort, initialOrder]);
 
-  // Save filter values to local storage whenever they change
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("category", category);
       localStorage.setItem("sortBy", sortBy);
       localStorage.setItem("order", order);
       localStorage.setItem("search", search);
+      localStorage.setItem("numberOfSteps", numberOfSteps);
     }
-  }, [category, sortBy, order, search]);
+  }, [category, sortBy, order, search, numberOfSteps]);
 
-  // Check if any filters are active by comparing with initial/default values
   const isFilterActive = useMemo(() => {
     const hasAdvancedFilters =
       searchParams.has("tags[]") || searchParams.has("tagMatchType");
@@ -72,6 +78,7 @@ export default function FilterSection({
       search !== "" ||
       sortBy !== initialSort ||
       order !== initialOrder ||
+      numberOfSteps !== "" ||
       hasAdvancedFilters
     );
   }, [
@@ -79,13 +86,13 @@ export default function FilterSection({
     search,
     sortBy,
     order,
+    numberOfSteps,
     searchParams,
     initialCategory,
     initialSort,
     initialOrder,
   ]);
 
-  // Reset handler that clears all filters and returns to initial state
   const handleReset = () => {
     const baseUrl = window.location.pathname;
     router.push(baseUrl);
@@ -104,6 +111,10 @@ export default function FilterSection({
             searchParams={searchParams}
             updateUrl={updateUrl}
           />
+          <NumberOfStepsFilter
+            searchParams={searchParams}
+            updateUrl={updateUrl}
+          />
           <AdvancedFilter
             availableTags={availableTags}
             searchParams={searchParams}
@@ -113,8 +124,8 @@ export default function FilterSection({
         <SortOrder
           currentSort={sortBy}
           currentOrder={order}
-            searchParams={searchParams}
-            updateUrl={updateUrl}
+          searchParams={searchParams}
+          updateUrl={updateUrl}
         />
       </div>
 
