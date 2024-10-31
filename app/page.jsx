@@ -3,6 +3,7 @@ import Pagination from "@/components/Pagination";
 import { getRecipes, getCategories, getTags } from "@/lib/api";
 import FilterSection from "@/components/FilterSection";
 
+
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
   description:
@@ -15,13 +16,14 @@ export const metadata = {
 };
 
 export default async function Home({ searchParams }) {
-  // Extract all parameters including tags
+  // Extract all parameters
   const page = Number(searchParams?.page) || 1;
   const limit = Number(searchParams?.limit) || 20;
   const sortBy = searchParams?.sortBy || "$natural";
   const order = searchParams?.order || "asc";
   const search = searchParams?.search || "";
   const category = searchParams?.category || "";
+  const numberOfSteps = searchParams?.numberOfSteps || null;
 
   // Handle tags properly - ensure it's always an array
   let tags = [];
@@ -44,6 +46,7 @@ export default async function Home({ searchParams }) {
       category,
       tags,
       tagMatchType,
+      numberOfSteps,
     }),
     getCategories(),
     getTags(),
@@ -72,6 +75,11 @@ export default async function Home({ searchParams }) {
                   {tags.length === 1 ? " tag" : " tags"})
                 </span>
               )}
+              {numberOfSteps && (
+                <span className="ml-2">
+                  (with {numberOfSteps} steps)
+                </span>
+              )}
             </div>
           )}
 
@@ -87,13 +95,15 @@ export default async function Home({ searchParams }) {
                 No recipes found
                 {tags.length > 0 && " matching the selected tags"}
                 {category && " in this category"}
-                {search && " for this search query"}.
+                {search && " for this search query"}
+                {numberOfSteps && ` with ${numberOfSteps} steps`}.
               </p>
               <button
                 onClick={() => {
                   const params = new URLSearchParams(searchParams);
                   params.delete("tags[]");
                   params.delete("tagMatchType");
+                  params.delete("numberOfSteps");
                   window.location.href = `?${params.toString()}`;
                 }}
                 className="mt-4 text-blue-500 hover:text-blue-700 underline"
