@@ -1,17 +1,20 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useState, useEffect, useMemo } from "react";
 import CategoryFilter from "@/components/CategoryFilter";
 import SortOrder from "@/components/SortOrder";
+import AdvancedFilter from "@/components/AdvancedFilters";
 
 export default function FilterSection({
   categories,
   initialCategory = "",
   initialSort = "$natural",
   initialOrder = "asc",
+  availableTags = [],
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   // States for filter values
@@ -20,19 +23,33 @@ export default function FilterSection({
   const [order, setOrder] = useState(initialOrder);
   const [search, setSearch] = useState("");
 
-  // On mount, read values from local storage if available
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedCategory = searchParams.get("category") || localStorage.getItem("category") || initialCategory;
-      const storedSortBy = searchParams.get("sortBy") || localStorage.getItem("sortBy") || initialSort;
-      const storedOrder = searchParams.get("order") || localStorage.getItem("order") || initialOrder;
-      const storedSearch = searchParams.get("search") || localStorage.getItem("search") || "";
+  // Update URL with current filter state
+  const updateUrl = (newParams) => {
+    const params = new URLSearchParams(searchParams);
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        params.delete(key);
+        value.forEach((v) => params.append(key, v));
+      } else if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    });
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
-      setCategory(storedCategory);
-      setSortBy(storedSortBy);
-      setOrder(storedOrder);
-      setSearch(storedSearch);
-    }
+  // Effect to sync URL params with state
+  useEffect(() => {
+    const currentCategory = searchParams.get("category") || initialCategory;
+    const currentSort = searchParams.get("sortBy") || initialSort;
+    const currentOrder = searchParams.get("order") || initialOrder;
+    const currentSearch = searchParams.get("search") || "";
+
+    setCategory(currentCategory);
+    setSortBy(currentSort);
+    setOrder(currentOrder);
+    setSearch(currentSearch);
   }, [searchParams, initialCategory, initialSort, initialOrder]);
 
   // Save filter values to local storage whenever they change
@@ -47,17 +64,22 @@ export default function FilterSection({
 
   // Check if any filters are active by comparing with initial/default values
   const isFilterActive = useMemo(() => {
+    const hasAdvancedFilters =
+      searchParams.has("tags[]") || searchParams.has("tagMatchType");
+
     return (
       category !== initialCategory ||
       search !== "" ||
       sortBy !== initialSort ||
-      order !== initialOrder
+      order !== initialOrder ||
+      hasAdvancedFilters
     );
   }, [
     category,
     search,
     sortBy,
     order,
+    searchParams,
     initialCategory,
     initialSort,
     initialOrder,
@@ -75,11 +97,27 @@ export default function FilterSection({
   return (
     <div className="mt-20 space-y-4">
       <div className="flex flex-wrap justify-between gap-4 mt-10 mb-8">
-        <CategoryFilter categories={categories} currentCategory={category} />
-        <SortOrder currentSort={sortBy} currentOrder={order} />
+        <div className="flex flex-wrap gap-4 items-start">
+          <CategoryFilter
+            categories={categories}
+            currentCategory={category}
+            searchParams={searchParams}
+            updateUrl={updateUrl}
+          />
+          <AdvancedFilter
+            availableTags={availableTags}
+            searchParams={searchParams}
+            updateUrl={updateUrl}
+          />
+        </div>
+        <SortOrder
+          currentSort={sortBy}
+          currentOrder={order}
+            searchParams={searchParams}
+            updateUrl={updateUrl}
+        />
       </div>
 
-      {/* Reset button only shown when filters are active */}
       {isFilterActive && (
         <div className="flex justify-end mt-4">
           <button
