@@ -103,7 +103,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
     // Immediately fetch suggestions (100ms delay)
     searchTimeoutRef.current = setTimeout(() => {
       fetchSuggestions(value);
-    }, 100);
+    }, 300);
 
     // Update URL params with debounce (500ms delay)
     debouncedSearchRef.current = setTimeout(() => {
