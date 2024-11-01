@@ -5,8 +5,9 @@ import { useState, useEffect, useMemo } from "react";
 import AdvancedFilter from "@/components/AdvancedFilters";
 import NumberOfStepsFilter from "@/components/NumberOfStepsFilter";
 import IngredientsFilter from "@/components/IngredientsFilter";
+import CategoryFilter from "@/components/CategoryFilter";
+import SortOrder from "@/components/SortOrder";
 
-// Define default values as constants
 const DEFAULT_VALUES = {
   category: "",
   sortBy: "$natural",
@@ -18,6 +19,7 @@ const DEFAULT_VALUES = {
 };
 
 export default function FilterSection({
+  categories = [],
   initialCategory = DEFAULT_VALUES.category,
   initialSort = DEFAULT_VALUES.sortBy,
   initialOrder = DEFAULT_VALUES.order,
@@ -37,7 +39,6 @@ export default function FilterSection({
   const updateUrl = (newParams) => {
     const params = new URLSearchParams(searchParams.toString());
 
-    // Reset to defaults if value matches default
     Object.entries(newParams).forEach(([key, value]) => {
       if (Array.isArray(value)) {
         params.delete(key);
@@ -112,6 +113,10 @@ export default function FilterSection({
     <div className="mt-20 space-y-4">
       <div className="flex flex-wrap justify-between gap-4 mt-10 mb-8">
         <div className="flex flex-wrap gap-4 items-start">
+          <CategoryFilter
+            categories={categories}
+            currentCategory={category}
+          />
           <NumberOfStepsFilter
             searchParams={searchParams}
             updateUrl={updateUrl}
@@ -127,6 +132,7 @@ export default function FilterSection({
             updateUrl={updateUrl}
           />
         </div>
+        <SortOrder currentSort={sortBy} currentOrder={order} />
       </div>
 
       {isFilterActive && (
