@@ -14,6 +14,23 @@ export const metadata = {
   },
 };
 
+const SearchIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+);
+
 export default async function Home({ searchParams }) {
   // Extract all parameters
   const page = Number(searchParams?.page) || 1;
@@ -43,24 +60,25 @@ export default async function Home({ searchParams }) {
   const ingredientMatchType = searchParams?.ingredientMatchType || "all";
 
   // Fetch all data concurrently
-  const [recipesData, categories, availableTags, availableIngredients] = await Promise.all([
-    getRecipes({
-      page,
-      limit,
-      search,
-      sortBy,
-      order,
-      category,
-      tags,
-      tagMatchType,
-      ingredients,
-      ingredientMatchType,
-      numberOfSteps,
-    }),
-    getCategories(),
-    getTags(),
-    getIngredients(),
-  ]);
+  const [recipesData, categories, availableTags, availableIngredients] =
+    await Promise.all([
+      getRecipes({
+        page,
+        limit,
+        search,
+        sortBy,
+        order,
+        category,
+        tags,
+        tagMatchType,
+        ingredients,
+        ingredientMatchType,
+        numberOfSteps,
+      }),
+      getCategories(),
+      getTags(),
+      getIngredients(),
+    ]);
 
   const { recipes, total, totalPages } = recipesData;
 
