@@ -4,6 +4,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import AdvancedFilter from "@/components/AdvancedFilters";
 import NumberOfStepsFilter from "@/components/NumberOfStepsFilter";
+import IngredientsFilter from "@/components/IngredientsFilter";
 
 // Define default values as constants
 const DEFAULT_VALUES = {
@@ -21,18 +22,17 @@ export default function FilterSection({
   initialSort = DEFAULT_VALUES.sortBy,
   initialOrder = DEFAULT_VALUES.order,
   availableTags = [],
+  availableIngredients = [],
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [filters, setFilters] = useState({
-    category: initialCategory,
-    sortBy: initialSort,
-    order: initialOrder,
-    search: DEFAULT_VALUES.search,
-    numberOfSteps: DEFAULT_VALUES.numberOfSteps,
-  });
+  const [category, setCategory] = useState(initialCategory);
+  const [sortBy, setSortBy] = useState(initialSort);
+  const [order, setOrder] = useState(initialOrder);
+  const [search, setSearch] = useState("");
+  const [numberOfSteps, setNumberOfSteps] = useState("");
 
   const updateUrl = (newParams) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -57,56 +57,87 @@ export default function FilterSection({
   };
 
   useEffect(() => {
-    if (!searchParams) return;
-    
-    setFilters({
-      category: searchParams.get("category") || DEFAULT_VALUES.category,
-      sortBy: searchParams.get("sortBy") || DEFAULT_VALUES.sortBy,
-      order: searchParams.get("order") || DEFAULT_VALUES.order,
-      search: searchParams.get("search") || DEFAULT_VALUES.search,
-      numberOfSteps: searchParams.get("numberOfSteps") || DEFAULT_VALUES.numberOfSteps,
-    });
-  }, [searchParams]);
+    const currentCategory = searchParams.get("category") || initialCategory;
+    const currentSort = searchParams.get("sortBy") || initialSort;
+    const currentOrder = searchParams.get("order") || initialOrder;
+    const currentSearch = searchParams.get("search") || "";
+    const currentNumberOfSteps = searchParams.get("numberOfSteps") || "";
+
+    setCategory(currentCategory);
+    setSortBy(currentSort);
+    setOrder(currentOrder);
+    setSearch(currentSearch);
+    setNumberOfSteps(currentNumberOfSteps);
+  }, [searchParams, initialCategory, initialSort, initialOrder]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("category", category);
+      localStorage.setItem("sortBy", sortBy);
+      localStorage.setItem("order", order);
+      localStorage.setItem("search", search);
+      localStorage.setItem("numberOfSteps", numberOfSteps);
+    }
+  }, [category, sortBy, order, search, numberOfSteps]);
 
   const isFilterActive = useMemo(() => {
     if (!searchParams) return false;
 
     const hasAdvancedFilters =
-      searchParams.has("tags[]") || 
-      (searchParams.get("tagMatchType") && searchParams.get("tagMatchType") !== DEFAULT_VALUES.tagMatchType);
+      searchParams.has("tags[]") || searchParams.has("tagMatchType");
+    const hasIngredientFilters =
+      searchParams.has("ingredients[]") || searchParams.has("ingredientMatchType");
 
     return (
-      filters.category !== DEFAULT_VALUES.category ||
-      filters.search !== DEFAULT_VALUES.search ||
-      filters.sortBy !== DEFAULT_VALUES.sortBy ||
-      filters.order !== DEFAULT_VALUES.order ||
-      filters.numberOfSteps !== DEFAULT_VALUES.numberOfSteps ||
-      hasAdvancedFilters
+      category !== initialCategory ||
+      search !== "" ||
+      sortBy !== initialSort ||
+      order !== initialOrder ||
+      numberOfSteps !== "" ||
+      hasAdvancedFilters ||
+      hasIngredientFilters
     );
-  }, [filters, searchParams]);
+  }, [category, search, sortBy, order, numberOfSteps, searchParams, initialCategory, initialSort, initialOrder]);
 
   const handleReset = () => {
-    // Reset all filters to default values
-    setFilters(DEFAULT_VALUES);
+    setCategory(DEFAULT_VALUES.category);
+    setSortBy(DEFAULT_VALUES.sortBy);
+    setOrder(DEFAULT_VALUES.order);
+    setSearch(DEFAULT_VALUES.search);
+    setNumberOfSteps(DEFAULT_VALUES.numberOfSteps);
     router.push(pathname);
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-4 items-start">
-        <NumberOfStepsFilter
+    <div className="mt-20 space-y-4">
+      <div className="flex flex-wrap justify-between gap-4 mt-10 mb-8">
+        <div className="flex flex-wrap gap-4 items-start">
+          <CategoryFilter
+            categories={categories}
+            currentCategory={category}
+            searchParams={searchParams}
+            updateUrl={updateUrl}
+          />
+          <NumberOfStepsFilter
+            searchParams={searchParams}
+            updateUrl={updateUrl}
+          />
+          <AdvancedFilter
+            availableTags={availableTags}
+            searchParams={searchParams}
+            updateUrl={updateUrl}
+          />
+          <IngredientsFilter
+            availableIngredients={availableIngredients}
+            searchParams={searchParams}
+            updateUrl={updateUrl}
+          />
+        </div>
+        <SortOrder
+          currentSort={sortBy}
+          currentOrder={order}
           searchParams={searchParams}
           updateUrl={updateUrl}
-          defaultValue={DEFAULT_VALUES.numberOfSteps}
-        />
-        <AdvancedFilter
-          availableTags={availableTags}
-          searchParams={searchParams}
-          updateUrl={updateUrl}
-          defaultValues={{
-            tags: DEFAULT_VALUES.tags,
-            tagMatchType: DEFAULT_VALUES.tagMatchType
-          }}
         />
       </div>
 

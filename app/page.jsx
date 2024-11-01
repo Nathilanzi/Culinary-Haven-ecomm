@@ -1,6 +1,6 @@
 import RecipeGrid from "@/components/RecipeGrid";
 import Pagination from "@/components/Pagination";
-import { getRecipes, getCategories, getTags } from "@/lib/api";
+import { getRecipes, getCategories, getTags, getIngredients } from "@/lib/api";
 import FilterSection from "@/components/FilterSection";
 import CategoryFilter from "@/components/CategoryFilter";
 import SortOrder from "@/components/SortOrder";
@@ -34,10 +34,18 @@ export default async function Home({ searchParams }) {
       : [searchParams["tags[]"]];
   }
 
+  let ingredients = [];
+  if (searchParams?.["ingredients[]"]) {
+    ingredients = Array.isArray(searchParams["ingredients[]"])
+    ? searchParams["ingredients[]"]
+    : [searchParams["ingredients[]"]];
+  }  
+
   const tagMatchType = searchParams?.tagMatchType || "all";
+  const ingredientMatchType = searchParams?.ingredientMatchType || "all";
 
   // Fetch all data concurrently
-  const [recipesData, categories, availableTags] = await Promise.all([
+  const [recipesData, categories, availableTags, availableIngredients] = await Promise.all([
     getRecipes({
       page,
       limit,
@@ -47,10 +55,13 @@ export default async function Home({ searchParams }) {
       category,
       tags,
       tagMatchType,
+      ingredients,
+      ingredientMatchType,
       numberOfSteps,
     }),
     getCategories(),
     getTags(),
+    getIngredients(),
   ]);
 
   const { recipes, total, totalPages } = recipesData;
@@ -77,6 +88,7 @@ export default async function Home({ searchParams }) {
             initialSort={sortBy}
             initialOrder={order}
             availableTags={availableTags}
+            availableIngredients={availableIngredients}
           />
 
           {total > 0 && (
@@ -90,6 +102,12 @@ export default async function Home({ searchParams }) {
               )}
               {numberOfSteps && (
                 <span className="ml-2">(with {numberOfSteps} steps)</span>
+              )}
+              {ingredients.length > 0 && (
+                <span className="ml-2">
+                  (filtered by {ingredients.length}
+                    {ingredients.length === 1 ? " ingredient" : " ingredients"})
+                </span>
               )}
             </div>
           )}
@@ -107,7 +125,8 @@ export default async function Home({ searchParams }) {
                 {tags.length > 0 && " matching the selected tags"}
                 {category && " in this category"}
                 {search && " for this search query"}
-                {numberOfSteps && ` with ${numberOfSteps} steps`}.
+                {numberOfSteps && ` with ${numberOfSteps} steps`}
+                {ingredients.length > 0 && " matching the selected ingredients"}.
               </p>
               <button
                 onClick={() => {
@@ -115,6 +134,8 @@ export default async function Home({ searchParams }) {
                   params.delete("tags[]");
                   params.delete("tagMatchType");
                   params.delete("numberOfSteps");
+                  params.delete("ingredients[]");
+                  params.delete("ingredientsMatchType")
                   window.location.href = `?${params.toString()}`;
                 }}
                 className="mt-4 text-blue-500 hover:text-blue-700 underline"
