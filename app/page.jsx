@@ -1,7 +1,9 @@
+import { Suspense } from 'react';
 import RecipeGrid from "@/components/RecipeGrid";
 import Pagination from "@/components/Pagination";
 import { getRecipes, getCategories, getTags, getIngredients } from "@/lib/api";
 import FilterSection from "@/components/FilterSection";
+import Loading from "@/components/Loader";
 
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
@@ -31,8 +33,38 @@ const SearchIcon = () => (
   </svg>
 );
 
+function ResultsSummary({ total, filters }) {
+  const { tags, numberOfSteps, ingredients, category, search } = filters;
+  
+  return (
+    <div className="flex items-center gap-2 mt-4 text-gray-600 font-medium">
+      <SearchIcon className="w-4 h-4" />
+      <span>
+        {total.toLocaleString()} matching {total === 1 ? 'recipe' : 'recipes'}
+        {tags?.length > 0 && (
+          <span className="ml-2">
+            (filtered by {tags.length}
+            {tags.length === 1 ? " tag" : " tags"})
+          </span>
+        )}
+        {numberOfSteps && (
+          <span className="ml-2">(with {numberOfSteps} steps)</span>
+        )}
+        {ingredients?.length > 0 && (
+          <span className="ml-2">
+            (filtered by {ingredients.length}
+            {ingredients.length === 1 ? " ingredient" : " ingredients"})
+          </span>
+        )}
+        {category && <span className="ml-2">(in {category})</span>}
+        {search && <span className="ml-2">(matching "{search}")</span>}
+      </span>
+    </div>
+  );
+}
+
 export default async function Home({ searchParams }) {
-  // Extract all parameters
+  // Extract and sanitize query parameters
   const page = Number(searchParams?.page) || 1;
   const limit = Number(searchParams?.limit) || 20;
   const sortBy = searchParams?.sortBy || "$natural";
@@ -41,20 +73,18 @@ export default async function Home({ searchParams }) {
   const category = searchParams?.category || "";
   const numberOfSteps = searchParams?.numberOfSteps || null;
 
-  // Handle tags properly - ensure it's always an array
-  let tags = [];
-  if (searchParams?.["tags[]"]) {
-    tags = Array.isArray(searchParams["tags[]"])
+  // Handle array parameters
+  const tags = searchParams?.["tags[]"]
+    ? Array.isArray(searchParams["tags[]"])
       ? searchParams["tags[]"]
-      : [searchParams["tags[]"]];
-  }
+      : [searchParams["tags[]"]]
+    : [];
 
-  let ingredients = [];
-  if (searchParams?.["ingredients[]"]) {
-    ingredients = Array.isArray(searchParams["ingredients[]"])
+  const ingredients = searchParams?.["ingredients[]"]
+    ? Array.isArray(searchParams["ingredients[]"])
       ? searchParams["ingredients[]"]
-      : [searchParams["ingredients[]"]];
-  }
+      : [searchParams["ingredients[]"]]
+    : [];
 
   const tagMatchType = searchParams?.tagMatchType || "all";
   const ingredientMatchType = searchParams?.ingredientMatchType || "all";
@@ -80,7 +110,22 @@ export default async function Home({ searchParams }) {
       getIngredients(),
     ]);
 
-  const { recipes, total, totalPages } = recipesData;
+  const {
+    recipes,
+    total,
+    totalPages,
+    currentPage,
+    limit: resultLimit,
+    error
+  } = recipesData;
+
+  const filters = {
+    tags,
+    numberOfSteps,
+    ingredients,
+    category,
+    search
+  };
 
   return (
     <div className="min-h-screen">
@@ -95,61 +140,56 @@ export default async function Home({ searchParams }) {
             availableIngredients={availableIngredients}
           />
 
-          {total > 0 && (
-            <div className="flex items-center gap-2 mt-4 text-gray-600 font-medium">
-              <SearchIcon className="w-4 h-4" />
-              <span>
-              Found {total} matching recipes
-              {tags.length > 0 && (
-                <span className="ml-2">
-                  (filtered by {tags.length}
-                  {tags.length === 1 ? " tag" : " tags"})
-                </span>
-              )}
-              {numberOfSteps && (
-                <span className="ml-2">(with {numberOfSteps} steps)</span>
-              )}
-              {ingredients.length > 0 && (
-                <span className="ml-2">
-                  (filtered by {ingredients.length}
-                  {ingredients.length === 1 ? " ingredient" : " ingredients"})
-                </span>
-              )}
-              </span>
-            </div>
-          )}
-
-          <RecipeGrid recipes={recipes} searchQuery={search} />
-
-          {recipes.length > 0 ? (
-            <div className="mt-8">
-              <Pagination currentPage={page} totalPages={totalPages} />
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-500">
-                No recipes found
-                {tags.length > 0 && " matching the selected tags"}
-                {category && " in this category"}
-                {search && " for this search query"}
-                {numberOfSteps && ` with ${numberOfSteps} steps`}
-                {ingredients.length > 0 && " matching the selected ingredients"}.
-              </p>
-              {/* <button
-                onClick={() => {
-                  const params = new URLSearchParams(searchParams);
-                  params.delete("tags[]");
-                  params.delete("tagMatchType");
-                  params.delete("numberOfSteps");
-                  params.delete("ingredients[]");
-                  params.delete("ingredientsMatchType")
-                  window.location.href = `?${params.toString()}`;
-                }}
+          {error ? (
+            <div className="text-center py-12 text-red-600">
+              <p>{error}</p>
+              <button
+                onClick={() => window.location.reload()}
                 className="mt-4 text-blue-500 hover:text-blue-700 underline"
               >
-                Clear filters
-              </button> */}
+                Try again
+              </button>
             </div>
+          ) : (
+            <>
+              {total > 0 && <ResultsSummary total={total} filters={filters} />}
+
+              <Suspense fallback={<Loading />}>
+                <RecipeGrid recipes={recipes} searchQuery={search} />
+              </Suspense>
+
+              {recipes.length > 0 ? (
+                <div className="mt-8">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalResults={total}
+                    resultsPerPage={resultLimit}
+                  />
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">
+                    No recipes found
+                    {tags.length > 0 && " matching the selected tags"}
+                    {category && " in this category"}
+                    {search && " for this search query"}
+                    {numberOfSteps && ` with ${numberOfSteps} steps`}
+                    {ingredients.length > 0 && " matching the selected ingredients"}.
+                  </p>
+                  <button
+                    onClick={() => {
+                      const params = new URLSearchParams();
+                      params.set("page", "1");
+                      window.location.href = `?${params.toString()}`;
+                    }}
+                    className="mt-4 text-blue-500 hover:text-blue-700 underline"
+                  >
+                    Clear all filters
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
