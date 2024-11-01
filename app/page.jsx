@@ -3,7 +3,7 @@ import RecipeGrid from "@/components/RecipeGrid";
 import Pagination from "@/components/Pagination";
 import { getRecipes, getCategories, getTags, getIngredients } from "@/lib/api";
 import FilterSection from "@/components/FilterSection";
-import Loading from "@/components/Loader";
+import Loader from "@/components/Loader";
 
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
@@ -154,7 +154,7 @@ export default async function Home({ searchParams }) {
             <>
               {total > 0 && <ResultsSummary total={total} filters={filters} />}
 
-              <Suspense fallback={<Loading />}>
+              <Suspense fallback={<Loader />}>
                 <RecipeGrid recipes={recipes} searchQuery={search} />
               </Suspense>
 
