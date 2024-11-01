@@ -6,6 +6,7 @@ import CategoryFilter from "@/components/CategoryFilter";
 import SortOrder from "@/components/SortOrder";
 import AdvancedFilter from "@/components/AdvancedFilters";
 import NumberOfStepsFilter from "@/components/NumberOfStepsFilter";
+import IngredientsFilter from "@/components/IngredientsFilter"; // Adjusted import path
 
 export default function FilterSection({
   categories,
@@ -13,6 +14,7 @@ export default function FilterSection({
   initialSort = "$natural",
   initialOrder = "asc",
   availableTags = [],
+  availableIngredients = [],
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -59,6 +61,7 @@ export default function FilterSection({
     setNumberOfSteps(currentNumberOfSteps);
   }, [searchParams, initialCategory, initialSort, initialOrder]);
 
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("category", category);
@@ -67,11 +70,13 @@ export default function FilterSection({
       localStorage.setItem("search", search);
       localStorage.setItem("numberOfSteps", numberOfSteps);
     }
-  }, [category, sortBy, order, search, numberOfSteps]);
+  }, [category, sortBy, order, search, numberOfSteps,]);
 
   const isFilterActive = useMemo(() => {
     const hasAdvancedFilters =
       searchParams.has("tags[]") || searchParams.has("tagMatchType");
+    const hasIngredientFilters =
+      searchParams.has("ingredients[]") || searchParams.has("ingredientMatchType")
 
     return (
       category !== initialCategory ||
@@ -79,7 +84,8 @@ export default function FilterSection({
       sortBy !== initialSort ||
       order !== initialOrder ||
       numberOfSteps !== "" ||
-      hasAdvancedFilters
+      hasAdvancedFilters,
+      hasIngredientFilters
     );
   }, [
     category,
@@ -117,6 +123,11 @@ export default function FilterSection({
           />
           <AdvancedFilter
             availableTags={availableTags}
+            searchParams={searchParams}
+            updateUrl={updateUrl}
+          />
+          <IngredientsFilter
+            availableIngredients={availableIngredients}
             searchParams={searchParams}
             updateUrl={updateUrl}
           />
