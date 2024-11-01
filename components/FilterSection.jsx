@@ -30,7 +30,6 @@ export default function FilterSection({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isExpanded, setIsExpanded] = useState(true);
-
   const [category, setCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState(initialSort);
   const [order, setOrder] = useState(initialOrder);
@@ -169,7 +168,6 @@ export default function FilterSection({
             </svg>
           </button>
         </div>
-  
         <div
           className={`transition-all duration-300 ease-in-out ${
             isExpanded
@@ -201,16 +199,19 @@ export default function FilterSection({
                 />
               </div>
             </div>
-  
+
             {!isFilterActive && (
               <div className="text-gray-500 text-sm italic mt-4">
                 No filter applied
               </div>
             )}
-  
+
             <div className="flex items-center justify-between pt-4 border-t border-gray-100">
               <div className="flex flex-col md:flex-row justify-between gap-6 items-start md:items-center mb-6">
-                <CategoryFilter categories={categories} currentCategory={category} />
+                <CategoryFilter
+                  categories={categories}
+                  currentCategory={category}
+                />
                 <SortOrder currentSort={sortBy} currentOrder={order} />
               </div>
               {isFilterActive && (
