@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
-import AdvancedFilter from "@/components/AdvancedFilters";
+import TagFilter from "@/components/TagFilters";
 import NumberOfStepsFilter from "@/components/NumberOfStepsFilter";
 import IngredientsFilter from "@/components/IngredientsFilter";
 import CategoryFilter from "@/components/CategoryFilter";
@@ -85,7 +85,7 @@ export default function FilterSection({
   const isFilterActive = useMemo(() => {
     if (!searchParams) return false;
 
-    const hasAdvancedFilters =
+    const hasTagFilters =
       searchParams.has("tags[]") || searchParams.has("tagMatchType");
     const hasIngredientFilters =
       searchParams.has("ingredients[]") ||
@@ -97,7 +97,7 @@ export default function FilterSection({
       sortBy !== initialSort ||
       order !== initialOrder ||
       numberOfSteps !== "" ||
-      hasAdvancedFilters ||
+      hasTagFilters ||
       hasIngredientFilters
     );
   }, [
@@ -188,7 +188,7 @@ export default function FilterSection({
                 />
                 <div className="h-8 w-px bg-gray-200 hidden sm:block" />{" "}
                 {/* Vertical divider */}
-                <AdvancedFilter
+                <TagFilter
                   availableTags={availableTags}
                   searchParams={searchParams}
                   updateUrl={updateUrl}
