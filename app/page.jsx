@@ -1,9 +1,10 @@
-import { Suspense } from 'react';
+import { Suspense } from "react";
 import RecipeGrid from "@/components/RecipeGrid";
 import Pagination from "@/components/Pagination";
 import { getRecipes, getCategories, getTags, getIngredients } from "@/lib/api";
 import FilterSection from "@/components/FilterSection";
 import Loader from "@/components/Loader";
+import ClearFiltersButton from "@/components/ClearFiltersButton";
 
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
@@ -35,12 +36,12 @@ const SearchIcon = () => (
 
 function ResultsSummary({ total, filters }) {
   const { tags, numberOfSteps, ingredients, category, search } = filters;
-  
+
   return (
     <div className="flex items-center gap-2 mt-4 text-gray-600 font-medium">
       <SearchIcon className="w-4 h-4" />
       <span>
-        {total.toLocaleString()} matching {total === 1 ? 'recipe' : 'recipes'}
+        {total.toLocaleString()} matching {total === 1 ? "recipe" : "recipes"}
         {tags?.length > 0 && (
           <span className="ml-2">
             (filtered by {tags.length}
@@ -59,6 +60,18 @@ function ResultsSummary({ total, filters }) {
         {category && <span className="ml-2">(in {category})</span>}
         {search && <span className="ml-2">(matching "{search}")</span>}
       </span>
+    </div>
+  );
+}
+
+function NoResults({ hasFilters }) {
+  return (
+    <div className="text-center py-12">
+      <p className="text-gray-500">
+        No recipes found
+        {hasFilters && " matching the selected filters"}.
+      </p>
+      <ClearFiltersButton />
     </div>
   );
 }
@@ -116,7 +129,7 @@ export default async function Home({ searchParams }) {
     totalPages,
     currentPage,
     limit: resultLimit,
-    error
+    error,
   } = recipesData;
 
   const filters = {
@@ -124,8 +137,15 @@ export default async function Home({ searchParams }) {
     numberOfSteps,
     ingredients,
     category,
-    search
+    search,
   };
+
+  const hasFilters =
+    tags.length > 0 ||
+    numberOfSteps ||
+    ingredients.length > 0 ||
+    category ||
+    search;
 
   return (
     <div className="min-h-screen">
@@ -143,12 +163,7 @@ export default async function Home({ searchParams }) {
           {error ? (
             <div className="text-center py-12 text-red-600">
               <p>{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="mt-4 text-blue-500 hover:text-blue-700 underline"
-              >
-                Try again
-              </button>
+              <ClearFiltersButton />
             </div>
           ) : (
             <>
@@ -168,26 +183,7 @@ export default async function Home({ searchParams }) {
                   />
                 </div>
               ) : (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">
-                    No recipes found
-                    {tags.length > 0 && " matching the selected tags"}
-                    {category && " in this category"}
-                    {search && " for this search query"}
-                    {numberOfSteps && ` with ${numberOfSteps} steps`}
-                    {ingredients.length > 0 && " matching the selected ingredients"}.
-                  </p>
-                  <button
-                    onClick={() => {
-                      const params = new URLSearchParams();
-                      params.set("page", "1");
-                      window.location.href = `?${params.toString()}`;
-                    }}
-                    className="mt-4 text-blue-500 hover:text-blue-700 underline"
-                  >
-                    Clear all filters
-                  </button>
-                </div>
+                <NoResults hasFilters={hasFilters} />
               )}
             </>
           )}
