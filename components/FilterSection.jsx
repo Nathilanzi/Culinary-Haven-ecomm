@@ -112,12 +112,6 @@ export default function FilterSection({
     <div className="mt-20 space-y-4">
       <div className="flex flex-wrap justify-between gap-4 mt-10 mb-8">
         <div className="flex flex-wrap gap-4 items-start">
-          <CategoryFilter
-            categories={categories}
-            currentCategory={category}
-            searchParams={searchParams}
-            updateUrl={updateUrl}
-          />
           <NumberOfStepsFilter
             searchParams={searchParams}
             updateUrl={updateUrl}
@@ -133,12 +127,6 @@ export default function FilterSection({
             updateUrl={updateUrl}
           />
         </div>
-        <SortOrder
-          currentSort={sortBy}
-          currentOrder={order}
-          searchParams={searchParams}
-          updateUrl={updateUrl}
-        />
       </div>
 
       {isFilterActive && (
