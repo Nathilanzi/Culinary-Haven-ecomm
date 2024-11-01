@@ -30,13 +30,37 @@ const SearchBar = ({ isVisible, onToggle }) => {
   const searchTimeoutRef = useRef(null);
   const debouncedSearchRef = useRef(null);
 
-  // Sync search state with URL params
+  const highlightMatch = (text, searchTerm) => {
+    if (!searchTerm) return text;
+
+    try {
+      const parts = text.split(new RegExp(`(${searchTerm})`, "gi"));
+      return (
+        <>
+          {parts.map((part, index) =>
+            part.toLowerCase() === searchTerm.toLowerCase() ? (
+              <span
+                key={index}
+                className="bg-yellow-100 text-gray-900 font-medium"
+              >
+                {part}
+              </span>
+            ) : (
+              part
+            )
+          )}
+        </>
+      );
+    } catch (e) {
+      return text;
+    }
+  };
+
   useEffect(() => {
     const currentSearch = searchParams.get("search") || "";
     if (currentSearch !== search) {
       setSearch(currentSearch);
-      // Only fetch suggestions if there's a search term
-      if (currentSearch) {
+      if (currentSearch.length >= 3) {
         fetchSuggestions(currentSearch);
       } else {
         setSuggestions([]);
@@ -54,8 +78,9 @@ const SearchBar = ({ isVisible, onToggle }) => {
   }, [isVisible]);
 
   const fetchSuggestions = useCallback(async (value) => {
-    if (!value.trim()) {
+    if (!value.trim() || value.length < 3) {
       setSuggestions([]);
+      setShowSuggestions(false);
       setNoMatchFound(false);
       return;
     }
@@ -83,7 +108,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
       } else {
         params.delete("search");
       }
-      params.delete("page"); // Reset pagination when search changes
+      params.delete("page");
       return params;
     },
     [searchParams]
@@ -102,17 +127,24 @@ const SearchBar = ({ isVisible, onToggle }) => {
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearch(value);
-    setShowSuggestions(true);
     setHighlightedIndex(-1);
 
-    // Clear existing timeouts
+    if (value.length >= 3) {
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+      setSuggestions([]);
+      setNoMatchFound(false);
+    }
+
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     if (debouncedSearchRef.current) clearTimeout(debouncedSearchRef.current);
 
-    // Immediately fetch suggestions (100ms delay)
-    searchTimeoutRef.current = setTimeout(() => {
-      fetchSuggestions(value);
-    }, 100);
+    if (value.length >= 3) {
+      searchTimeoutRef.current = setTimeout(() => {
+        fetchSuggestions(value);
+      }, 100);
+    }
 
     // Update URL params with debounce (500ms delay)
     debouncedSearchRef.current = setTimeout(() => {
@@ -196,7 +228,6 @@ const SearchBar = ({ isVisible, onToggle }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
@@ -216,7 +247,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
             ref={searchInputRef}
             id="search"
             type="text"
-            placeholder="Search Recipes..."
+            placeholder="Search Recipes (minimum 3 characters)..."
             value={search}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
@@ -227,7 +258,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
             }`}
           />
 
-          {showSuggestions && (
+          {showSuggestions && search.length >= 3 && (
             <div
               ref={suggestionsRef}
               className="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg max-h-80 overflow-y-auto border border-gray-100 divide-y divide-gray-50 transition-all duration-200 ease-in-out"
@@ -262,7 +293,14 @@ const SearchBar = ({ isVisible, onToggle }) => {
                           />
                         </svg>
                       </div>
-                      <span className="font-medium">{suggestion.title}</span>
+                      <span className="font-normal">
+                        {highlightMatch(suggestion.title, search)}
+                      </span>
+                      {suggestion.category && (
+                        <span className="text-gray-400 text-xs">
+                          in {highlightMatch(suggestion.category, search)}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))
