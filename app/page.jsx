@@ -114,7 +114,7 @@ export default async function Home({ searchParams }) {
                 {numberOfSteps && ` with ${numberOfSteps} steps`}
                 {ingredients.length > 0 && " matching the selected ingredients"}.
               </p>
-              <button
+              {/* <button
                 onClick={() => {
                   const params = new URLSearchParams(searchParams);
                   params.delete("tags[]");
@@ -127,7 +127,7 @@ export default async function Home({ searchParams }) {
                 className="mt-4 text-blue-500 hover:text-blue-700 underline"
               >
                 Clear filters
-              </button>
+              </button> */}
             </div>
           )}
         </div>
