@@ -1,11 +1,15 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function IngredientsFilter({ availableIngredients = [], searchParams, updateUrl }) {
+export default function IngredientsFilter({ availableIngredients = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
+  
   const currentIngredients = searchParams.getAll('ingredients[]');
   const currentMatchType = searchParams.get('ingredientMatchType') || 'all';
 
@@ -19,6 +23,24 @@ export default function IngredientsFilter({ availableIngredients = [], searchPar
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  
+  const updateUrl = (newParams) => {
+    const updatedSearchParams = new URLSearchParams(searchParams);
+
+    Object.keys(newParams).forEach((key) => {
+      if (Array.isArray(newParams[key])) {
+        updatedSearchParams.delete(key); 
+        newParams[key].forEach((value) => updatedSearchParams.append(key, value)); 
+      } else if (newParams[key] === null) {
+        updatedSearchParams.delete(key); 
+      } else {
+        updatedSearchParams.set(key, newParams[key]);
+      }
+    });
+
+    router.replace(`?${updatedSearchParams.toString()}`, undefined, { shallow: true });
+  };
 
   const handleIngredientClick = (ingredient) => {
     const newIngredients = currentIngredients.includes(ingredient)
