@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 
-export default function AdvancedFilter({
+export default function TagFilter({
   availableTags = [],
   searchParams,
   updateUrl,
