@@ -2,8 +2,6 @@ import RecipeGrid from "@/components/RecipeGrid";
 import Pagination from "@/components/Pagination";
 import { getRecipes, getCategories, getTags, getIngredients } from "@/lib/api";
 import FilterSection from "@/components/FilterSection";
-import CategoryFilter from "@/components/CategoryFilter";
-import SortOrder from "@/components/SortOrder";
 
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
@@ -37,9 +35,9 @@ export default async function Home({ searchParams }) {
   let ingredients = [];
   if (searchParams?.["ingredients[]"]) {
     ingredients = Array.isArray(searchParams["ingredients[]"])
-    ? searchParams["ingredients[]"]
-    : [searchParams["ingredients[]"]];
-  }  
+      ? searchParams["ingredients[]"]
+      : [searchParams["ingredients[]"]];
+  }
 
   const tagMatchType = searchParams?.tagMatchType || "all";
   const ingredientMatchType = searchParams?.ingredientMatchType || "all";
@@ -70,18 +68,6 @@ export default async function Home({ searchParams }) {
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="rounded-lg">
-          <div className="mt-20 space-y-4">
-            <div className="flex flex-wrap justify-between gap-4 mt-10 mb-8">
-              <div className="flex flex-wrap gap-4 items-start">
-                  <CategoryFilter
-                    categories={categories}
-                    currentCategory={category}
-                  />
-              </div>
-                <SortOrder currentSort={sortBy} currentOrder={order} />
-            </div>
-          </div>
-
           <FilterSection
             categories={categories}
             initialCategory={category}
@@ -106,7 +92,7 @@ export default async function Home({ searchParams }) {
               {ingredients.length > 0 && (
                 <span className="ml-2">
                   (filtered by {ingredients.length}
-                    {ingredients.length === 1 ? " ingredient" : " ingredients"})
+                  {ingredients.length === 1 ? " ingredient" : " ingredients"})
                 </span>
               )}
             </div>
