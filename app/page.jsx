@@ -96,7 +96,9 @@ export default async function Home({ searchParams }) {
           />
 
           {total > 0 && (
-            <div className="mb-4 text-gray-600">
+            <div className="flex items-center gap-2 mt-4 text-gray-600 font-medium">
+              <SearchIcon className="w-4 h-4" />
+              <span>
               Found {total} matching recipes
               {tags.length > 0 && (
                 <span className="ml-2">
@@ -113,6 +115,7 @@ export default async function Home({ searchParams }) {
                   {ingredients.length === 1 ? " ingredient" : " ingredients"})
                 </span>
               )}
+              </span>
             </div>
           )}
 
