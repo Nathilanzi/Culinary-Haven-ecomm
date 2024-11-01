@@ -18,6 +18,8 @@ export async function GET(request) {
     const category = searchParams.get("category") || "";
     const tags = searchParams.getAll("tags[]");
     const tagMatchType = searchParams.get("tagMatchType") || "all";
+    const ingredients = searchParams.getAll("ingredients[]");
+    const ingredientMatchType = searchParams.get("ingredientMatchType") || "all";
     const numberOfSteps = searchParams.get("numberOfSteps");
 
     // Connect to MongoDB
@@ -44,6 +46,14 @@ export async function GET(request) {
       }
     }
 
+if (ingredients.length > 0) {
+  if (ingredientMatchType === "all") {
+    query.$and = ingredients.map(ing => ({ [`ingredients.${ing}`]: { $exists: true } }));
+  } else {
+    query.$or = ingredients.map(ing => ({ [`ingredients.${ing}`]: { $exists: true } }));
+  }
+}
+  console.log(query);
     // Add number of steps filter
     if (numberOfSteps) {
       const stepsCount = parseInt(numberOfSteps, 10);
@@ -52,8 +62,8 @@ export async function GET(request) {
       }
     }
 
-    // Calculate number of documents to skip
-    const skip = (page - 1) * limit;
+     // Calculate number of documents to skip
+     const skip = (page - 1) * limit;
 
     // Handle sorting
     let sortObject = { $natural: 1 };
