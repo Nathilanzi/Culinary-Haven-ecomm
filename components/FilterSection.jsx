@@ -2,17 +2,25 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
-import CategoryFilter from "@/components/CategoryFilter";
-import SortOrder from "@/components/SortOrder";
 import AdvancedFilter from "@/components/AdvancedFilters";
 import NumberOfStepsFilter from "@/components/NumberOfStepsFilter";
-import IngredientsFilter from "@/components/IngredientsFilter"; // Adjusted import path
+import IngredientsFilter from "@/components/IngredientsFilter";
+
+// Define default values as constants
+const DEFAULT_VALUES = {
+  category: "",
+  sortBy: "$natural",
+  order: "asc",
+  search: "",
+  numberOfSteps: "",
+  tags: [],
+  tagMatchType: "all"
+};
 
 export default function FilterSection({
-  categories,
-  initialCategory = "",
-  initialSort = "$natural",
-  initialOrder = "asc",
+  initialCategory = DEFAULT_VALUES.category,
+  initialSort = DEFAULT_VALUES.sortBy,
+  initialOrder = DEFAULT_VALUES.order,
   availableTags = [],
   availableIngredients = [],
 }) {
@@ -24,26 +32,27 @@ export default function FilterSection({
   const [sortBy, setSortBy] = useState(initialSort);
   const [order, setOrder] = useState(initialOrder);
   const [search, setSearch] = useState("");
-  const [numberOfSteps, setNumberOfSteps] = useState(
-    searchParams.get("numberOfSteps") || ""
-  );
+  const [numberOfSteps, setNumberOfSteps] = useState("");
 
   const updateUrl = (newParams) => {
-    const params = new URLSearchParams(searchParams);
-    
+    const params = new URLSearchParams(searchParams.toString());
+
+    // Reset to defaults if value matches default
     Object.entries(newParams).forEach(([key, value]) => {
-      if (value === null) {
+      if (Array.isArray(value)) {
         params.delete(key);
-      } else if (Array.isArray(value)) {
+        if (value.length > 0) {
+          value.forEach((v) => params.append(key, v));
+        }
+      } else if (value === DEFAULT_VALUES[key]) {
         params.delete(key);
-        value.forEach((v) => params.append(key, v));
       } else if (value) {
         params.set(key, value);
       } else {
         params.delete(key);
       }
     });
-    
+
     router.push(`${pathname}?${params.toString()}`);
   };
 
@@ -61,7 +70,6 @@ export default function FilterSection({
     setNumberOfSteps(currentNumberOfSteps);
   }, [searchParams, initialCategory, initialSort, initialOrder]);
 
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("category", category);
@@ -70,13 +78,15 @@ export default function FilterSection({
       localStorage.setItem("search", search);
       localStorage.setItem("numberOfSteps", numberOfSteps);
     }
-  }, [category, sortBy, order, search, numberOfSteps,]);
+  }, [category, sortBy, order, search, numberOfSteps]);
 
   const isFilterActive = useMemo(() => {
+    if (!searchParams) return false;
+
     const hasAdvancedFilters =
       searchParams.has("tags[]") || searchParams.has("tagMatchType");
     const hasIngredientFilters =
-      searchParams.has("ingredients[]") || searchParams.has("ingredientMatchType")
+      searchParams.has("ingredients[]") || searchParams.has("ingredientMatchType");
 
     return (
       category !== initialCategory ||
@@ -84,27 +94,18 @@ export default function FilterSection({
       sortBy !== initialSort ||
       order !== initialOrder ||
       numberOfSteps !== "" ||
-      hasAdvancedFilters,
+      hasAdvancedFilters ||
       hasIngredientFilters
     );
-  }, [
-    category,
-    search,
-    sortBy,
-    order,
-    numberOfSteps,
-    searchParams,
-    initialCategory,
-    initialSort,
-    initialOrder,
-  ]);
+  }, [category, search, sortBy, order, numberOfSteps, searchParams, initialCategory, initialSort, initialOrder]);
 
   const handleReset = () => {
-    const baseUrl = window.location.pathname;
-    router.push(baseUrl);
-    if (typeof window !== "undefined") {
-      localStorage.clear();
-    }
+    setCategory(DEFAULT_VALUES.category);
+    setSortBy(DEFAULT_VALUES.sortBy);
+    setOrder(DEFAULT_VALUES.order);
+    setSearch(DEFAULT_VALUES.search);
+    setNumberOfSteps(DEFAULT_VALUES.numberOfSteps);
+    router.push(pathname);
   };
 
   return (
