@@ -18,6 +18,7 @@ export async function GET(request) {
     const category = searchParams.get("category") || "";
     const tags = searchParams.getAll("tags[]");
     const tagMatchType = searchParams.get("tagMatchType") || "all";
+    const numberOfSteps = searchParams.get("numberOfSteps");
 
     // Connect to MongoDB
     const client = await clientPromise;
@@ -40,6 +41,14 @@ export async function GET(request) {
         query.tags = { $all: tags };
       } else {
         query.tags = { $in: tags };
+      }
+    }
+
+    // Add number of steps filter
+    if (numberOfSteps) {
+      const stepsCount = parseInt(numberOfSteps, 10);
+      if(!isNaN(stepsCount)){
+        query.instructions = { $size: stepsCount};
       }
     }
 

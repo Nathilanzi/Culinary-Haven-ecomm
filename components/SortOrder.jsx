@@ -71,5 +71,4 @@ export default function SortOrder({ currentSort, currentOrder }) {
       </div>
     </div>
   );
-
 }

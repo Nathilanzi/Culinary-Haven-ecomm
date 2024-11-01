@@ -2,96 +2,111 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
+import AdvancedFilter from "@/components/AdvancedFilters";
+import NumberOfStepsFilter from "@/components/NumberOfStepsFilter";
+import IngredientsFilter from "@/components/IngredientsFilter";
 import CategoryFilter from "@/components/CategoryFilter";
 import SortOrder from "@/components/SortOrder";
-import AdvancedFilter from "@/components/AdvancedFilters";
+
+const DEFAULT_VALUES = {
+  category: "",
+  sortBy: "$natural",
+  order: "asc",
+  search: "",
+  numberOfSteps: "",
+  tags: [],
+  tagMatchType: "all"
+};
 
 export default function FilterSection({
-  categories,
-  initialCategory = "",
-  initialSort = "$natural",
-  initialOrder = "asc",
+  categories = [],
+  initialCategory = DEFAULT_VALUES.category,
+  initialSort = DEFAULT_VALUES.sortBy,
+  initialOrder = DEFAULT_VALUES.order,
   availableTags = [],
+  availableIngredients = [],
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // States for filter values
   const [category, setCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState(initialSort);
   const [order, setOrder] = useState(initialOrder);
   const [search, setSearch] = useState("");
+  const [numberOfSteps, setNumberOfSteps] = useState("");
 
-  // Update URL with current filter state
   const updateUrl = (newParams) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams.toString());
+
     Object.entries(newParams).forEach(([key, value]) => {
       if (Array.isArray(value)) {
         params.delete(key);
-        value.forEach((v) => params.append(key, v));
+        if (value.length > 0) {
+          value.forEach((v) => params.append(key, v));
+        }
+      } else if (value === DEFAULT_VALUES[key]) {
+        params.delete(key);
       } else if (value) {
         params.set(key, value);
       } else {
         params.delete(key);
       }
     });
+
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Effect to sync URL params with state
   useEffect(() => {
     const currentCategory = searchParams.get("category") || initialCategory;
     const currentSort = searchParams.get("sortBy") || initialSort;
     const currentOrder = searchParams.get("order") || initialOrder;
     const currentSearch = searchParams.get("search") || "";
+    const currentNumberOfSteps = searchParams.get("numberOfSteps") || "";
 
     setCategory(currentCategory);
     setSortBy(currentSort);
     setOrder(currentOrder);
     setSearch(currentSearch);
+    setNumberOfSteps(currentNumberOfSteps);
   }, [searchParams, initialCategory, initialSort, initialOrder]);
 
-  // Save filter values to local storage whenever they change
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("category", category);
       localStorage.setItem("sortBy", sortBy);
       localStorage.setItem("order", order);
       localStorage.setItem("search", search);
+      localStorage.setItem("numberOfSteps", numberOfSteps);
     }
-  }, [category, sortBy, order, search]);
+  }, [category, sortBy, order, search, numberOfSteps]);
 
-  // Check if any filters are active by comparing with initial/default values
   const isFilterActive = useMemo(() => {
+    if (!searchParams) return false;
+
     const hasAdvancedFilters =
       searchParams.has("tags[]") || searchParams.has("tagMatchType");
+    const hasIngredientFilters =
+      searchParams.has("ingredients[]") || searchParams.has("ingredientMatchType");
 
     return (
       category !== initialCategory ||
       search !== "" ||
       sortBy !== initialSort ||
       order !== initialOrder ||
-      hasAdvancedFilters
+      numberOfSteps !== "" ||
+      hasAdvancedFilters ||
+      hasIngredientFilters
     );
-  }, [
-    category,
-    search,
-    sortBy,
-    order,
-    searchParams,
-    initialCategory,
-    initialSort,
-    initialOrder,
-  ]);
+  }, [category, search, sortBy, order, numberOfSteps, searchParams, initialCategory, initialSort, initialOrder]);
 
-  // Reset handler that clears all filters and returns to initial state
   const handleReset = () => {
-    const baseUrl = window.location.pathname;
-    router.push(baseUrl);
-    if (typeof window !== "undefined") {
-      localStorage.clear();
-    }
+    setCategory(DEFAULT_VALUES.category);
+    setSortBy(DEFAULT_VALUES.sortBy);
+    setOrder(DEFAULT_VALUES.order);
+    setSearch(DEFAULT_VALUES.search);
+    setNumberOfSteps(DEFAULT_VALUES.numberOfSteps);
+    router.push(pathname);
   };
 
   return (
@@ -101,6 +116,8 @@ export default function FilterSection({
           <CategoryFilter
             categories={categories}
             currentCategory={category}
+          />
+          <NumberOfStepsFilter
             searchParams={searchParams}
             updateUrl={updateUrl}
           />
@@ -109,13 +126,13 @@ export default function FilterSection({
             searchParams={searchParams}
             updateUrl={updateUrl}
           />
-        </div>
-        <SortOrder
-          currentSort={sortBy}
-          currentOrder={order}
+          <IngredientsFilter
+            availableIngredients={availableIngredients}
             searchParams={searchParams}
             updateUrl={updateUrl}
-        />
+          />
+        </div>
+        <SortOrder currentSort={sortBy} currentOrder={order} />
       </div>
 
       {isFilterActive && (
