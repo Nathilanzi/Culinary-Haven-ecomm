@@ -24,25 +24,20 @@ const SearchBar = ({ isVisible, onToggle }) => {
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const [noMatchFound, setNoMatchFound] = useState(false);
   const searchInputRef = useRef(null);
   const suggestionsRef = useRef(null);
   const searchTimeoutRef = useRef(null);
-  const debouncedSearchRef = useRef(null);
+  const urlUpdateTimeoutRef = useRef(null);
 
   const highlightMatch = (text, searchTerm) => {
     if (!searchTerm) return text;
-
     try {
       const parts = text.split(new RegExp(`(${searchTerm})`, "gi"));
       return (
         <>
           {parts.map((part, index) =>
             part.toLowerCase() === searchTerm.toLowerCase() ? (
-              <span
-                key={index}
-                className="bg-yellow-100 text-gray-900 font-medium"
-              >
+              <span key={index} className="bg-teal-200 font-medium">
                 {part}
               </span>
             ) : (
@@ -56,20 +51,6 @@ const SearchBar = ({ isVisible, onToggle }) => {
     }
   };
 
-  useEffect(() => {
-    const currentSearch = searchParams.get("search") || "";
-    if (currentSearch !== search) {
-      setSearch(currentSearch);
-      if (currentSearch.length >= 3) {
-        fetchSuggestions(currentSearch);
-      } else {
-        setSuggestions([]);
-        setShowSuggestions(false);
-        setNoMatchFound(false);
-      }
-    }
-  }, [searchParams]);
-
   // Focus input when search bar becomes visible
   useEffect(() => {
     if (isVisible && searchInputRef.current) {
@@ -77,11 +58,30 @@ const SearchBar = ({ isVisible, onToggle }) => {
     }
   }, [isVisible]);
 
+  const updateURL = useCallback(
+    (searchTerm) => {
+      if (urlUpdateTimeoutRef.current) {
+        clearTimeout(urlUpdateTimeoutRef.current);
+      }
+
+      urlUpdateTimeoutRef.current = setTimeout(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (searchTerm.trim()) {
+          params.set("search", searchTerm);
+        } else {
+          params.delete("search");
+        }
+        params.delete("page");
+        router.push(`/?${params.toString()}`);
+      }, 500);
+    },
+    [searchParams, router]
+  );
+
   const fetchSuggestions = useCallback(async (value) => {
     if (!value.trim() || value.length < 3) {
       setSuggestions([]);
       setShowSuggestions(false);
-      setNoMatchFound(false);
       return;
     }
 
@@ -90,78 +90,47 @@ const SearchBar = ({ isVisible, onToggle }) => {
       const results = await getRecipeSuggestions(value);
       setSuggestions(results);
       setShowSuggestions(true);
-      setNoMatchFound(results.length === 0);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
       setSuggestions([]);
-      setNoMatchFound(true);
     } finally {
       setLoading(false);
     }
   }, []);
-
-  const updateURLParams = useCallback(
-    (searchTerm) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (searchTerm.trim()) {
-        params.set("search", searchTerm);
-      } else {
-        params.delete("search");
-      }
-      params.delete("page");
-      return params;
-    },
-    [searchParams]
-  );
-
-  const performSearch = useCallback(
-    (searchTerm) => {
-      const params = updateURLParams(searchTerm);
-      router.push(`/?${params.toString()}`);
-      setShowSuggestions(false);
-      setNoMatchFound(false);
-    },
-    [router, updateURLParams]
-  );
 
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearch(value);
     setHighlightedIndex(-1);
 
-    if (value.length >= 3) {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (value.length >= 2) {
       setShowSuggestions(true);
+      fetchSuggestions(value);
     } else {
       setShowSuggestions(false);
       setSuggestions([]);
-      setNoMatchFound(false);
     }
 
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    if (debouncedSearchRef.current) clearTimeout(debouncedSearchRef.current);
-
-    if (value.length >= 3) {
-      searchTimeoutRef.current = setTimeout(() => {
-        fetchSuggestions(value);
-      }, 100);
-    }
-
-    // Update URL params with debounce (500ms delay)
-    debouncedSearchRef.current = setTimeout(() => {
-      performSearch(value);
-    }, 500);
+    updateURL(value);
   };
 
   const handleSuggestionClick = (suggestion) => {
     const searchTerm = suggestion.title;
     setSearch(searchTerm);
     setShowSuggestions(false);
-    setNoMatchFound(false);
-    performSearch(searchTerm);
 
-    // Clear timeouts
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    if (debouncedSearchRef.current) clearTimeout(debouncedSearchRef.current);
+    if (urlUpdateTimeoutRef.current) {
+      clearTimeout(urlUpdateTimeoutRef.current);
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("search", searchTerm);
+    params.delete("page");
+    router.push(`/?${params.toString()}`);
   };
 
   const handleKeyDown = (e) => {
@@ -183,8 +152,8 @@ const SearchBar = ({ isVisible, onToggle }) => {
         if (highlightedIndex >= 0) {
           handleSuggestionClick(suggestions[highlightedIndex]);
         } else {
-          performSearch(search);
           setShowSuggestions(false);
+          updateURL(search);
         }
         break;
       case "Escape":
@@ -198,18 +167,16 @@ const SearchBar = ({ isVisible, onToggle }) => {
     setSuggestions([]);
     setShowSuggestions(false);
     setHighlightedIndex(-1);
-    setNoMatchFound(false);
     onToggle();
 
-    // Update URL
+    if (urlUpdateTimeoutRef.current) {
+      clearTimeout(urlUpdateTimeoutRef.current);
+    }
+
     const params = new URLSearchParams(searchParams.toString());
     params.delete("search");
     params.delete("page");
     router.push(`/?${params.toString()}`);
-
-    // Clear timeouts
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    if (debouncedSearchRef.current) clearTimeout(debouncedSearchRef.current);
   };
 
   // Handle clicks outside of suggestions
@@ -231,7 +198,8 @@ const SearchBar = ({ isVisible, onToggle }) => {
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-      if (debouncedSearchRef.current) clearTimeout(debouncedSearchRef.current);
+      if (urlUpdateTimeoutRef.current)
+        clearTimeout(urlUpdateTimeoutRef.current);
     };
   }, []);
 
@@ -247,7 +215,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
             ref={searchInputRef}
             id="search"
             type="text"
-            placeholder="Search Recipes (minimum 3 characters)..."
+            placeholder="Search recipes (minimum 3 characters)..."
             value={search}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
@@ -261,7 +229,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
           {showSuggestions && search.length >= 3 && (
             <div
               ref={suggestionsRef}
-              className="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg max-h-80 overflow-y-auto border border-gray-100 divide-y divide-gray-50 transition-all duration-200 ease-in-out"
+              className="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg max-h-80 overflow-y-auto border border-gray-100 divide-y divide-gray-50"
             >
               {loading ? (
                 <div className="flex items-center justify-center p-4">
@@ -279,47 +247,23 @@ const SearchBar = ({ isVisible, onToggle }) => {
                         : "text-gray-700 hover:bg-teal-50/50"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0 w-5 h-5 text-teal-600">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="font-medium">
+                          {highlightMatch(suggestion.title, search)}
+                        </div>
+                        {suggestion.category && (
+                          <div className="text-xs text-gray-500">
+                            in {highlightMatch(suggestion.category, search)}
+                          </div>
+                        )}
                       </div>
-                      <span className="font-normal">
-                        {highlightMatch(suggestion.title, search)}
-                      </span>
-                      {suggestion.category && (
-                        <span className="text-gray-400 text-xs">
-                          in {highlightMatch(suggestion.category, search)}
-                        </span>
-                      )}
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="flex items-center gap-3 px-4 py-3 text-sm text-gray-500">
-                  <div className="flex-shrink-0 w-5 h-5 text-gray-400">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <span>No matching recipes found</span>
+                <div className="px-4 py-3 text-sm text-gray-500">
+                  No matching suggestions found
                 </div>
               )}
             </div>
@@ -362,7 +306,6 @@ const SearchBar = ({ isVisible, onToggle }) => {
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
           >
             <path
               strokeLinecap="round"
