@@ -29,7 +29,8 @@ export default function FilterSection({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isAdvancedFilters, setIsAdvancedFilters] = useState(false);
   const [category, setCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState(initialSort);
   const [order, setOrder] = useState(initialOrder);
@@ -70,16 +71,6 @@ export default function FilterSection({
     setSearch(currentSearch);
     setNumberOfSteps(currentNumberOfSteps);
   }, [searchParams, initialCategory, initialSort, initialOrder]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("category", category);
-      localStorage.setItem("sortBy", sortBy);
-      localStorage.setItem("order", order);
-      localStorage.setItem("search", search);
-      localStorage.setItem("numberOfSteps", numberOfSteps);
-    }
-  }, [category, sortBy, order, search, numberOfSteps]);
 
   const isFilterActive = useMemo(() => {
     if (!searchParams) return false;
@@ -125,7 +116,7 @@ export default function FilterSection({
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <svg
+          <svg
               className="w-5 h-5 text-gray-600"
               fill="none"
               strokeWidth="2"
@@ -175,69 +166,76 @@ export default function FilterSection({
               : "opacity-0 max-h-0 overflow-hidden"
           }`}
         >
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row gap-3 py-4">
-              <div className="bg-white/50 shadow-sm rounded-lg p-2 flex flex-wrap sm:flex-nowrap gap-2 items-center border border-gray-200">
-                <NumberOfStepsFilter
-                  searchParams={searchParams}
-                  updateUrl={updateUrl}
-                  className="min-w-[120px]"
-                />
-                <div className="h-8 w-px bg-gray-200 hidden sm:block" />
-                <TagFilter
-                  availableTags={availableTags}
-                  searchParams={searchParams}
-                  updateUrl={updateUrl}
-                  className="min-w-[120px]"
-                />
-                <div className="h-8 w-px bg-gray-200 hidden sm:block" />
-                <IngredientsFilter
-                  availableIngredients={availableIngredients}
-                  searchParams={searchParams}
-                  updateUrl={updateUrl}
-                  className="min-w-[120px]"
-                />
-              </div>
-            </div>
+          <button
+            onClick={() => setIsAdvancedFilters(!isAdvancedFilters)}
+            className="bg-gray-100 text-gray-700 text-sm px-4 py-2 rounded-md mb-4"
+          >
+            {isAdvancedFilters ? "Hide Advanced Filters" : "Show Advanced Filters"}
+          </button>
 
-            {!isFilterActive && (
-              <div className="text-gray-500 text-sm italic mt-4">
-                No filter applied
+          {isAdvancedFilters && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row gap-3 py-4">
+                <div className="bg-white/50 shadow-sm rounded-lg p-2 flex flex-wrap sm:flex-nowrap gap-2 items-center border border-gray-200">
+                  <NumberOfStepsFilter
+                    searchParams={searchParams}
+                    updateUrl={updateUrl}
+                    className="min-w-[120px]"
+                  />
+                  <div className="h-8 w-px bg-gray-200 hidden sm:block" />
+                  <TagFilter
+                    availableTags={availableTags}
+                    searchParams={searchParams}
+                    updateUrl={updateUrl}
+                    className="min-w-[120px]"
+                  />
+                  <div className="h-8 w-px bg-gray-200 hidden sm:block" />
+                  <IngredientsFilter
+                    availableIngredients={availableIngredients}
+                    searchParams={searchParams}
+                    updateUrl={updateUrl}
+                    className="min-w-[120px]"
+                  />
+                </div>
               </div>
-            )}
 
-            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-              <div className="flex flex-col md:flex-row justify-between gap-6 items-start md:items-center mb-6">
-                <CategoryFilter
-                  categories={categories}
-                  currentCategory={category}
-                />
-                <SortOrder currentSort={sortBy} currentOrder={order} />
-              </div>
-              {isFilterActive && (
-                <button
-                  onClick={handleReset}
-                  className="group flex items-center px-4 py-2 bg-red-50 text-red-600 rounded-lg
-                           hover:bg-red-100 transition-all duration-200"
-                >
-                  <svg
-                    className="w-4 h-4 mr-2 transition-transform duration-300 group-hover:rotate-180"
-                    fill="none"
-                    strokeWidth="2"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                  Reset All
-                </button>
+              {!isFilterActive && (
+                <div className="text-gray-500 text-sm italic mt-4">
+                  No filter applied
+                </div>
               )}
             </div>
+          )}
+
+          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+            <CategoryFilter
+              categories={categories}
+              currentCategory={category}
+            />
+            <SortOrder currentSort={sortBy} currentOrder={order} />
+
+            {isFilterActive && (
+              <button
+                onClick={handleReset}
+                className="group flex items-center px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all duration-200"
+              >
+                <svg
+                  className="w-4 h-4 mr-2 transition-transform duration-300 group-hover:rotate-180"
+                  fill="none"
+                  strokeWidth="2"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                Reset All
+              </button>
+            )}
           </div>
         </div>
       </div>
