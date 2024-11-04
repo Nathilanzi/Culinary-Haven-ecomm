@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import SearchBar from "./SearchBar";
 import Image from "next/image";
+import ThemeToggle from "./ThemeToggle";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,6 +55,9 @@ const Header = () => {
       </button>
       {isUserMenuOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+          <div className="flex justify-end px-4 py-2">
+          <ThemeToggle />
+          </div>
           <Link
             href="/profile"
             className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
