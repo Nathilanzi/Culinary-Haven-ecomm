@@ -58,7 +58,7 @@ function ResultsSummary({ total, filters }) {
           </span>
         )}
         {category && <span className="ml-2">(in {category})</span>}
-        {search && <span className="ml-2">(matching "{search}")</span>}
+        {search && <span className="ml-2">(matching {search})</span>}
       </span>
     </div>
   );
