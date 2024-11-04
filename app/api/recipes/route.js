@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
+// Mark route as dynamic since it depends on request parameters
+export const dynamic = "force-dynamic";
+
 /**
  * Handles GET requests for recipes with pagination, filtering, sorting, and category/tag filtering.
  * @param {Request} request - The incoming HTTP request
