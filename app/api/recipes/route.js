@@ -18,6 +18,9 @@ export async function GET(request) {
     const category = searchParams.get("category") || "";
     const tags = searchParams.getAll("tags[]");
     const tagMatchType = searchParams.get("tagMatchType") || "all";
+    const ingredients = searchParams.getAll("ingredients[]");
+    const ingredientMatchType = searchParams.get("ingredientMatchType") || "all";
+    const numberOfSteps = searchParams.get("numberOfSteps");
 
     // Connect to MongoDB
     const client = await clientPromise;
@@ -43,14 +46,61 @@ export async function GET(request) {
       }
     }
 
-    // Calculate number of documents to skip
-    const skip = (page - 1) * limit;
-    const sortObject =
-      sortBy === "$natural"
-        ? { $natural: 1 }
-        : { [sortBy]: order === "asc" ? 1 : -1 };
+if (ingredients.length > 0) {
+  if (ingredientMatchType === "all") {
+    query.$and = ingredients.map(ing => ({ [`ingredients.${ing}`]: { $exists: true } }));
+  } else {
+    query.$or = ingredients.map(ing => ({ [`ingredients.${ing}`]: { $exists: true } }));
+  }
+}
+  console.log(query);
+    // Add number of steps filter
+    if (numberOfSteps) {
+      const stepsCount = parseInt(numberOfSteps, 10);
+      if(!isNaN(stepsCount)){
+        query.instructions = { $size: stepsCount};
+      }
+    }
 
-    // Fetch recipes, total count, and categories concurrently
+     // Calculate number of documents to skip
+     const skip = (page - 1) * limit;
+
+    // Handle sorting
+    let sortObject = { $natural: 1 };
+    if (sortBy !== "$natural") {
+      if (sortBy === "instructionCount") {
+        // Add a pipeline stage to count instructions
+        const pipeline = [
+          { $match: query },
+          {
+            $addFields: {
+              instructionCount: { $size: "$instructions" },
+            },
+          },
+          { $sort: { instructionCount: order === "asc" ? 1 : -1 } },
+          { $skip: skip },
+          { $limit: limit },
+        ];
+
+        const recipes = await db
+          .collection("recipes")
+          .aggregate(pipeline)
+          .toArray();
+        const total = await db.collection("recipes").countDocuments(query);
+        const categories = await db.collection("categories").find({}).toArray();
+
+        return NextResponse.json({
+          recipes,
+          total,
+          totalPages: Math.ceil(total / limit),
+          categories,
+        });
+      } else {
+        sortObject = { [sortBy]: order === "asc" ? 1 : -1 };
+      }
+    }
+
+    // Fetch recipes, total count, and categories concurrently (for non-instruction count sorts)
     const [recipes, total, categories] = await Promise.all([
       db
         .collection("recipes")

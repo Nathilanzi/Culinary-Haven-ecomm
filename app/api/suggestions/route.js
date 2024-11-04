@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get("q") || "";
+    const query = searchParams.get("q")?.trim() || "";
+    const limit = Math.min(parseInt(searchParams.get("limit") || "10"), 10);
 
     if (!query) {
       return NextResponse.json({ suggestions: [] });
@@ -13,39 +18,47 @@ export async function GET(request) {
     const client = await clientPromise;
     const db = client.db("devdb");
 
-    // Create text index for title field if it doesn't exist
-    await db.collection("recipes").createIndex({ title: "text" });
+    // Ensure index exists
+    await db.collection("recipes").createIndex({
+      title: 1,
+    });
 
-    // Query using $text search for exact matches and partial matches
+    // Escape special regex characters
+    const safeQuery = escapeRegExp(query);
+
+    // Simple and efficient query approach
     const suggestions = await db
       .collection("recipes")
-      .aggregate([
+      .find(
         {
-          $match: {
-            $or: [
-              { title: { $regex: query, $options: "i" } }, // Case-insensitive partial match
-              { $text: { $search: query } }, // Text index search for exact matches
-            ],
+          title: {
+            $regex: safeQuery,
+            $options: "i",
           },
         },
         {
-          $project: {
+          projection: {
+            _id: 1,
             title: 1,
-            score: { $meta: "textScore" },
+            category: 1,
           },
-        },
-        { $sort: { score: -1 } },
-        { $limit: 10 },
-      ])
+        }
+      )
+      .sort({ title: 1 })
+      .limit(limit)
       .toArray();
 
     return NextResponse.json({
-      suggestions: suggestions.map((s) => ({ id: s._id, title: s.title })),
+      suggestions: suggestions.map(({ _id, title, category }) => ({
+        id: _id,
+        title,
+        category,
+      })),
     });
   } catch (error) {
     console.error("Error fetching suggestions:", error);
     return NextResponse.json(
-      { error: "Error fetching suggestions" },
+      { error: "Failed to fetch suggestions" },
       { status: 500 }
     );
   }
