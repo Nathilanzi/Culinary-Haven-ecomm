@@ -196,8 +196,11 @@ const SearchBar = ({ isVisible, onToggle }) => {
   }, []);
 
   useEffect(() => {
+    // Store the ref value in a variable at the start of the effect
+    const currentTimeoutRef = searchTimeoutRef.current;
+
     return () => {
-      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+      if (currentTimeoutRef) clearTimeout(currentTimeoutRef);
       if (urlUpdateTimeoutRef.current)
         clearTimeout(urlUpdateTimeoutRef.current);
     };
