@@ -1,8 +1,7 @@
 import "./globals.css";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import SessionProvider from "@/components/SessionProvider";
-import { getServerSession } from "next-auth/next";
+import { ThemeProvider } from "@/ThemeContext";
 
 export const metadata = {
   title: {
@@ -53,12 +52,12 @@ export default async function RootLayout({ children }) {
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
         <link rel="manifest" href="/site.webmanifest"/>
       </head>
-      <body>
-        <Header />
-        <SessionProvider session={session}>
+      <body className="bg-[#daf1de] dark:bg-[#1B1F1D]">
+        <ThemeProvider>
+          <Header />
           {children}
-        </SessionProvider>
-        <Footer />
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );
