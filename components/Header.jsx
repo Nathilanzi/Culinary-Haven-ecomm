@@ -82,8 +82,7 @@ const Header = () => {
   );
 
   return (
-    <nav className="bg-[#0C3B2E] dark:bg-gray-900 dark:text-white shadow-md fixed z-50 w-full" ref={navbarRef}>
-      {/* Elegant gradient overlay */}
+    <nav className="bg-[#0C3B2E] dark:bg-[#0A2A21] dark:text-[#DAF1DE] shadow-md fixed z-50 w-full" ref={navbarRef}>
       <div className="absolute inset-0 bg-gradient-to-r from-[#0c3b2e] via-[#0f4d3d] to-[#0c3b2e] opacity-50" />
 
       <div className="relative mx-auto px-4 sm:px-6 lg:px-8">
