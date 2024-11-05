@@ -25,7 +25,7 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
 
   return (
     <div
-      className="bg-white rounded-3xl shadow-md overflow-hidden transition-all duration-500 hover:shadow-lg hover:scale-[1.02] flex flex-col justify-between"
+      className="bg-white dark:bg-[#333333] text-gray-900 dark:text-gray-100 rounded-3xl shadow-md overflow-hidden transition-all duration-500 hover:shadow-lg hover:scale-[1.02] flex flex-col justify-between"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -55,21 +55,21 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
       {/* Text Section */}
       <div className="p-4 flex-grow flex flex-col justify-between text-center">
         <div>
-          <h3 className="font-bold text-lg text-[#6D9773] mb-2 line-clamp-2">
-            {highlightText(recipe.title, searchQuery)}
+          <h3 className="font-bold text-lg text-[#6D9773] dark:text-[#A3C9A7] mb-2 line-clamp-2">
+              {highlightText(recipe.title, searchQuery)}
           </h3>
         </div>
         <div>
-          <h3 className="font-light text-sm text-[#6D9773] mb-2 line-clamp-2">
-            {new Date(recipe.published).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
+          <h3 className="font-light text-sm text-[#6D9773] dark:text-[#A3C9A7] mb-2 line-clamp-2">
+              {new Date(recipe.published).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
           </h3>
         </div>
         <div>
-          <h3 className="font-light text-sm text-[#6D9773] mb-2 line-clamp-2">
+          <h3 className="font-light text-sm text-[#6D9773] dark:text-[#A3C9A7] mb-2 line-clamp-2">
             {recipe.instructions.length}{" "}
             {recipe.instructions.length === 1 ? "instruction" : "instructions"}
           </h3>
@@ -85,7 +85,7 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
               viewBox="0 0 512 512"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-5 h-5 text-[#0C3B2E]"
+              className="w-5 h-5 text-[#0C3B2E] dark:text-[#A3C9A7]"
             >
               <path
                 fill="#0C3B2E"
@@ -117,7 +117,7 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
               viewBox="0 0 256 256"
               strokeWidth="1.0"
               stroke="currentColor"
-              className="w-5 h-5 text-[#0C3B2E]"
+              className="w-5 h-5 text-[#0C3B2E] dark:text-[#A3C9A7]"
             >
               <path
                 fill="#0C3B2E"
@@ -138,7 +138,7 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
               fill="none"
               strokeWidth="2"
               stroke="currentColor"
-              className="w-5 h-5 text-[#0C3B2E]"
+              className="w-5 h-5 text-[#0C3B2E] dark:text-[#A3C9A7]"
             >
               <g
                 id="Group_49"
@@ -187,7 +187,7 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
         {/* View Recipe Button */}
         <Link
           href={`/recipes/${recipe._id}`}
-          className="w-[85%] mx-auto block text-center bg-[#DB8C28] text-white font-semibold py-2 rounded-full shadow hover:bg-[#0C3B2E] transition-colors mt-auto"
+          className="w-[85%] mx-auto block text-center bg-[#DB8C28] dark:bg-[#FFA53D] text-white font-semibold py-2 rounded-full shadow hover:bg-[#0C3B2E] dark:hover:bg-[#A3C9A7] transition-colors mt-auto"
         >
           View Recipe
         </Link>
