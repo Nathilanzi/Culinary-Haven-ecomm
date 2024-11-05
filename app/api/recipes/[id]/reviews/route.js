@@ -85,7 +85,7 @@ export async function GET(request, { params }) {
   }
 }
 
-// POST a new review to a recipe
+// POST a new review to a recipe, only if reviews do not exist
 export async function POST(request, { params }) {
   try {
     const body = await request.json();
@@ -101,6 +101,7 @@ export async function POST(request, { params }) {
     const client = await clientPromise;
     const db = client.db("devdb");
 
+    // Find the recipe document
     const recipe = await db.collection("recipes").findOne(
       { _id: ObjectId(params.id) }
     );
@@ -109,6 +110,14 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
     }
 
+    // Check if the recipe has reviews
+    if (recipe.reviews && recipe.reviews.length > 0) {
+      return NextResponse.json(
+        { message: "Reviews already exist, skipping creation" }
+      );
+    }
+
+    // Create the new review if no reviews exist
     const review = {
       _id: new ObjectId(),
       username: body.username.trim(),
