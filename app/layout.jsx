@@ -1,6 +1,8 @@
 import "./globals.css";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import SessionProvider from "@/components/SessionProvider";
+import { getServerSession } from "next-auth/next";
 
 export const metadata = {
   title: {
@@ -39,7 +41,9 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const session  = await getServerSession();
+
   return (
     <html lang="en">
       <head>
@@ -51,7 +55,9 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <Header />
-        {children}
+        <SessionProvider session={session}>
+          {children}
+        </SessionProvider>
         <Footer />
       </body>
     </html>
