@@ -1,6 +1,7 @@
 import "./globals.css";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import { ThemeProvider } from "@/ThemeContext";
 
 export const metadata = {
   title: {
@@ -49,10 +50,12 @@ export default function RootLayout({ children }) {
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
         <link rel="manifest" href="/site.webmanifest"/>
       </head>
-      <body>
-        <Header />
-        {children}
-        <Footer />
+      <body className="bg-[#daf1de] dark:bg-[#1B1F1D]">
+        <ThemeProvider>
+          <Header />
+          {children}
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

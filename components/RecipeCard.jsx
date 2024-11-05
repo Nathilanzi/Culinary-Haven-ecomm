@@ -81,14 +81,13 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
           <div className="flex flex-col items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              fill="none"
+              fill="currentColor"
               viewBox="0 0 512 512"
               strokeWidth="1.5"
               stroke="currentColor"
               className="w-5 h-5 text-[#0C3B2E] dark:text-[#A3C9A7]"
             >
               <path
-                fill="#0C3B2E"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 d="M512,200.388c-0.016-63.431-51.406-114.828-114.845-114.836c-11.782-0.008-23.118,1.952-33.846,5.275
@@ -113,14 +112,13 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
           <div className="flex flex-col items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              fill="none"
+              fill="currentColor"
               viewBox="0 0 256 256"
               strokeWidth="1.0"
               stroke="currentColor"
               className="w-5 h-5 text-[#0C3B2E] dark:text-[#A3C9A7]"
             >
               <path
-                fill="#0C3B2E"
                 d="M76,40V16a12,12,0,0,1,24,0V40a12,12,0,0,1-24,0Zm52,12a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,128,52Zm40,0a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,168,52Zm83.2002,53.6001L224,126v58a36.04061,36.04061,0,0,1-36,36H68a36.04061,36.04061,0,0,1-36-36V126L4.7998,105.6001A12.0002,12.0002,0,0,1,19.2002,86.3999L32,96V88A20.02229,20.02229,0,0,1,52,68H204a20.02229,20.02229,0,0,1,20,20v8l12.7998-9.6001a12.0002,12.0002,0,0,1,14.4004,19.2002ZM200,92H56v92a12.01375,12.01375,0,0,0,12,12H188a12.01375,12.01375,0,0,0,12-12Z"
               />
             </svg>
@@ -149,8 +147,6 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
                   id="Path_131"
                   data-name="Path 131"
                   d="M814.946,1793.095a24,24,0,0,0-24,24h48A24,24,0,0,0,814.946,1793.095Z"
-                  fill="#ffffff"
-                  stroke="#0C3B2E"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="5"
@@ -160,8 +156,8 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
                   data-name="Line 51"
                   x2="48"
                   transform="translate(790.946 1825.761)"
-                  fill="#ffffff"
-                  stroke="#0C3B2E"
+                  fill="currentColor"
+                  stroke="currentColor"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="5"
@@ -171,8 +167,8 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
                   data-name="Line 52"
                   y2="5.667"
                   transform="translate(814.946 1787.428)"
-                  fill="#ffffff"
-                  stroke="#0C3B2E"
+                  fill="currentColor"
+                  stroke="currentColor"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="5"
