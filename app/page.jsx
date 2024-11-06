@@ -5,6 +5,7 @@ import { getRecipes, getCategories, getTags, getIngredients } from "@/lib/api";
 import FilterSection from "@/components/FilterSection";
 import Loader from "@/components/Loader";
 import ClearFiltersButton from "@/components/ClearFiltersButton";
+import RecipeCarousel from "@/components/RecipeCarousel";
 
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
@@ -159,6 +160,8 @@ export default async function Home({ searchParams }) {
             availableTags={availableTags}
             availableIngredients={availableIngredients}
           />
+
+          <RecipeCarousel />
 
           {error ? (
             <div className="text-center py-12 text-red-600">
