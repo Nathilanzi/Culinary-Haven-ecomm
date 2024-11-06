@@ -34,27 +34,27 @@ const TimeIcon = () => (
 const TotalTime = () => (
   <svg className="h-7 text-black" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
   {/* <!-- Clock face --> */}
-  <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="2"/>
+  <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="2"/>
   
   {/* <!-- Hour markers --> */}
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(0 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(30 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(60 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(90 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(120 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(150 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(180 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(210 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(240 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(270 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(300 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" stroke-width="2" transform="rotate(330 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(0 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(30 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(60 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(90 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(120 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(150 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(180 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(210 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(240 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(270 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(300 50 50)"/>
+  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(330 50 50)"/>
   
   {/* <!-- Hour hand (pointing to 10) --> */}
-  <line x1="50" y1="50" x2="50" y2="25" stroke="currentColor" stroke-width="3" stroke-linecap="round" transform="rotate(-60 50 50)"/>
+  <line x1="50" y1="50" x2="50" y2="25" stroke="currentColor" strokeWidth="3" strokeLinecap="round" transform="rotate(-60 50 50)"/>
   
   {/* <!-- Minute hand (pointing to 2) --> */}
-  <line x1="50" y1="50" x2="50" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" transform="rotate(60 50 50)"/>
+  <line x1="50" y1="50" x2="50" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" transform="rotate(60 50 50)"/>
   
   {/* <!-- Center dot --> */}
   <circle cx="50" cy="50" r="2" fill="currentColor"/>
