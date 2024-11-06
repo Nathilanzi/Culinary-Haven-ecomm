@@ -38,38 +38,26 @@ async function initializeIndexes(client) {
       } catch (error) {
         if (error.code !== 27) {
           // Skip if index doesn't exist
-          errors.push(
-            `Failed to drop index recipe_search_index: ${error.message}`
-          );
+          errors.push(`Failed to drop index recipe_search_index: ${error.message}`);
         }
       }
     }
 
-    // Create new indexes in sequence
+    // Create new indexes
     const indexOperations = [
-      // Create the new compound text index
       {
         operation: async () => {
           try {
             await collection.createIndex(
+              { title: "text", description: "text", tags: "text" },
               {
-                title: "text",
-                description: "text",
-                tags: "text",
-              },
-              {
-                weights: {
-                  title: 10,
-                  description: 5,
-                  tags: 3,
-                },
+                weights: { title: 10, description: 5, tags: 3 },
                 name: "recipe_search_index",
-                background: true, // Add background index building
+                background: true,
               }
             );
           } catch (error) {
             if (error.code !== 85) {
-              // Skip if index already exists
               throw error;
             }
           }
@@ -77,35 +65,37 @@ async function initializeIndexes(client) {
         name: "recipe_search_index",
       },
       {
-        operation: () =>
-          collection.createIndex({ category: 1 }, { background: true }),
+        operation: () => collection.createIndex({ category: 1 }, { background: true }),
         name: "category_index",
       },
       {
-        operation: () =>
-          collection.createIndex({ tags: 1 }, { background: true }),
+        operation: () => collection.createIndex({ tags: 1 }, { background: true }),
         name: "tags_index",
       },
       {
-        operation: () =>
-          collection.createIndex(
-            { "ingredients.name": 1 },
-            { background: true }
-          ),
+        operation: () => collection.createIndex({ "ingredients.name": 1 }, { background: true }),
         name: "ingredients_index",
       },
       {
-        operation: () =>
-          collection.createIndex({ instructions: 1 }, { background: true }),
+        operation: () => collection.createIndex({ instructions: 1 }, { background: true }),
         name: "instructions_index",
       },
       {
-        operation: () =>
-          collection.createIndex(
-            { category: 1, createdAt: -1 },
-            { background: true }
-          ),
+        operation: () => collection.createIndex({ category: 1, createdAt: -1 }, { background: true }),
         name: "category_date_index",
+      },
+      // New index operations
+      {
+        operation: () => collection.createIndex({ "reviews.rating": 1, "reviews.createdAt": -1 }, { background: true }),
+        name: "Reviews compound index",
+      },
+      {
+        operation: () => collection.createIndex({ "reviews.userId": 1 }, { background: true }),
+        name: "Review user index",
+      },
+      {
+        operation: () => collection.createIndex({ averageRating: -1 }, { background: true }),
+        name: "Average rating index",
       },
     ];
 
@@ -120,7 +110,6 @@ async function initializeIndexes(client) {
           retries--;
           if (retries === 0) {
             if (error.code !== 85) {
-              // Skip if index already exists
               errors.push(`Failed to create index ${name}: ${error.message}`);
             }
           } else {
@@ -133,9 +122,7 @@ async function initializeIndexes(client) {
 
     if (errors.length > 0) {
       // Log errors but don't throw
-      console.error(
-        `Index initialization completed with warnings: ${errors.join("; ")}`
-      );
+      console.error(`Index initialization completed with warnings: ${errors.join("; ")}`);
     }
   } catch (error) {
     // Log error but don't throw
@@ -143,19 +130,45 @@ async function initializeIndexes(client) {
   }
 }
 
+// Function to check and create reviews if not present
+async function checkAndCreateReviews(client) {
+  const db = client.db("devdb");
+  const collection = db.collection("recipes");
+
+  try {
+    // Find all recipes without reviews
+    const recipesWithoutReviews = await collection.find({ reviews: { $exists: false } }).toArray();
+    
+    // Update each recipe to add an empty reviews array if it does not exist
+    if (recipesWithoutReviews.length > 0) {
+      const updatePromises = recipesWithoutReviews.map(recipe => {
+        return collection.updateOne(
+          { _id: recipe._id },
+          { $set: { reviews: [] } } // Create an empty array for reviews
+        );
+      });
+      await Promise.all(updatePromises);
+      console.log(`${updatePromises.length} recipes updated with empty reviews array.`);
+    } else {
+      console.log("No recipes without reviews found.");
+    }
+  } catch (error) {
+    console.error(`Error checking and creating reviews: ${error.message}`);
+  }
+}
+
+// Main connection logic
 if (process.env.NODE_ENV === "development") {
-  // For development: Maintain a cached connection to prevent multiple connections
   if (!global._mongoClientPromise) {
-    // If no cached connection exists, create a new client
     client = new MongoClient(uri, options);
-    // Store the client promise globally
     global._mongoClientPromise = client
       .connect()
       .then(async (client) => {
         try {
           await initializeIndexes(client);
+          await checkAndCreateReviews(client); // Call the new function here
         } catch (error) {
-          console.error("Index initialization failed:", error);
+          console.error("Initialization failed:", error);
         }
         return client;
       })
@@ -163,18 +176,17 @@ if (process.env.NODE_ENV === "development") {
         throw new Error(`Failed to connect to MongoDB: ${error.message}`);
       });
   }
-  // Use the cached promise
   clientPromise = global._mongoClientPromise;
 } else {
-  // For production: Create a new client instance for each connection
   client = new MongoClient(uri, options);
   clientPromise = client
     .connect()
     .then(async (client) => {
       try {
         await initializeIndexes(client);
+        await checkAndCreateReviews(client); // Call the new function here
       } catch (error) {
-        console.error("Index initialization failed:", error);
+        console.error("Initialization failed:", error);
       }
       return client;
     })
@@ -183,5 +195,4 @@ if (process.env.NODE_ENV === "development") {
     });
 }
 
-// Export the client promise for use in other parts of the application
 export default clientPromise;

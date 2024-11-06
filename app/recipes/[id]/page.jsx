@@ -1,6 +1,7 @@
 import { getRecipeById } from "../../../lib/api";
 import ImageSelector from "../../../components/ImageSelector.jsx";
 import BackButton from "../../../components/BackButton";
+import ReviewSection from "@/components/ReviewSection";
 
 const TimeIcon = () => (
   <svg
@@ -414,6 +415,11 @@ export default async function RecipeDetail({ params }) {
                   </li>
                 ))}
               </ol>
+            </div>
+
+            {/* Review Section */}
+            <div className="mt-8">
+              <ReviewSection recipeId={id} />
             </div>
 
             {/* Recipe Tags */}
