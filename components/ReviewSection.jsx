@@ -6,7 +6,7 @@ import { Star } from 'lucide-react';
 function ReviewSection({ recipeId }) {
   const [reviews, setReviews] = useState([]);
   const [reviewsVisible, setReviewsVisible] = useState(false);
-  const [newReview, setNewReview] = useState({ rating: 0, comment: '', reviewerName: '' });
+  const [newReview, setNewReview] = useState({ rating: 0, comment: '', username: '' });
   const [submittingReview, setSubmittingReview] = useState(false);
   const [hover, setHover] = useState(0);
 
@@ -53,7 +53,7 @@ function ReviewSection({ recipeId }) {
                 className="bg-gray-100 p-4 rounded-md mb-4 shadow-md"
               >
                 <div className="flex items-center mb-2">
-                  <p className="font-bold text-gray-900">{review.reviewerName}</p>
+                  <p className="font-bold text-gray-900">{review.username}</p>
                   <span className="ml-auto text-yellow-400">
                     {Array(Math.round(review.rating)).fill('★').join('')}
                   </span>
