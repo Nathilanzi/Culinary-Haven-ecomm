@@ -6,6 +6,8 @@ import { Suspense } from "react";
 import SearchBar from "./SearchBar";
 import Image from "next/image";
 import ThemeToggle from "./ThemeToggle";
+import { useSession, signOut } from "next-auth/react";
+import SessionProvider from "./SessionProvider";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,64 +34,140 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const UserMenu = () => (
-    <div className="relative" ref={userMenuRef}>
-      <button
-        onClick={toggleUserMenu}
-        className="flex items-center space-x-2 p-2 rounded-full text-white hover:bg-[#0c3b2e93] transition-colors duration-300 focus:outline-none"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+  const UserMenu = () => {
+    const { data: session } = useSession();
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const userMenuRef = useRef(null);
+
+    const toggleUserMenu = () => {
+      setIsUserMenuOpen(!isUserMenuOpen);
+    };
+
+    // Close menu when clicking outside
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (
+          userMenuRef.current &&
+          !userMenuRef.current.contains(event.target)
+        ) {
+          setIsUserMenuOpen(false);
+        }
+      };
+
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, []);
+
+    const handleLogout = async () => {
+      await signOut({ callbackUrl: "/" });
+    };
+
+    return (
+      <div className="relative" ref={userMenuRef}>
+        <button
+          onClick={toggleUserMenu}
+          className="flex items-center space-x-2 p-2 rounded-full text-white hover:bg-[#0c3b2e93] transition-colors duration-300 focus:outline-none"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-          />
-        </svg>
-      </button>
-      {isUserMenuOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
-          <div className="flex justify-end px-4 py-2">
-          <ThemeToggle />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            fill={session ? "currentColor" : "none"}
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            />
+          </svg>
+        </button>
+        {isUserMenuOpen && (
+          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+            <div className="flex justify-end px-4 py-2">
+              <ThemeToggle />
+            </div>
+
+            {session ? (
+              // Logged in user menu items
+              <>
+                <Link
+                  href="/profile"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  My Profile
+                </Link>
+                <Link
+                  href="/saved-recipes"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Saved Recipes
+                </Link>
+                <Link
+                  href="/settings"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Settings
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              // Non-logged in user menu items
+              <>
+                <Link
+                  href="/profile"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  My Profile
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Sign Up
+                </Link>
+                <Link
+                  href="/auth/signin"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Sign In
+                </Link>
+
+                <Link
+                  href="/settings"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Settings
+                </Link>
+              </>
+            )}
           </div>
-          <Link
-            href="/profile"
-            className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-          >
-            My Profile
-          </Link>
-          <Link
-            href="/saved-recipes"
-            className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-          >
-            Saved Recipes
-          </Link>
-          <Link
-            href="/settings"
-            className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-          >
-            Settings
-          </Link>
-        </div>
-      )}
-    </div>
-  );
+        )}
+      </div>
+    );
+  };
 
   return (
-    <nav className="bg-[#0C3B2E] dark:bg-gray-900 dark:text-white shadow-md fixed z-50 w-full" ref={navbarRef}>
-      {/* Elegant gradient overlay */}
+    <nav
+      className="bg-[#0C3B2E] dark:bg-[#0A2A21] dark:text-[#DAF1DE] shadow-md fixed z-50 w-full"
+      ref={navbarRef}
+    >
       <div className="absolute inset-0 bg-gradient-to-r from-[#0c3b2e] via-[#0f4d3d] to-[#0c3b2e] opacity-50" />
 
       <div className="relative mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div
-            className={`flex items-center ${isSearchVisible ? "hidden sm:flex" : "flex"}`}
+            className={`flex items-center ${
+              isSearchVisible ? "hidden sm:flex" : "flex"
+            }`}
           >
             <Link href="/" className="flex items-center space-x-3">
               <div className="bg-gray-100 rounded-lg">
@@ -109,7 +187,9 @@ const Header = () => {
 
           <div className="flex flex-grow space-x-6 items-center justify-end">
             <div
-              className={`flex-grow max-w-md ${isSearchVisible ? "w-full" : "w-auto"}`}
+              className={`flex-grow max-w-md ${
+                isSearchVisible ? "w-full" : "w-auto"
+              }`}
             >
               <Suspense>
                 <SearchBar
@@ -138,7 +218,9 @@ const Header = () => {
               >
                 Shopping List
               </Link>
-              <UserMenu />
+              <SessionProvider>
+                <UserMenu />
+              </SessionProvider>
             </div>
           </div>
 
