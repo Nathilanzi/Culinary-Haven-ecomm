@@ -58,3 +58,41 @@ export async function GET(request) {
   }
 }
 
+/**
+ * POST - Add a recipe to user's favorites
+ * @param {Request} request
+ * @returns {Promise<NextResponse>}
+ */
+export async function POST(request) {
+  try {
+    const { recipeId } = await request.json();
+    let userId = request.headers.get("userId");
+
+    const client = await clientPromise;
+    const db = client.db("devdb");
+
+    // Ensure the favorites collection exists
+    await ensureFavoritesCollection(db);
+
+    // Generate a new userId if one was not provided
+    if (!userId) {
+      userId = await generateUserId(db);
+    }
+
+    if (!recipeId) {
+      return NextResponse.json({ error: "Recipe ID is required" }, { status: 400 });
+    }
+
+    const existingFavorite = await db.collection("favorites").findOne({ userId, recipeId });
+    if (existingFavorite) {
+      return NextResponse.json({ message: "Recipe already in favorites", userId });
+    }
+
+    await db.collection("favorites").insertOne({ userId, recipeId });
+    return NextResponse.json({ message: "Recipe added to favorites", userId });
+  } catch (error) {
+    console.error("Error adding to favorites:", error);
+    return NextResponse.json({ error: "Error adding to favorites" }, { status: 500 });
+  }
+}
+
