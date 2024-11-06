@@ -112,7 +112,7 @@ export default function FilterSection({
   };
 
   return (
-    <div className="bg-white mt-10 rounded-xl shadow-lg border border-gray-200 transition-all duration-300">
+    <div className="bg-white rounded-xl shadow-lg border border-gray-200 transition-all duration-300">
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
