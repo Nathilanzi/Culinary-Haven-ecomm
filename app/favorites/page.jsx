@@ -61,3 +61,22 @@ export default function Favorites() {
       setLoading(false);
     }
   };
+
+  const fetchFavoritesCount = async () => {
+    const userId = localStorage.getItem("user_id");
+    if (!userId) return;
+
+    try {
+      const response = await fetch("/api/favorites?action=count", {
+        headers: { "user-id": userId },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setCount(data.count);
+      } else {
+        console.error("Failed to fetch favorites count");
+      }
+    } catch (error) {
+      console.error("Error fetching favorites count:", error);
+    }
+  };
