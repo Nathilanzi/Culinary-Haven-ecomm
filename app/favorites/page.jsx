@@ -38,3 +38,26 @@ export default function Favorites() {
     return userId;
   };
 
+  const fetchFavorites = async () => {
+    const userId = localStorage.getItem("user_id");
+    if (!userId) {
+      setError("User ID not found.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/favorites?action=list", {
+        headers: { "user-id": userId },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setFavorites(data.favorites);
+      } else {
+        setError("Failed to fetch favorites");
+      }
+    } catch (error) {
+      setError("Error fetching favorites: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
