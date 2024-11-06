@@ -80,3 +80,17 @@ export default function Favorites() {
       console.error("Error fetching favorites count:", error);
     }
   };
+
+  return (
+    <div>
+      <h2>Favorites ({count})</h2>
+      <ul>
+        {favorites.map((recipe) => (
+          <li key={recipe._id}>{recipe.title}</li>
+        ))}
+      </ul>
+      {loading && <p>Loading favorites...</p>}
+      {error && <p>{error}</p>}
+    </div>
+  );
+}
