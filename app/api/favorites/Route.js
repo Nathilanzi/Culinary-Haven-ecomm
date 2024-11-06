@@ -96,3 +96,39 @@ export async function POST(request) {
   }
 }
 
+/**
+ * DELETE - Remove a recipe from user's favorites
+ * @param {Request} request
+ * @returns {Promise<NextResponse>}
+ */
+export async function DELETE(request) {
+  try {
+    const { recipeId } = await request.json();
+    let userId = request.headers.get("userId");
+
+    const client = await clientPromise;
+    const db = client.db("devdb");
+
+    // Ensure the favorites collection exists
+    await ensureFavoritesCollection(db);
+
+    // Generate a new userId if one was not provided
+    if (!userId) {
+      userId = await generateUserId(db);
+    }
+
+    if (!recipeId) {
+      return NextResponse.json({ error: "Recipe ID is required" }, { status: 400 });
+    }
+
+    const deleteResult = await db.collection("favorites").deleteOne({ userId, recipeId });
+    if (deleteResult.deletedCount === 0) {
+      return NextResponse.json({ error: "Favorite not found", userId }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "Recipe removed from favorites", userId });
+  } catch (error) {
+    console.error("Error removing from favorites:", error);
+    return NextResponse.json({ error: "Error removing from favorites" }, { status: 500 });
+  }
+}
