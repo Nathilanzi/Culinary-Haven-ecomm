@@ -82,7 +82,9 @@ export default async function RootLayout({ children }) {
       <body className="bg-[#daf1de] dark:bg-[#1B1F1D]">
         <ThemeProvider>
           <Header />
-          <SessionProvider session={session}>{children}</SessionProvider>
+          <main className="pt-16">
+            <SessionProvider session={session}>{children}</SessionProvider>
+          </main>
           <Footer />
         </ThemeProvider>
       </body>
