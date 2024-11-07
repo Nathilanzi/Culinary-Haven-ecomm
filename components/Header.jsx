@@ -7,7 +7,7 @@ import SearchBar from "./SearchBar";
 import Image from "next/image";
 import ThemeToggle from "./ThemeToggle";
 import { useSession, signOut } from "next-auth/react";
-import SessionProvider from "./SessionProvider";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,10 +15,10 @@ const Header = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const navbarRef = useRef(null);
   const userMenuRef = useRef(null);
+  const router = useRouter();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleSearch = () => setIsSearchVisible(!isSearchVisible);
-  const toggleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -35,7 +35,7 @@ const Header = () => {
   }, []);
 
   const UserMenu = () => {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const userMenuRef = useRef(null);
 
@@ -61,7 +61,18 @@ const Header = () => {
     }, []);
 
     const handleLogout = async () => {
+      setIsUserMenuOpen(false); // Close menu before logging out
       await signOut({ callbackUrl: "/" });
+    };
+
+    const handleLogin = () => {
+      setIsUserMenuOpen(false); // Close menu before navigating
+      router.push("/auth/signin");
+    };
+
+    const handleSignup = () => {
+      setIsUserMenuOpen(false); // Close menu before navigating
+      router.push("/auth/signup");
     };
 
     return (
@@ -91,24 +102,26 @@ const Header = () => {
               <ThemeToggle />
             </div>
 
-            {session ? (
-              // Logged in user menu items
+            {status === "authenticated" ? (
               <>
                 <Link
                   href="/profile"
                   className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  onClick={() => setIsUserMenuOpen(false)}
                 >
                   My Profile
                 </Link>
                 <Link
                   href="/saved-recipes"
                   className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  onClick={() => setIsUserMenuOpen(false)}
                 >
                   Saved Recipes
                 </Link>
                 <Link
                   href="/settings"
                   className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  onClick={() => setIsUserMenuOpen(false)}
                 >
                   Settings
                 </Link>
@@ -120,7 +133,6 @@ const Header = () => {
                 </button>
               </>
             ) : (
-              // Non-logged in user menu items
               <>
                 <Link
                   href="/profile"
@@ -128,22 +140,22 @@ const Header = () => {
                 >
                   My Profile
                 </Link>
-                <Link
-                  href="/auth/signup"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  Sign Up
-                </Link>
-                <Link
-                  href="/auth/signin"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                <button
+                  onClick={handleLogin}
+                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
                   Sign In
-                </Link>
-
+                </button>
+                <button
+                  onClick={handleSignup}
+                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Sign Up
+                </button>
                 <Link
                   href="/settings"
                   className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  onClick={() => setIsUserMenuOpen(false)}
                 >
                   Settings
                 </Link>
@@ -165,17 +177,15 @@ const Header = () => {
       <div className="relative mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div
-            className={`flex items-center ${
-              isSearchVisible ? "hidden sm:flex" : "flex"
-            }`}
+            className={`flex items-center ${isSearchVisible ? "hidden sm:flex" : "flex"}`}
           >
             <Link href="/" className="flex items-center space-x-3">
               <div className="bg-gray-100 rounded-lg">
                 <Image
-                  src={"/logo.png"}
+                  src="/logo.png"
                   width={100}
                   height={100}
-                  alt={"Logo"}
+                  alt="Logo"
                   className="h-10 w-12"
                 />
               </div>
@@ -187,9 +197,7 @@ const Header = () => {
 
           <div className="flex flex-grow space-x-6 items-center justify-end">
             <div
-              className={`flex-grow max-w-md ${
-                isSearchVisible ? "w-full" : "w-auto"
-              }`}
+              className={`flex-grow max-w-md ${isSearchVisible ? "w-full" : "w-auto"}`}
             >
               <Suspense>
                 <SearchBar
@@ -218,9 +226,7 @@ const Header = () => {
               >
                 Shopping List
               </Link>
-              <SessionProvider>
-                <UserMenu />
-              </SessionProvider>
+              <UserMenu />
             </div>
           </div>
 
