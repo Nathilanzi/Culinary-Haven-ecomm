@@ -1,6 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import FavoritesButton from "@/components/FavoritesButton";
+import RecipeCard from "@/components/RecipeCard";
+
+// Simulate fetching favorite recipes with their "addedDate"
+const fetchFavoriteRecipes = async () => {
+  // Example of fetching data from an API or getting it from local storage
+  // This should return an array of favorite recipes, each containing a `favoriteAddedDate`
+  return [
+    {
+      _id: "1",
+      title: "Spaghetti Bolognese",
+      description: "A classic Italian dish with rich tomato sauce.",
+      images: ["image1.jpg", "image2.jpg"],
+      published: "2024-01-01",
+      prep: 10,
+      cook: 20,
+      servings: 4,
+      instructions: [/* array of instructions */],
+      favoriteAddedDate: "2024-10-20", // Example date when this recipe was added to favorites
+    },
+    // Add more recipes as needed
+  ];
+};
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState([]);
@@ -81,12 +104,45 @@ export default function Favorites() {
     }
   };
 
+  const handleFavoriteToggle = async (recipeId, isFavorite) => {
+    const userId = localStorage.getItem("user_id");
+    if (!userId) return;
+
+    try {
+      const response = await fetch("/api/favorites", {
+        method: isFavorite ? "DELETE" : "POST", // Use DELETE to remove or POST to add
+        headers: {
+          "user-id": userId,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ recipeId }),
+      });
+
+      if (response.ok) {
+        // Update the favorites list after toggling
+        fetchFavorites();
+        fetchFavoritesCount();
+      } else {
+        console.error("Error toggling favorite");
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
+
   return (
     <div>
       <h2>Favorites ({count})</h2>
       <ul>
         {favorites.map((recipe) => (
-          <li key={recipe._id}>{recipe.title}</li>
+          <li key={recipe._id} className="relative">
+            <p>{recipe.title}</p>
+            <FavoritesButton
+              recipeId={recipe._id}
+              isFavorite={true} // The recipe is already in favorites, so it's initially marked as favorite
+              onFavoriteToggle={handleFavoriteToggle}
+            />
+          </li>
         ))}
       </ul>
       {loading && <p>Loading favorites...</p>}

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Gallery from "./Gallery";
 import { useState } from "react";
+import FavoritesButton from "./FavoritesButton";
 
 // Highlight text function
 function highlightText(text, query) {
@@ -19,7 +20,7 @@ function highlightText(text, query) {
   );
 }
 
-export default function RecipeCard({ recipe, searchQuery = "" }) {
+export default function RecipeCard({ recipe, searchQuery = "", isFavorited, toggleFavorite, }) {
   const [isHovered, setIsHovered] = useState(false);
   const images = Array.isArray(recipe?.images) ? recipe.images : [];
 
@@ -32,6 +33,16 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
       {/* Image Section */}
       <div className="relative overflow-hidden object-contain">
         <Gallery images={images} />
+
+        {/* Favorites Button */}
+        <div className="absolute top-2 right-2 z-10">
+          {/* Pass isFavorited and toggleFavorite to FavoritesButton */}
+          <FavoritesButton
+            recipeId={recipe._id}
+            isFavorited={isFavorited}
+            toggleFavorite={toggleFavorite}
+          />
+        </div>
         <div
           className={`absolute bottom-0 left-0 right-0 p-2 bg-black bg-opacity-75 text-white text-sm transition-all duration-500 transform ${
             isHovered
@@ -54,6 +65,7 @@ export default function RecipeCard({ recipe, searchQuery = "" }) {
 
       {/* Text Section */}
       <div className="p-4 flex-grow flex flex-col justify-between text-center">
+       
         <div>
           <h3 className="font-bold text-lg text-[#6D9773] dark:text-[#A3C9A7] mb-2 line-clamp-2">
               {highlightText(recipe.title, searchQuery)}
