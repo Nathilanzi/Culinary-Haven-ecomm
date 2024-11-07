@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 const RecipeCarousel = () => {
   const [recipes, setRecipes] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -34,16 +35,23 @@ const RecipeCarousel = () => {
     );
   };
 
-  const visibleRecipes = recipes.slice(currentIndex, currentIndex + 5);
+  const visibleRecipes = [
+    ...recipes.slice(currentIndex, currentIndex + 5),
+    ...recipes.slice(0, Math.max(0, currentIndex + 5 - recipes.length)),
+  ];
 
   return (
-    <div className="w-full max-w-5xl mx-auto my-8">
+    <div
+      className="w-full max-w-5xl mx-auto my-8"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <h2 className="text-2xl font-bold mb-4">Recommended Recipes</h2>
       <div className="relative overflow-hidden">
         <div className="flex transition-transform duration-500 ease-in-out">
-          {visibleRecipes.map((recipe) => (
+          {visibleRecipes.map((recipe, index) => (
             <div
-              key={recipe._id}
+              key={recipe._id || index} // Use index as fallback to avoid key warning
               className="w-1/5 p-2 cursor-pointer"
               onClick={() => navigateToRecipeDetails(recipe._id)}
             >
@@ -67,18 +75,22 @@ const RecipeCarousel = () => {
             </div>
           ))}
         </div>
-        <button
-          onClick={prevSlide}
-          className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-gray-300 p-2 rounded-full"
-        >
-          ◀
-        </button>
-        <button
-          onClick={nextSlide}
-          className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-gray-300 p-2 rounded-full"
-        >
-          ▶
-        </button>
+        {isHovered && recipes.length > 5 && (
+          <>
+            <button
+              onClick={prevSlide}
+              className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-gray-300 p-2 rounded-full opacity-75 hover:opacity-100"
+            >
+              ◀
+            </button>
+            <button
+              onClick={nextSlide}
+              className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-gray-300 p-2 rounded-full opacity-75 hover:opacity-100"
+            >
+              ▶
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
