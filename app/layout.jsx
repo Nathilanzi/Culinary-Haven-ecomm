@@ -80,13 +80,13 @@ export default async function RootLayout({ children }) {
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className="bg-[#daf1de] dark:bg-[#1B1F1D]">
-        <ThemeProvider>
-          <Header />
-          <main className="pt-16">
-            <SessionProvider session={session}>{children}</SessionProvider>
-          </main>
-          <Footer />
-        </ThemeProvider>
+        <SessionProvider session={session}>
+          <ThemeProvider>
+            <Header />
+            <main className="pt-16">{children}</main>
+            <Footer />
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

@@ -1,12 +1,13 @@
 "use client";
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
 export default function SignIn() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [loading, setLoading] = useState(false);
@@ -16,6 +17,13 @@ export default function SignIn() {
     email: "",
     password: "",
   });
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (status === "authenticated" && session) {
+      router.push(callbackUrl);
+    }
+  }, [session, status, router, callbackUrl]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -36,7 +44,7 @@ export default function SignIn() {
       if (result?.error) {
         setError(result.error);
       } else {
-        router.push(callbackUrl);
+        router.refresh();
       }
     } catch (error) {
       setError("An unexpected error occurred");
@@ -46,8 +54,26 @@ export default function SignIn() {
   };
 
   const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl });
+    setLoading(true);
+    signIn("google", {
+      callbackUrl,
+      redirect: true,
+    });
   };
+
+  // If still loading the session, show a loading state
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  // Don't render the form if already authenticated
+  if (status === "authenticated") {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -113,6 +139,7 @@ export default function SignIn() {
             <button
               type="button"
               onClick={handleGoogleSignIn}
+              disabled={loading}
               className="flex items-center justify-center py-2 px-4 bg-white hover:bg-gray-200 focus:ring-[#0C3B2E] focus:ring-offset-[#6D9773] w-full transition ease-in duration-200 text-center shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg"
             >
               <svg
