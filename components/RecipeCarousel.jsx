@@ -5,14 +5,12 @@ import { useRouter } from "next/navigation";
 const RecipeCarousel = () => {
   const [recipes, setRecipes] = useState([]);
   const [visibleRecipes, setVisibleRecipes] = useState([]);
-  const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
 
-  // Fetch high-rated recipes from API on load
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await fetch("/api/recipes");
+        const response = await fetch("/api/recommended");
         const data = await response.json();
         setRecipes(data.recipes);
         setVisibleRecipes(data.recipes.slice(0, 5));
@@ -23,12 +21,10 @@ const RecipeCarousel = () => {
     fetchRecipes();
   }, []);
 
-  // Function to navigate to recipe details on click
   const navigateToRecipeDetails = (recipeId) => {
     router.push(`/recipes/${recipeId}`);
   };
 
-  // Move to the next recipe
   const nextSlide = () => {
     setVisibleRecipes((prev) => {
       const [first, ...rest] = prev;
@@ -36,19 +32,12 @@ const RecipeCarousel = () => {
     });
   };
 
-  // Move to the previous recipe
   const prevSlide = () => {
     setVisibleRecipes((prev) => {
       const last = prev[prev.length - 1];
       return [last, ...prev.slice(0, -1)];
     });
   };
-
-  // Autoplay functionality
-  useEffect(() => {
-    const interval = setInterval(nextSlide, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div className="w-full max-w-5xl mx-auto my-8">
@@ -62,16 +51,13 @@ const RecipeCarousel = () => {
               onClick={() => navigateToRecipeDetails(recipe._id)}
             >
               <div className="bg-gray-200 rounded-lg flex flex-col h-full">
-                {/* Image Section */}
                 <div className="h-32 w-full overflow-hidden">
                   <img
-                    src={recipe.images[0]}
+                    src={recipe.images[0]} // Ensure each recipe has a main image
                     alt={recipe.title}
                     className="w-full h-full object-cover rounded-t-lg"
                   />
                 </div>
-
-                {/* Content Section */}
                 <div className="flex flex-col items-center justify-center p-4 bg-white rounded-b-lg h-24">
                   <h3 className="text-lg font-semibold text-center">{recipe.title}</h3>
                   <p className="text-yellow-500 text-sm">
@@ -82,23 +68,12 @@ const RecipeCarousel = () => {
             </div>
           ))}
         </div>
-
-        {isHovered && (
-          <>
-            <button
-              onClick={prevSlide}
-              className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-gray-300 p-2 rounded-full"
-            >
-              ◀
-            </button>
-            <button
-              onClick={nextSlide}
-              className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-gray-300 p-2 rounded-full"
-            >
-              ▶
-            </button>
-          </>
-        )}
+        <button onClick={prevSlide} className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-gray-300 p-2 rounded-full">
+          ◀
+        </button>
+        <button onClick={nextSlide} className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-gray-300 p-2 rounded-full">
+          ▶
+        </button>
       </div>
     </div>
   );
