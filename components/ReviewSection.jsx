@@ -1,4 +1,6 @@
 "use client";
+import swal from "sweetalert";
+import Swal from 'sweetalert2';
 import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -17,6 +19,8 @@ function ReviewSection({ recipeId }) {
   const [error, setError] = useState(null);
   const [hover, setHover] = useState(0);
   const [editingReviewId, setEditingReviewId] = useState(null);
+  const [sortBy, setSortBy] = useState("date");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   // Fetch reviews
   useEffect(() => {
@@ -40,9 +44,29 @@ function ReviewSection({ recipeId }) {
     }
   }, [recipeId, reviewsVisible, session]);
 
+  // Handle sorting
+  const handleSortChange = (field, order) => {
+    setSortBy(field);
+    setSortOrder(order);
+    setReviews((prevReviews) => {
+      const sortedReviews = [...prevReviews].sort((a, b) => {
+        if (field === "date") {
+          return order === "desc"
+            ? new Date(b.createdAt) - new Date(a.createdAt)
+            : new Date(a.createdAt) - new Date(b.createdAt);
+        } else if (field === "rating") {
+          return order === "desc" ? b.rating - a.rating : a.rating - b.rating;
+        }
+        return 0;
+      });
+      return sortedReviews;
+    });
+  };
+
   // Add or update review
   const handleAddOrUpdateReview = async () => {
     if (!session) {
+      swal("Please log in", "You must be logged in to add a review.", "warning");
       signIn();
       return;
     }
@@ -84,9 +108,11 @@ function ReviewSection({ recipeId }) {
       // Reset form
       setNewReview({ rating: 0, comment: "" });
       setEditingReviewId(null);
+      swal("Review submitted", "Your review has been successfully submitted.", "success");
     } catch (error) {
       console.error("Failed to submit review:", error);
       setError(error.message);
+      swal("Submission failed", error.message || "Failed to add review", "error");
     } finally {
       setSubmittingReview(false);
     }
@@ -95,30 +121,45 @@ function ReviewSection({ recipeId }) {
   // Delete review
   const handleDeleteReview = async (reviewId) => {
     if (!session) {
+      swal("Please log in", "You must be logged in to delete a review.", "warning");
       setError("You must be logged in to delete a review");
       return;
     }
 
-    try {
-      const response = await fetch(
-        `/api/recipes/${recipeId}/reviews?reviewId=${reviewId}`,
-        {
-          method: "DELETE",
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "Do you really want to delete this review?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(
+          `/api/recipes/${recipeId}/reviews?reviewId=${reviewId}`,
+          {
+            method: "DELETE",
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to delete review");
         }
-      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete review");
+        // Refresh reviews after deletion
+        const refreshResponse = await fetch(`/api/recipes/${recipeId}/reviews`);
+        const refreshData = await refreshResponse.json();
+        setReviews(refreshData.reviews || []);
+        swal("Review deleted", "Your review has been successfully deleted.", "success");
+      } catch (error) {
+        console.error("Error deleting review:", error);
+        setError(error.message || "Failed to delete review");
+        swal("Deletion failed", error.message || "Failed to delete review", "error");
       }
-
-      // Refresh reviews after deletion
-      const refreshResponse = await fetch(`/api/recipes/${recipeId}/reviews`);
-      const refreshData = await refreshResponse.json();
-      setReviews(refreshData.reviews || []);
-    } catch (error) {
-      console.error("Error deleting review:", error);
-      setError(error.message || "Failed to delete review");
     }
   };
 
@@ -146,6 +187,57 @@ function ReviewSection({ recipeId }) {
 
       {reviewsVisible && (
         <>
+         {/* Sort buttons */}
+         <div className="mt-4 flex gap-4">
+            {/* Sort by Date */}
+            <div>
+              <p className="text-gray-700 mb-2 font-semibold">Sort by Date:</p>
+              <button
+                onClick={() => handleSortChange('date', 'desc')}
+                className={`bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-black ${
+                  sortBy === 'date' && sortOrder === 'desc' ? 'bg-gray-400' : ''
+                }`}
+              >
+                Newest
+              </button>
+              <button
+                onClick={() => handleSortChange('date', 'asc')}
+                className={`bg-gray-200 px-4 py-2 ml-2 rounded-lg hover:bg-gray-300 transition-colors text-black ${
+                  sortBy === 'date' && sortOrder === 'asc' ? 'bg-gray-400' : ''
+                }`}
+              >
+                Oldest
+              </button>
+            </div>
+
+            {/* Sort by Rating */}
+            <div>
+              <p className="text-gray-700 mb-2 font-semibold">Sort by Rating:</p>
+              <button
+                onClick={() => handleSortChange('rating', 'desc')}
+                className={`bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-black ${
+                  sortBy === 'rating' && sortOrder === 'desc' ? 'bg-gray-400' : ''
+                }`}
+              >
+                Highest
+              </button>
+              <button
+                onClick={() => handleSortChange('rating', 'asc')}
+                className={`bg-gray-200 px-4 py-2 ml-2 rounded-lg hover:bg-gray-300 transition-colors text-black ${
+                  sortBy === 'rating' && sortOrder === 'asc' ? 'bg-gray-400' : ''
+                }`}
+              >
+                Lowest
+              </button>
+              <button
+                onClick={() => { setSortBy("date"); setSortOrder("desc"); }}
+                className="ml-5 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Reset Filters
+              </button>
+            </div>
+          </div>
+          
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded relative">
               <span className="block sm:inline">{error}</span>
