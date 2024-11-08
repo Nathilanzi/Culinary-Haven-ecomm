@@ -15,7 +15,9 @@ const Header = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const navbarRef = useRef(null);
   const userMenuRef = useRef(null);
+  const mobileMenuRef = useRef(null);
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleSearch = () => setIsSearchVisible(!isSearchVisible);
@@ -28,37 +30,25 @@ const Header = () => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setIsUserMenuOpen(false);
       }
+      // Handle click outside mobile menu
+      if (
+        isOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target) &&
+        !event.target.closest('button[aria-label="toggle-mobile-menu"]')
+      ) {
+        setIsOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isOpen]);
 
   const UserMenu = () => {
-    const { data: session, status } = useSession();
-    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    const userMenuRef = useRef(null);
-
     const toggleUserMenu = () => {
       setIsUserMenuOpen(!isUserMenuOpen);
     };
-
-    // Close menu when clicking outside
-    useEffect(() => {
-      const handleClickOutside = (event) => {
-        if (
-          userMenuRef.current &&
-          !userMenuRef.current.contains(event.target)
-        ) {
-          setIsUserMenuOpen(false);
-        }
-      };
-
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, []);
 
     const handleLogout = async () => {
       setIsUserMenuOpen(false); // Close menu before logging out
@@ -232,6 +222,7 @@ const Header = () => {
 
           <button
             onClick={toggleMenu}
+            aria-label="toggle-mobile-menu"
             className="md:hidden p-2 rounded-lg text-white hover:bg-[#0c3b2e93] transition-colors duration-200 focus:outline-none"
           >
             <svg
@@ -253,7 +244,10 @@ const Header = () => {
       </div>
 
       {isOpen && (
-        <div className="md:hidden relative bg-[#0C3B2E] border-t border-[#ffffff1a]">
+        <div
+          ref={mobileMenuRef}
+          className="md:hidden relative bg-[#0C3B2E] border-t border-[#ffffff1a]"
+        >
           <div className="px-4 py-3 space-y-2">
             <Link
               href="/"
@@ -273,6 +267,37 @@ const Header = () => {
             >
               Shopping List
             </Link>
+            {status === "authenticated" ? (
+              <>
+                <Link
+                  href="/profile"
+                  className="block px-3 py-2 text-white hover:bg-[#0c3b2e93] rounded-lg transition-colors duration-200 text-sm font-medium"
+                >
+                  My Profile
+                </Link>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="block w-full text-left px-3 py-2 text-white hover:bg-[#0c3b2e93] rounded-lg transition-colors duration-200 text-sm font-medium"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/auth/signin"
+                  className="block px-3 py-2 text-white hover:bg-[#0c3b2e93] rounded-lg transition-colors duration-200 text-sm font-medium"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="block px-3 py-2 text-white hover:bg-[#0c3b2e93] rounded-lg transition-colors duration-200 text-sm font-medium"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
