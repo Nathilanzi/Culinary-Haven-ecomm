@@ -2,6 +2,7 @@ import { getRecipeById } from "../../../lib/api";
 import ImageSelector from "../../../components/ImageSelector.jsx";
 import BackButton from "../../../components/BackButton";
 import ReviewSection from "@/components/ReviewSection";
+import RecipeEdit from "@/components/RecipeEdit";
 
 const TimeIcon = () => (
   <svg
@@ -420,6 +421,10 @@ export default async function RecipeDetail({ params }) {
               <ReviewSection recipeId={id} />
             </div>
 
+            {/*Decription Editting  */}
+            <div className="mt-8">
+              <RecipeEdit recipe={recipe} />
+            </div>
           {/* Recipe Tags */}
           {recipe.tags && recipe.tags.length > 0 && (
             <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-gray-700">
