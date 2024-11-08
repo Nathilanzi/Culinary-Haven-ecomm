@@ -26,7 +26,6 @@ function validateReview(review) {
 // Helper function to update recipe average rating
 async function updateRecipeRating(db, recipeId) {
   const recipe = await db.collection("recipes").findOne({ _id: recipeId });
-  
   if (recipe && recipe.reviews) {
     const totalRating = recipe.reviews.reduce((sum, review) => sum + review.rating, 0);
     const averageRating = recipe.reviews.length > 0 ? 
