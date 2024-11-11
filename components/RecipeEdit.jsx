@@ -80,8 +80,8 @@ const RecipeEdit = ({ recipe, onSave }) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm">
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Edit Description</h2>
+    <div className="bg-white  dark:bg-gray-700 p-6 rounded-2xl shadow-sm">
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Edit Description</h2>
 
       {successMessage && (
         <div className="mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded">

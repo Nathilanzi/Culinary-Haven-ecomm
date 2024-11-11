@@ -47,7 +47,7 @@ const RecipeCarousel = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <h2 className="text-2xl font-bold mb-4">Recommended Recipes</h2>
+      <h2 className="text-2xl font-bold mb-4 dark:text-white">Recommended Recipes</h2>
       <div className="relative overflow-hidden">
         <div className="flex transition-transform duration-500 ease-in-out gap-4">
           {visibleRecipes.map((recipe, index) => (
@@ -56,15 +56,15 @@ const RecipeCarousel = () => {
               className="flex-1 sm:flex-none sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 p-2 cursor-pointer"
               onClick={() => navigateToRecipeDetails(recipe._id)}
             >
-              <div className="bg-gray-100 rounded-lg flex flex-col h-full shadow-md hover:shadow-lg transition-shadow duration-300">
-                <div className="h-48 sm:h-40 lg:h-52 w-full overflow-hidden">
+              <div className="bg-gray-100 rounded-lg flex flex-col h-full shadow-md hover:shadow-lg transition-shadow duration-300 dark:bg-[#333333] dark:text-[#A3C9A7]">
+                <div className="h-48 sm:h-40 lg:h-52 w-full overflow-hidden dark:bg-[#333333] dark:text-[#A3C9A7">
                   <img
                     src={recipe.images[0]}
                     alt={recipe.title}
                     className="w-full h-full object-cover rounded-t-lg"
                   />
                 </div>
-                <div className="flex flex-col items-center justify-center p-4 bg-white rounded-b-lg h-32">
+                <div className="flex flex-col items-center justify-center p-4 bg-white rounded-b-lg h-32 dark:bg-[#333333]">
                   <h3 className="text-lg font-semibold text-center line-clamp-2">
                     {recipe.title}
                   </h3>

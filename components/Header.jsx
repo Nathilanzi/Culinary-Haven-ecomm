@@ -124,6 +124,9 @@ const Header = () => {
               </>
             ) : (
               <>
+                <div className="flex justify-end px-4 py-2">
+                  <ThemeToggle />
+                </div>
                 <Link
                   href="/profile"
                   className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
@@ -248,6 +251,9 @@ const Header = () => {
           ref={mobileMenuRef}
           className="md:hidden relative bg-[#0C3B2E] border-t border-[#ffffff1a]"
         >
+          <div className="flex justify-end px-4 py-2">
+            <ThemeToggle />
+          </div>
           <div className="px-4 py-3 space-y-2">
             <Link
               href="/"
