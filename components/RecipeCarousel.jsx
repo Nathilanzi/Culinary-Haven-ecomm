@@ -1,24 +1,25 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 /**
- * (0)(0)
- * RecipeCarousel component that displays a carousel of recommended recipes.
- * Fetches recipes from the server, shows them in a horizontally scrollable view, 
- * and allows users to navigate between them.
+ * Responsive RecipeCarousel component that displays a carousel of recommended recipes.
+ * Fetches recipes from the server, shows them in a horizontally scrollable view,
+ * and allows users to navigate between them. The carousel is responsive and
+ * adjusts the number of visible recipes based on the screen size.
  * @component
  */
-const RecipeCarousel = () => {
+const ResponsiveRecipeCarousel = () => {
   const [recipes, setRecipes] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [visibleRecipes, setVisibleRecipes] = useState([]);
   const router = useRouter();
 
   /**
    * Fetch recommended recipes on component mount.
-   * 
    */
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -44,23 +45,47 @@ const RecipeCarousel = () => {
   /**
    * Show the next set of recipes in the carousel.
    */
-  const nextSlide = () => {
+  const nextSlide = (event) => {
+    event.preventDefault();
     setCurrentIndex((prevIndex) => (prevIndex + 1) % recipes.length);
   };
 
   /**
    * Show the previous set of recipes in the carousel.
    */
-  const prevSlide = () => {
+  const prevSlide = (event) => {
+    event.preventDefault();
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? recipes.length - 1 : prevIndex - 1
     );
   };
 
-  const visibleRecipes = [
-    ...recipes.slice(currentIndex, currentIndex + 4),
-    ...recipes.slice(0, Math.max(0, currentIndex + 4 - recipes.length)),
-  ];
+  /**
+   * Determine the number of visible recipes based on the screen size.
+   */
+  useEffect(() => {
+    const handleResize = () => {
+      const screenWidth = window.innerWidth;
+      let visibleCount = 4;
+      if (screenWidth < 640) {
+        visibleCount = 1;
+      } else if (screenWidth < 768) {
+        visibleCount = 2;
+      } else if (screenWidth < 1024) {
+        visibleCount = 3;
+      }
+      setVisibleRecipes([
+        ...recipes.slice(currentIndex, currentIndex + visibleCount),
+        ...recipes.slice(
+          0,
+          Math.max(0, currentIndex + visibleCount - recipes.length)
+        ),
+      ]);
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, [recipes, currentIndex]);
 
   return (
     <div
@@ -71,7 +96,7 @@ const RecipeCarousel = () => {
       <h2 className="text-2xl font-bold mb-4 dark:text-white text-center">
         Recommended Recipes
       </h2>
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-x-auto">
         <div className="flex justify-center transition-transform duration-500 ease-in-out gap-4">
           {visibleRecipes.map((recipe, index) => (
             <div
@@ -92,26 +117,29 @@ const RecipeCarousel = () => {
                     {recipe.title}
                   </h3>
                   <p className="text-yellow-500 text-sm">
-                    ⭐ {recipe.averageRating ? recipe.averageRating.toFixed(1) : "N/A"}
+                    ⭐{" "}
+                    {recipe.averageRating
+                      ? recipe.averageRating.toFixed(1)
+                      : "N/A"}
                   </p>
                 </div>
               </div>
             </div>
           ))}
         </div>
-        {isHovered && recipes.length > 4 && (
+        {isHovered && recipes.length > visibleRecipes.length && (
           <div className="absolute top-1/2 left-0 right-0 transform -translate-y-1/2 flex justify-between px-4">
             <button
               onClick={prevSlide}
-              className="bg-gray-100 p-3 rounded-full shadow-md hover:bg-gray-200 transition-colors duration-300"
+              className="bg-gray-100 p-3 rounded-full shadow-md hover:bg-gray-200 transition-colors duration-300 dark:bg-[#333333] dark:hover:bg-[#444444]"
             >
-              <ChevronLeftIcon className="h-6 w-6" />
+              <ChevronLeftIcon className="h-6 w-6 dark:text-[#A3C9A7]" />
             </button>
             <button
               onClick={nextSlide}
-              className="bg-gray-100 p-3 rounded-full shadow-md hover:bg-gray-200 transition-colors duration-300"
+              className="bg-gray-100 p-3 rounded-full shadow-md hover:bg-gray-200 transition-colors duration-300 dark:bg-[#333333] dark:hover:bg-[#444444]"
             >
-              <ChevronRightIcon className="h-6 w-6" />
+              <ChevronRightIcon className="h-6 w-6 dark:text-[#A3C9A7]" />
             </button>
           </div>
         )}
@@ -120,4 +148,4 @@ const RecipeCarousel = () => {
   );
 };
 
-export default RecipeCarousel;
+export default ResponsiveRecipeCarousel;
