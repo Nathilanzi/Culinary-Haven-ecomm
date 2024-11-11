@@ -1,96 +1,97 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import FavoritesButton from "@/components/FavoritesButton";
+import RecipeCard from "@/components/RecipeCard";
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState([]);
-  const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { data: session } = useSession();
+  const router = useRouter();
 
-  // Retrieve or create userId on mount
   useEffect(() => {
-    initializeUserId().then(() => {
-      fetchFavorites();
-      fetchFavoritesCount();
-    });
-  }, []);
-
-  const initializeUserId = async () => {
-    let userId = localStorage.getItem("user_id");
-
-    // If userId doesn't exist in localStorage, get a new one from the server
-    if (!userId) {
-      try {
-        const response = await fetch("/api/favorites?action=list");
-        const data = await response.json();
-
-        if (response.ok && data.userId) {
-          userId = data.userId;
-          localStorage.setItem("user_id", userId); // Store userId for future use
-        } else {
-          throw new Error("Failed to retrieve user ID");
-        }
-      } catch (error) {
-        console.error("Error initializing user ID:", error);
-      }
-    }
-    return userId;
-  };
-
-  const fetchFavorites = async () => {
-    const userId = localStorage.getItem("user_id");
-    if (!userId) {
-      setError("User ID not found.");
+    if (!session) {
+      router.push('/auth/signin');
       return;
     }
 
-    try {
-      const response = await fetch("/api/favorites?action=list", {
-        headers: { "user-id": userId },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setFavorites(data.favorites);
-      } else {
-        setError("Failed to fetch favorites");
+    const fetchFavorites = async () => {
+      try {
+        const response = await fetch("/api/favorites?action=list", {
+          headers: {
+            "user-id": session.user.id
+          }
+        });
+        
+        if (!response.ok) throw new Error("Failed to fetch favorites");
+        
+        const data = await response.json();
+        // Fetch full recipe details for each favorite
+        const recipesWithDetails = await Promise.all(
+          data.favorites.map(async (fav) => {
+            const recipeResponse = await fetch(`/api/recipes/${fav.recipeId}`);
+            const recipeData = await recipeResponse.json();
+            return {
+              ...recipeData,
+              favorited_at: fav.created_at
+            };
+          })
+        );
+        
+        setFavorites(recipesWithDetails);
+      } catch (error) {
+        setError("Error fetching favorites: " + error.message);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      setError("Error fetching favorites: " + error.message);
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    fetchFavorites();
+    
+    // Listen for favorites updates
+    window.addEventListener('favoritesUpdated', fetchFavorites);
+    return () => window.removeEventListener('favoritesUpdated', fetchFavorites);
+  }, [session, router]);
+
+  const handleFavoriteToggle = (recipeId) => {
+    setFavorites(favorites.filter(fav => fav._id !== recipeId));
   };
 
-  const fetchFavoritesCount = async () => {
-    const userId = localStorage.getItem("user_id");
-    if (!userId) return;
-
-    try {
-      const response = await fetch("/api/favorites?action=count", {
-        headers: { "user-id": userId },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setCount(data.count);
-      } else {
-        console.error("Failed to fetch favorites count");
-      }
-    } catch (error) {
-      console.error("Error fetching favorites count:", error);
-    }
-  };
+  if (loading) return <div className="text-center mt-8">Loading favorites...</div>;
+  if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
+  if (!session) return null;
 
   return (
-    <div>
-      <h2>Favorites ({count})</h2>
-      <ul>
-        {favorites.map((recipe) => (
-          <li key={recipe._id}>{recipe.title}</li>
-        ))}
-      </ul>
-      {loading && <p>Loading favorites...</p>}
-      {error && <p>{error}</p>}
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">My Favorite Recipes</h1>
+      
+      {favorites.length === 0 ? (
+        <div className="text-center py-8">
+          <p>You haven't saved any favorites yet.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {favorites.map((recipe) => (
+            <div key={recipe._id} className="relative">
+              <RecipeCard
+                recipe={recipe}
+                showFavoriteButton
+                isFavorited={true}
+                onFavoriteToggle={handleFavoriteToggle}
+                additionalInfo={
+                  <p className="text-sm text-gray-500 mt-2">
+                    Added to favorites: {new Date(recipe.favorited_at).toLocaleDateString()}
+                  </p>
+                }
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
