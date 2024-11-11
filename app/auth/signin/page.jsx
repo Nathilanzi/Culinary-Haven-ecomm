@@ -115,6 +115,7 @@ export default function SignIn() {
                 fill="#34A853"
               />
             </svg>
+            <p className="ml-2">Sign in with Google</p>
           </button>
         </div>
 
