@@ -3,12 +3,23 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
+/**
+ * (0)(0)
+ * RecipeCarousel component that displays a carousel of recommended recipes.
+ * Fetches recipes from the server, shows them in a horizontally scrollable view, 
+ * and allows users to navigate between them.
+ * @component
+ */
 const RecipeCarousel = () => {
   const [recipes, setRecipes] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
 
+  /**
+   * Fetch recommended recipes on component mount.
+   * 
+   */
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
@@ -22,14 +33,24 @@ const RecipeCarousel = () => {
     fetchRecipes();
   }, []);
 
+  /**
+   * Navigate to the recipe detail page.
+   * @param {string} recipeId - The ID of the recipe to navigate to.
+   */
   const navigateToRecipeDetails = (recipeId) => {
     router.push(`/recipes/${recipeId}`);
   };
 
+  /**
+   * Show the next set of recipes in the carousel.
+   */
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % recipes.length);
   };
 
+  /**
+   * Show the previous set of recipes in the carousel.
+   */
   const prevSlide = () => {
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? recipes.length - 1 : prevIndex - 1
@@ -37,8 +58,8 @@ const RecipeCarousel = () => {
   };
 
   const visibleRecipes = [
-    ...recipes.slice(currentIndex, currentIndex + 5),
-    ...recipes.slice(0, Math.max(0, currentIndex + 5 - recipes.length)),
+    ...recipes.slice(currentIndex, currentIndex + 4),
+    ...recipes.slice(0, Math.max(0, currentIndex + 4 - recipes.length)),
   ];
 
   return (
@@ -47,9 +68,11 @@ const RecipeCarousel = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <h2 className="text-2xl font-bold mb-4 dark:text-white">Recommended Recipes</h2>
+      <h2 className="text-2xl font-bold mb-4 dark:text-white text-center">
+        Recommended Recipes
+      </h2>
       <div className="relative overflow-hidden">
-        <div className="flex transition-transform duration-500 ease-in-out gap-4">
+        <div className="flex justify-center transition-transform duration-500 ease-in-out gap-4">
           {visibleRecipes.map((recipe, index) => (
             <div
               key={recipe._id || index} // Use index as fallback to avoid key warning
@@ -57,7 +80,7 @@ const RecipeCarousel = () => {
               onClick={() => navigateToRecipeDetails(recipe._id)}
             >
               <div className="bg-gray-100 rounded-lg flex flex-col h-full shadow-md hover:shadow-lg transition-shadow duration-300 dark:bg-[#333333] dark:text-[#A3C9A7]">
-                <div className="h-48 sm:h-40 lg:h-52 w-full overflow-hidden dark:bg-[#333333] dark:text-[#A3C9A7">
+                <div className="h-48 sm:h-40 lg:h-52 w-full overflow-hidden dark:bg-[#333333] dark:text-[#A3C9A7]">
                   <img
                     src={recipe.images[0]}
                     alt={recipe.title}
@@ -76,7 +99,7 @@ const RecipeCarousel = () => {
             </div>
           ))}
         </div>
-        {isHovered && recipes.length > 5 && (
+        {isHovered && recipes.length > 4 && (
           <div className="absolute top-1/2 left-0 right-0 transform -translate-y-1/2 flex justify-between px-4">
             <button
               onClick={prevSlide}
