@@ -10,7 +10,7 @@ const FavoritesCount = () => {
   useEffect(() => {
     const fetchCount = async () => {
       if (!session) return;
-      
+
       try {
         const response = await fetch('/api/favorites?action=count', {
           headers: {
@@ -25,7 +25,7 @@ const FavoritesCount = () => {
     };
 
     fetchCount();
-    
+
     // Subscribe to favorites count updates
     window.addEventListener('favoritesUpdated', fetchCount);
     return () => window.removeEventListener('favoritesUpdated', fetchCount);
