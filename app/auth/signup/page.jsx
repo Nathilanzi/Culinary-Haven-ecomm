@@ -87,7 +87,7 @@ export default function SignUp() {
           </p>
         </div>
 
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center ">
           <button
             onClick={handleGoogleSignUp}
             className="flex items-center justify-center p-3 px-16 border border-gray-300 rounded-lg hover:bg-gray-50"
@@ -110,6 +110,7 @@ export default function SignUp() {
                 fill="#34A853"
               />
             </svg>
+            <p className="ml-2">Sign up with Google</p>
           </button>
         </div>
 
