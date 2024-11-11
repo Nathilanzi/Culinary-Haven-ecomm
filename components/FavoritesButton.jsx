@@ -1,37 +1,98 @@
-import { useState } from "react";
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import router from 'next/router';
 
-const FavoritesButton = ({ recipeId, isFavorite, onFavoriteToggle }) => {
-  const [favorite, setFavorite] = useState(isFavorite);
+const FavoritesButton = ({ recipeId, isFavorited, onToggle }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { data: session } = useSession();
 
-  const handleClick = () => {
-    setFavorite((prev) => !prev);
-    if (onFavoriteToggle) {
-      onFavoriteToggle(recipeId, !favorite);
+  const handleToggle = async () => {
+    if (!session) {
+      router.push('/auth/signin');
+      return;
+    }
+
+    if (isFavorited) {
+      setIsOpen(true);
+      return;
+    }
+
+    await toggleFavorite();
+  };
+
+  const toggleFavorite = async () => {
+    try {
+      const response = await fetch('/api/favorites', {
+        method: isFavorited ? 'DELETE' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'user-id': session.user.id
+        },
+        body: JSON.stringify({ recipeId })
+      });
+
+      if (response.ok) {
+        window.dispatchEvent(new Event('favoritesUpdated'));
+
+        if (onToggle) {
+          onToggle(recipeId, !isFavorited);
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
     }
   };
 
+  const confirmRemove = async () => {
+    await toggleFavorite();
+    setIsOpen(false);
+  };
+
   return (
-    <button
-      onClick={handleClick}
-      className={`flex items-center space-x-2 px-4 py-2 rounded-md ${
-        favorite ? "bg-primary text-white" : "border border-gray-400 text-gray-700"
-      }`}
-    >
-      <svg
-        fill={favorite ? "#FF0000" : "#000000"}
-        height="24px"
-        width="24px"
-        version="1.1"
-        id="Layer_1"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlnsXlink="http://www.w3.org/1999/xlink"
-        viewBox="0 0 455 455"
-        xmlSpace="preserve"
+    <>
+      <button
+        onClick={handleToggle}
+        className="flex items-center space-x-2 p-2 rounded-full bg-white bg-opacity-75 hover:bg-opacity-100 transition-all duration-300"
+        aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
       >
-        <path d="M326.632,10.346c-38.733,0-74.991,17.537-99.132,46.92c-24.141-29.384-60.398-46.92-99.132-46.92 C57.586,10.346,0,67.931,0,138.714c0,55.426,33.05,119.535,98.23,190.546c50.161,54.647,104.728,96.959,120.257,108.626l9.01,6.769 l9.01-6.768c15.529-11.667,70.098-53.978,120.26-108.625C421.949,258.251,455,194.141,455,138.714 C455,67.931,397.414,10.346,326.632,10.346z M334.666,308.974c-41.259,44.948-85.648,81.283-107.169,98.029 c-21.52-16.746-65.907-53.082-107.166-98.03C61.236,244.592,30,185.717,30,138.714c0-54.24,44.128-98.368,98.368-98.368 c35.694,0,68.652,19.454,86.013,50.771l13.119,23.666l13.119-23.666c17.36-31.316,50.318-50.771,86.013-50.771 c54.24,0,98.368,44.127,98.368,98.368C425,185.719,393.763,244.594,334.666,308.974z" />
-      </svg>
-      <span>{favorite ? "Remove from Favorites" : "Add to Favorites"}</span>
-    </button>
+        <svg
+          className={`w-6 h-6 ${isFavorited ? 'text-red-500' : 'text-gray-400'}`}
+          fill={isFavorited ? 'currentColor' : 'none'}
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+          />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-2">Remove from Favorites?</h2>
+            <p className="text-gray-600 mb-4">Are you sure you want to remove this recipe from your favorites?</p>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmRemove}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
