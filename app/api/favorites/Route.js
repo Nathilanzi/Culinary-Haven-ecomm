@@ -1,56 +1,41 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import clientPromise from "@/lib/mongodb";
 
-// Mark route as dynamic since it depends on request parameters
 export const dynamic = "force-dynamic";
 
-// Helper function to ensure the favorites collection exists
 async function ensureFavoritesCollection(db) {
   const collections = await db.listCollections({ name: "favorites" }).toArray();
   if (collections.length === 0) {
     await db.createCollection("favorites");
+    await db.collection("favorites").createIndex({ userEmail: 1, recipeId: 1 }, { unique: true });
   }
 }
 
-/**
- * Generates a new user ID and ensures it exists in the database
- * @param {Db} db - MongoDB database instance
- * @returns {string} - The new user ID
- */
-async function generateUserId(db) {
-  const userId = crypto.randomUUID();
-  // You can add logic here if you want to track users in a separate collection
-  return userId;
-}
-
-/**
- * GET - Retrieve the count or list of user's favorite recipes
- * @param {Request} request
- * @returns {Promise<NextResponse>}
- */
 export async function GET(request) {
   try {
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const action = searchParams.get("action");
-    let userId = request.headers.get("userId");
+    const userEmail = session.user.email;
 
     const client = await clientPromise;
     const db = client.db("devdb");
-
-    // Ensure the favorites collection exists
     await ensureFavoritesCollection(db);
 
-    // Generate a new userId if one was not provided
-    if (!userId) {
-      userId = await generateUserId(db);
-    }
-
     if (action === "count") {
-      const count = await db.collection("favorites").countDocuments({ userId });
-      return NextResponse.json({ count, userId });
+      const count = await db.collection("favorites").countDocuments({ userEmail });
+      return NextResponse.json({ count });
     } else {
-      const favorites = await db.collection("favorites").find({ userId }).toArray();
-      return NextResponse.json({ favorites, userId });
+      const favorites = await db.collection("favorites")
+        .find({ userEmail })
+        .sort({ created_at: -1 })
+        .toArray();
+      return NextResponse.json({ favorites });
     }
   } catch (error) {
     console.error("Error fetching favorites:", error);
@@ -58,75 +43,64 @@ export async function GET(request) {
   }
 }
 
-/**
- * POST - Add a recipe to user's favorites
- * @param {Request} request
- * @returns {Promise<NextResponse>}
- */
 export async function POST(request) {
   try {
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { recipeId } = await request.json();
-    let userId = request.headers.get("userId");
+    const userEmail = session.user.email;
 
     const client = await clientPromise;
     const db = client.db("devdb");
-
-    // Ensure the favorites collection exists
     await ensureFavoritesCollection(db);
-
-    // Generate a new userId if one was not provided
-    if (!userId) {
-      userId = await generateUserId(db);
-    }
 
     if (!recipeId) {
       return NextResponse.json({ error: "Recipe ID is required" }, { status: 400 });
     }
 
-    const existingFavorite = await db.collection("favorites").findOne({ userId, recipeId });
-    if (existingFavorite) {
-      return NextResponse.json({ message: "Recipe already in favorites", userId });
-    }
+    await db.collection("favorites").insertOne({
+      userEmail,
+      recipeId,
+      created_at: new Date()
+    });
 
-    await db.collection("favorites").insertOne({ userId, recipeId });
-    return NextResponse.json({ message: "Recipe added to favorites", userId });
+    return NextResponse.json({ message: "Recipe added to favorites" });
   } catch (error) {
+    if (error.code === 11000) {
+      return NextResponse.json({ message: "Recipe already in favorites" });
+    }
     console.error("Error adding to favorites:", error);
     return NextResponse.json({ error: "Error adding to favorites" }, { status: 500 });
   }
 }
 
-/**
- * DELETE - Remove a recipe from user's favorites
- * @param {Request} request
- * @returns {Promise<NextResponse>}
- */
 export async function DELETE(request) {
   try {
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { recipeId } = await request.json();
-    let userId = request.headers.get("userId");
+    const userEmail = session.user.email;
 
     const client = await clientPromise;
     const db = client.db("devdb");
-
-    // Ensure the favorites collection exists
     await ensureFavoritesCollection(db);
-
-    // Generate a new userId if one was not provided
-    if (!userId) {
-      userId = await generateUserId(db);
-    }
 
     if (!recipeId) {
       return NextResponse.json({ error: "Recipe ID is required" }, { status: 400 });
     }
 
-    const deleteResult = await db.collection("favorites").deleteOne({ userId, recipeId });
+    const deleteResult = await db.collection("favorites").deleteOne({ userEmail, recipeId });
     if (deleteResult.deletedCount === 0) {
-      return NextResponse.json({ error: "Favorite not found", userId }, { status: 404 });
+      return NextResponse.json({ error: "Favorite not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ message: "Recipe removed from favorites", userId });
+    return NextResponse.json({ message: "Recipe removed from favorites" });
   } catch (error) {
     console.error("Error removing from favorites:", error);
     return NextResponse.json({ error: "Error removing from favorites" }, { status: 500 });
