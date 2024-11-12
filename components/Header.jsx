@@ -8,7 +8,6 @@ import Image from "next/image";
 import ThemeToggle from "./ThemeToggle";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import FavoritesCount from "./FavoritesCount";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,9 +18,35 @@ const Header = () => {
   const mobileMenuRef = useRef(null);
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [favoritesCount, setFavoritesCount] = useState(0);
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleSearch = () => setIsSearchVisible(!isSearchVisible);
+
+  const updateFavoritesCount = async () => {
+    if (session) {
+      try {
+        const response = await fetch("/api/favorites?action=count");
+        const data = await response.json();
+        setFavoritesCount(data.count);
+      } catch (error) {
+        console.error("Error fetching favorites count:", error);
+      }
+    } else {
+      setFavoritesCount(0);
+    }
+  };
+
+  useEffect(() => {
+    updateFavoritesCount();
+
+    // Set up an event listener for favorites updates
+    window.addEventListener("favoritesUpdated", updateFavoritesCount);
+
+    return () => {
+      window.removeEventListener("favoritesUpdated", updateFavoritesCount);
+    };
+  }, [session]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -208,16 +233,18 @@ const Header = () => {
               >
                 Recipes
               </Link>
-              <div className="flex justify-center">
+              <div className="flex justify-center ">
                 <Link
                   href="/favorites"
-                  className="text-white hover:text-gray-200 transition-colors duration-200 text-sm font-medium"
+                  className={`relative flex items-center `}
                 >
                   Favorites
+                  {favoritesCount > 0 && (
+                    <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {favoritesCount}
+                    </span>
+                  )}
                 </Link>
-                <div className="ml-3">
-                  <FavoritesCount />
-                </div>
               </div>
 
               <Link
@@ -268,13 +295,16 @@ const Header = () => {
             >
               Recipes
             </Link>
-            <Link
-              href="/favorites"
-              className="block px-3 py-2 text-white hover:bg-[#0c3b2e93] rounded-lg transition-colors duration-200 text-sm font-medium"
-            >
-              Favorites
-              <FavoritesCount />
-            </Link>
+            <div className="flex ml-3">
+              <Link href="/favorites" className={`relative flex items-center text-white`}>
+                Favorites
+                {favoritesCount > 0 && (
+                  <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {favoritesCount}
+                  </span>
+                )}
+              </Link>
+            </div>
             <Link
               href="/shopping-list"
               className="block px-3 py-2 text-white hover:bg-[#0c3b2e93] rounded-lg transition-colors duration-200 text-sm font-medium"
