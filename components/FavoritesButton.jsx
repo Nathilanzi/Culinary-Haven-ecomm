@@ -1,14 +1,22 @@
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
-import router from 'next/router';
+"use client";
 
-const FavoritesButton = ({ recipeId, isFavorited, onToggle }) => {
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
+const FavoritesButton = ({
+  recipeId,
+  isFavorited: initialIsFavorited,
+  onFavoriteToggle,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(initialIsFavorited);
   const { data: session } = useSession();
+  const router = useRouter();
 
   const handleToggle = async () => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push("/auth/signin");
       return;
     }
 
@@ -22,24 +30,38 @@ const FavoritesButton = ({ recipeId, isFavorited, onToggle }) => {
 
   const toggleFavorite = async () => {
     try {
-      const response = await fetch('/api/favorites', {
-        method: isFavorited ? 'DELETE' : 'POST',
+      const response = await fetch("/api/favorites", {
+        method: isFavorited ? "DELETE" : "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'user-id': session.user.id
+          "Content-Type": "application/json",
+          "user-id": session.user.id,
         },
-        body: JSON.stringify({ recipeId })
+        body: JSON.stringify({ recipeId }),
       });
 
       if (response.ok) {
-        window.dispatchEvent(new Event('favoritesUpdated'));
+        const newFavoritedState = !isFavorited;
+        setIsFavorited(newFavoritedState);
 
-        if (onToggle) {
-          onToggle(recipeId, !isFavorited);
-        }
+        // Trigger alert
+        onFavoriteToggle(
+          true,
+          newFavoritedState
+            ? "Recipe added to favorites!"
+            : "Recipe removed from favorites!"
+        );
+
+        // Dispatch event for any other components that need to update
+        window.dispatchEvent(new Event("favoritesUpdated"));
+
+        // Refresh the page data to ensure sync with server state
+        router.refresh();
+      } else {
+        throw new Error("Failed to update favorite");
       }
     } catch (error) {
-      console.error('Error toggling favorite:', error);
+      console.error("Error toggling favorite:", error);
+      onFavoriteToggle(false, "Failed to update favorites. Please try again.");
     }
   };
 
@@ -56,8 +78,8 @@ const FavoritesButton = ({ recipeId, isFavorited, onToggle }) => {
         aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
       >
         <svg
-          className={`w-6 h-6 ${isFavorited ? 'text-red-500' : 'text-gray-400'}`}
-          fill={isFavorited ? 'currentColor' : 'none'}
+          className={`w-6 h-6 ${isFavorited ? "text-red-500" : "text-gray-400"}`}
+          fill={isFavorited ? "currentColor" : "none"}
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
@@ -71,10 +93,12 @@ const FavoritesButton = ({ recipeId, isFavorited, onToggle }) => {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
             <h2 className="text-lg font-bold mb-2">Remove from Favorites?</h2>
-            <p className="text-gray-600 mb-4">Are you sure you want to remove this recipe from your favorites?</p>
+            <p className="text-gray-600 mb-4">
+              Are you sure you want to remove this recipe from your favorites?
+            </p>
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setIsOpen(false)}
