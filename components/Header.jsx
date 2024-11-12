@@ -236,7 +236,7 @@ const Header = () => {
               <div className="flex justify-center ">
                 <Link
                   href="/favorites"
-                  className={`relative flex items-center `}
+                  className={`relative flex items-center text-white`}
                 >
                   Favorites
                   {favoritesCount > 0 && (
