@@ -188,7 +188,7 @@ export default function SignIn() {
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-600">
-          Don't have an account?
+          Don&apos;t have an account?
           <Link
             href="/auth/signup"
             className="font-medium ml-1 text-green-900 hover:text-green-800"

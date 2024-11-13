@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import Image from "next/image";
 
 /**
  * Responsive RecipeCarousel component that displays a carousel of recommended recipes.
@@ -106,10 +107,12 @@ const ResponsiveRecipeCarousel = () => {
             >
               <div className="bg-gray-100 rounded-lg flex flex-col h-full shadow-md hover:shadow-lg transition-shadow duration-300 dark:bg-[#333333] dark:text-[#A3C9A7]">
                 <div className="h-48 sm:h-40 lg:h-52 w-full overflow-hidden dark:bg-[#333333] dark:text-[#A3C9A7]">
-                  <img
+                  <Image
                     src={recipe.images[0]}
                     alt={recipe.title}
                     className="w-full h-full object-cover rounded-t-lg"
+                    width={300}
+                    height={300}
                   />
                 </div>
                 <div className="flex flex-col items-center justify-center p-4 bg-white rounded-b-lg h-32 dark:bg-[#333333]">
