@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function Profile() {
   const { data: session } = useSession();
@@ -22,7 +23,7 @@ export default function Profile() {
     }
 
     fetchUserProfile();
-  }, [session]);
+  }, [session, router]);
 
   const fetchUserProfile = async () => {
     try {
@@ -155,10 +156,12 @@ export default function Profile() {
                   <h3 className="text-sm font-medium text-gray-500">
                     Profile Image
                   </h3>
-                  <img
+                  <Image
                     src={userData.image}
                     alt="Profile"
                     className="mt-1 h-20 w-20 rounded-full"
+                    width={300}
+                    height={300}
                   />
                 </div>
               )}

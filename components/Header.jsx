@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { Suspense } from "react";
 import SearchBar from "./SearchBar";
@@ -23,7 +23,7 @@ const Header = () => {
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleSearch = () => setIsSearchVisible(!isSearchVisible);
 
-  const updateFavoritesCount = async () => {
+  const updateFavoritesCount = useCallback(async () => {
     if (session) {
       try {
         const response = await fetch("/api/favorites?action=count");
@@ -35,7 +35,7 @@ const Header = () => {
     } else {
       setFavoritesCount(0);
     }
-  };
+  }, [session]);
 
   useEffect(() => {
     updateFavoritesCount();
@@ -46,7 +46,7 @@ const Header = () => {
     return () => {
       window.removeEventListener("favoritesUpdated", updateFavoritesCount);
     };
-  }, [session]);
+  }, [updateFavoritesCount]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

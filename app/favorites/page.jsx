@@ -72,7 +72,7 @@ export default function Favorites() {
       
       {favorites.length === 0 ? (
         <div className="text-center text-black dark:text-white py-8">
-          <p>You haven't saved any favorites yet.</p>
+          <p>You haven&apos;t saved any favorites yet.</p>
         </div>
       ) : (
         <div className="max-w-7xl mx-auto">
