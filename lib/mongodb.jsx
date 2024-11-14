@@ -24,10 +24,10 @@ const uri = process.env.MONGODB_URI;
 const options = {
   maxPoolSize: 10,
   minPoolSize: 5,
-  maxIdleTimeMS: 60000,
-  connectTimeoutMS: 10000,
-  serverSelectionTimeoutMS: 10000,
-  socketTimeoutMS: 20000,
+  maxIdleTimeMS: 30000,
+  connectTimeoutMS: 5000,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 10000,
   retryWrites: true,
   w: "majority",
 };
