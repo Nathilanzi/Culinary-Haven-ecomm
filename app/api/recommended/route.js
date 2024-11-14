@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
+// Mark route as dynamic since it involves database operations
+export const dynamic = "force-dynamic";
+
 // Endpoint to fetch top-rated recipes
 export async function GET() {
   try {
