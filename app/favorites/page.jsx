@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import FavoritesButton from "@/components/FavoritesButton";
 import RecipeCard from "@/components/RecipeCard";
 import LoadingPage from "../loading";
+import BackButton from "@/components/BackButton";
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState([]);
@@ -68,7 +69,11 @@ export default function Favorites() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl text-black dark:text-white font-bold mb-8">My Favorite Recipes</h1>
+      {/* Fixed position back button */}
+      <div className="fixed top-4 -left-20 z-50">
+        <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
+      </div>
+      <h1 className="text-center text-3xl text-black dark:text-white font-bold mb-8">My Favorite Recipes⭐</h1>
       
       {favorites.length === 0 ? (
         <div className="text-center text-black dark:text-white py-8">
