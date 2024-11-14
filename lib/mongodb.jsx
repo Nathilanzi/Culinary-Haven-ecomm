@@ -1,134 +1,101 @@
+/**
+ * This module provides functions to interact with a MongoDB database for a recipe application.
+ *
+ * It includes the following functionality:
+ * - Connecting to the MongoDB database
+ * - Initializing and creating indexes for the "recipes" and "favorites" collections
+ * - Retrieving a user's favorite recipes
+ * - Adding a new favorite recipe for a user
+ * - Removing a favorite recipe for a user
+ * - Retrieving the number of favorite recipes for a user
+ *
+ * @module mongodb-client
+ */
+
 import { MongoClient } from "mongodb";
 
-// Check for required environment variable
+// Check if the required environment variable is set
 if (!process.env.MONGODB_URI) {
   throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
 }
 
-// Get MongoDB connection string from environment variables
+// Set the MongoDB connection options
 const uri = process.env.MONGODB_URI;
 const options = {
   maxPoolSize: 10,
   minPoolSize: 5,
   maxIdleTimeMS: 60000,
   connectTimeoutMS: 10000,
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 20000,
+  retryWrites: true,
+  w: "majority",
 };
 
 // Declare variables for MongoDB client and its promise
 let client;
 let clientPromise;
 
-// Initialize all necessary indexes
+/**
+ * Initialize the indexes for the "recipes" and "favorites" collections.
+ *
+ * @param {MongoClient} client - The MongoDB client instance.
+ * @returns {Promise<void>}
+ */
 async function initializeIndexes(client) {
   const db = client.db("devdb");
-  const errors = [];
 
   try {
-    // Initialize indexes for recipes collection
-    await initializeRecipeIndexes(db);
+    // Initialize recipe indexes
+    const recipes = db.collection("recipes");
+    await Promise.all([
+      recipes.createIndex(
+        { title: "text", description: "text", tags: "text" },
+        {
+          weights: { title: 10, description: 5, tags: 3 },
+          name: "recipe_search_index",
+          background: true,
+        }
+      ),
+      recipes.createIndex({ category: 1 }, { background: true }),
+      recipes.createIndex({ tags: 1 }, { background: true }),
+      recipes.createIndex({ "ingredients.name": 1 }, { background: true }),
+      recipes.createIndex({ category: 1, createdAt: -1 }, { background: true }),
+      recipes.createIndex({ averageRating: -1 }, { background: true }),
+    ]);
 
-    // Initialize indexes for favorites collection
-    await initializeFavoritesCollection(db);
+    // Initialize favorites indexes
+    const favorites = db.collection("favorites");
+    await Promise.all([
+      favorites.createIndex({ userId: 1, recipeId: 1 }, { unique: true }),
+      favorites.createIndex({ userId: 1, createdAt: -1 }),
+    ]);
 
-    if (errors.length > 0) {
-      console.error(`Index initialization completed with warnings: ${errors.join("; ")}`);
-    }
+    console.log("Indexes initialized successfully");
   } catch (error) {
-    console.error(`Index initialization error: ${error.message}`);
+    console.error("Index initialization error:", error);
+    // Continue even if index creation fails
   }
 }
 
-// Initialize indexes for recipes collection
-async function initializeRecipeIndexes(db) {
-  const collection = db.collection("recipes");
-
-  const indexOperations = [
-    {
-      operation: async () => {
-        await collection.createIndex(
-          { title: "text", description: "text", tags: "text" },
-          {
-            weights: { title: 10, description: 5, tags: 3 },
-            name: "recipe_search_index",
-            background: true,
-          }
-        );
-      },
-      name: "recipe_search_index",
-    },
-    { operation: () => collection.createIndex({ category: 1 }, { background: true }), name: "category_index" },
-    { operation: () => collection.createIndex({ tags: 1 }, { background: true }), name: "tags_index" },
-    { operation: () => collection.createIndex({ "ingredients.name": 1 }, { background: true }), name: "ingredients_index" },
-    { operation: () => collection.createIndex({ instructions: 1 }, { background: true }), name: "instructions_index" },
-    { operation: () => collection.createIndex({ category: 1, createdAt: -1 }, { background: true }), name: "category_date_index" },
-    { operation: () => collection.createIndex({ "reviews.rating": 1, "reviews.createdAt": -1 }, { background: true }), name: "reviews_compound_index" },
-    { operation: () => collection.createIndex({ "reviews.userId": 1 }, { background: true }), name: "review_user_index" },
-    { operation: () => collection.createIndex({ averageRating: -1 }, { background: true }), name: "average_rating_index" },
-  ];
-
-  for (const { operation, name } of indexOperations) {
-    try {
-      await operation();
-    } catch (error) {
-      if (error.code !== 85) {
-        console.error(`Failed to create index ${name}: ${error.message}`);
-      }
-    }
-  }
-}
-
-// Initialize favorites collection and indexes
-async function initializeFavoritesCollection(db) {
-  try {
-    const collections = await db.listCollections({ name: "favorites" }).toArray();
-    if (collections.length === 0) {
-      await db.createCollection("favorites");
-    }
-
-    const favoritesCollection = db.collection("favorites");
-    await favoritesCollection.createIndex({ userId: 1, recipeId: 1 }, { unique: true });
-    await favoritesCollection.createIndex({ userId: 1, createdAt: -1 });
-
-    await favoritesCollection.updateMany(
-      { createdAt: { $exists: false } },
-      { $set: { createdAt: new Date() } }
-    );
-  } catch (error) {
-    console.error("Error initializing favorites collection:", error);
-  }
-}
-
-// Add reviews field to recipes if it does not exist
-async function checkAndCreateReviews(db) {
-  const collection = db.collection("recipes");
-
-  try {
-    const recipesWithoutReviews = await collection.find({ reviews: { $exists: false } }).toArray();
-
-    if (recipesWithoutReviews.length > 0) {
-      const updatePromises = recipesWithoutReviews.map(recipe => {
-        return collection.updateOne(
-          { _id: recipe._id },
-          { $set: { reviews: [] } }
-        );
-      });
-      await Promise.all(updatePromises);
-      console.log(`${updatePromises.length} recipes updated with empty reviews array.`);
-    } else {
-      console.log("No recipes without reviews found.");
-    }
-  } catch (error) {
-    console.error(`Error checking and creating reviews: ${error.message}`);
-  }
-}
-
-// Main connection logic
+/**
+ * Initialize the MongoDB connection and create the necessary indexes.
+ *
+ * @returns {Promise<MongoClient>} - The connected MongoDB client instance.
+ */
 async function initializeConnection() {
   try {
     client = new MongoClient(uri, options);
     const connectedClient = await client.connect();
+
+    // Test the connection
+    const admin = connectedClient.db("admin");
+    await admin.command({ ping: 1 });
+    console.log("MongoDB connection established successfully");
+
+    // Initialize indexes
     await initializeIndexes(connectedClient);
-    await checkAndCreateReviews(connectedClient.db("devdb"));
+
     return connectedClient;
   } catch (error) {
     console.error("Failed to initialize MongoDB connection:", error);
@@ -136,7 +103,7 @@ async function initializeConnection() {
   }
 }
 
-// Handle development and production environment connections
+// Initialize the MongoDB connection and create a shared promise
 if (process.env.NODE_ENV === "development") {
   if (!global._mongoClientPromise) {
     global._mongoClientPromise = initializeConnection();
@@ -148,12 +115,18 @@ if (process.env.NODE_ENV === "development") {
 
 export default clientPromise;
 
-// Utility functions for favorites management
+/**
+ * Retrieve a user's favorite recipes, including the recipe details.
+ *
+ * @param {string} userId - The ID of the user.
+ * @returns {Promise<Array<{ _id: string, userId: string, recipeId: string, createdAt: Date, recipe: object }>>} - An array of favorite recipes with their details.
+ */
 export async function getFavorites(userId) {
   const client = await clientPromise;
   const db = client.db("devdb");
 
-  return db.collection("favorites")
+  return db
+    .collection("favorites")
     .aggregate([
       { $match: { userId } },
       {
@@ -161,39 +134,73 @@ export async function getFavorites(userId) {
           from: "recipes",
           localField: "recipeId",
           foreignField: "_id",
-          as: "recipe"
-        }
+          as: "recipe",
+        },
       },
       { $unwind: "$recipe" },
-      { $project: { _id: 1, userId: 1, recipeId: 1, createdAt: 1, recipe: 1 } },
-      { $sort: { createdAt: -1 } }
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          recipeId: 1,
+          createdAt: 1,
+          recipe: 1,
+        },
+      },
+      { $sort: { createdAt: -1 } },
     ])
     .toArray();
 }
 
+/**
+ * Add a new favorite recipe for a user.
+ *
+ * @param {string} userId - The ID of the user.
+ * @param {string} recipeId - The ID of the recipe.
+ * @returns {Promise<boolean>} - Returns true if the favorite was added successfully, false if the favorite already exists.
+ */
 export async function addFavorite(userId, recipeId) {
   const client = await clientPromise;
   const db = client.db("devdb");
 
   try {
-    await db.collection("favorites").insertOne({ userId, recipeId, createdAt: new Date() });
+    await db.collection("favorites").insertOne({
+      userId,
+      recipeId,
+      createdAt: new Date(),
+    });
     return true;
   } catch (error) {
-    if (error.code === 11000) { // Duplicate key error
+    if (error.code === 11000) {
       return false;
     }
     throw error;
   }
 }
 
+/**
+ * Remove a favorite recipe for a user.
+ *
+ * @param {string} userId - The ID of the user.
+ * @param {string} recipeId - The ID of the recipe.
+ * @returns {Promise<boolean>} - Returns true if the favorite was removed successfully, false otherwise.
+ */
 export async function removeFavorite(userId, recipeId) {
   const client = await clientPromise;
   const db = client.db("devdb");
 
-  const result = await db.collection("favorites").deleteOne({ userId, recipeId });
+  const result = await db
+    .collection("favorites")
+    .deleteOne({ userId, recipeId });
   return result.deletedCount > 0;
 }
 
+/**
+ * Retrieve the number of favorite recipes for a user.
+ *
+ * @param {string} userId - The ID of the user.
+ * @returns {Promise<number>} - The number of favorite recipes for the user.
+ */
 export async function getFavoritesCount(userId) {
   const client = await clientPromise;
   const db = client.db("devdb");
