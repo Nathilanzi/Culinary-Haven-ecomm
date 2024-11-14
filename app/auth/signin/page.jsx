@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import Alert from "@/components/Alert";
 
 export default function SignIn() {
   const router = useRouter();
@@ -18,6 +19,23 @@ export default function SignIn() {
     email: "",
     password: "",
   });
+  const [alert, setAlert] = useState({
+    show: false,
+    message: "",
+    type: "success",
+  });
+
+  // Check for redirect message from signup
+  useEffect(() => {
+    const signupSuccess = searchParams.get("signupSuccess");
+    if (signupSuccess === "true") {
+      setAlert({
+        show: true,
+        message: "Account created successfully! Please sign in to continue.",
+        type: "success",
+      });
+    }
+  }, [searchParams]);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -34,6 +52,7 @@ export default function SignIn() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setAlert({ show: false, message: "", type: "success" });
 
     try {
       const result = await signIn("credentials", {
@@ -44,11 +63,31 @@ export default function SignIn() {
 
       if (result?.error) {
         setError(result.error);
+        setAlert({
+          show: true,
+          message: "Invalid email or password. Please try again.",
+          type: "error",
+        });
       } else {
-        router.refresh();
+        setAlert({
+          show: true,
+          message: "Successfully logged in! Redirecting...",
+          type: "success",
+        });
+
+        // Wait for alert to be visible before redirecting
+        setTimeout(() => {
+          router.push(callbackUrl);
+          router.refresh();
+        }, 3000);
       }
     } catch (error) {
       setError("An unexpected error occurred");
+      setAlert({
+        show: true,
+        message: "Failed to login. Please try again later.",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -72,7 +111,13 @@ export default function SignIn() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-10">
+      <Alert
+        message={alert.message}
+        type={alert.type}
+        isVisible={alert.show}
+        onClose={() => setAlert({ ...alert, show: false })}
+      />
       <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-lg">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4">
@@ -181,7 +226,7 @@ export default function SignIn() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-950 hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-950 hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-950"
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>
