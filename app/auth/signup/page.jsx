@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import Alert from "@/components/Alert";
 
 export default function SignUp() {
   const router = useRouter();
@@ -18,6 +19,11 @@ export default function SignUp() {
     password: "",
     confirmPassword: "",
   });
+  const [alert, setAlert] = useState({
+    show: false,
+    message: "",
+    type: "success",
+  });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,15 +31,16 @@ export default function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    // Check if passwords match
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
+      setAlert({
+        show: true,
+        message: "Passwords do not match",
+        type: "error",
+      });
       return;
     }
+    setLoading(true);
+    setError("");
 
     try {
       const res = await fetch("/api/auth/signup", {
@@ -52,8 +59,17 @@ export default function SignUp() {
         throw new Error(data.error || "Something went wrong");
       }
 
-      // Redirect to sign in page after successful signup
-      router.push("/auth/signin");
+      // Show success alert
+      setAlert({
+        show: true,
+        message: "Account created successfully! Please sign in to continue.",
+        type: "success",
+      });
+
+      // Redirect to sign in page after 2 seconds
+      setTimeout(() => {
+        router.push("/auth/signin");
+      }, 3000);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -68,6 +84,12 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-10">
+      <Alert
+        message={alert.message}
+        type={alert.type}
+        isVisible={alert.show}
+        onClose={() => setAlert({ ...alert, show: false })}
+      />
       <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-lg">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4">
@@ -87,7 +109,7 @@ export default function SignUp() {
           </p>
         </div>
 
-        <div className="flex items-center justify-center ">
+        <div className="flex items-center justify-center">
           <button
             onClick={handleGoogleSignUp}
             className="flex items-center justify-center p-3 px-16 border border-gray-300 rounded-lg hover:bg-gray-50"

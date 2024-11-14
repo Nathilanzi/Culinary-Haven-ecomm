@@ -8,6 +8,7 @@ import Image from "next/image";
 import ThemeToggle from "./ThemeToggle";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Alert from "./Alert";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +20,11 @@ const Header = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [favoritesCount, setFavoritesCount] = useState(0);
+  const [navAlertConfig, setNavAlertConfig] = useState({
+    isVisible: false,
+    message: "",
+    type: "success",
+  });
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleSearch = () => setIsSearchVisible(!isSearchVisible);
@@ -77,8 +83,35 @@ const Header = () => {
     };
 
     const handleLogout = async () => {
-      setIsUserMenuOpen(false); // Close menu before logging out
-      await signOut({ callbackUrl: "/" });
+      try {
+        setIsUserMenuOpen(false); // Close menu before logging out
+        const result = await signOut({
+          redirect: false, // Prevent automatic redirect
+          callbackUrl: "/",
+        });
+
+        if (result?.url) {
+          // Show success alert
+          setNavAlertConfig({
+            isVisible: true,
+            message: "Successfully signed out",
+            type: "success",
+          });
+
+          // After a short delay, redirect to the URL returned by signOut
+          setTimeout(() => {
+            router.push(result.url);
+          }, 3000); // Give time for the alert to be visible
+        } else {
+          throw new Error("Logout failed");
+        }
+      } catch (error) {
+        setNavAlertConfig({
+          isVisible: true,
+          message: "Error signing out",
+          type: "error",
+        });
+      }
     };
 
     const handleLogin = () => {
@@ -190,6 +223,14 @@ const Header = () => {
       className="bg-[#0C3B2E] dark:bg-[#0A2A21] dark:text-[#DAF1DE] shadow-md fixed z-50 w-full"
       ref={navbarRef}
     >
+      <Alert
+        isVisible={navAlertConfig.isVisible}
+        message={navAlertConfig.message}
+        type={navAlertConfig.type}
+        onClose={() =>
+          setNavAlertConfig((prev) => ({ ...prev, isVisible: false }))
+        }
+      />
       <div className="absolute inset-0 bg-gradient-to-r from-[#0c3b2e] via-[#0f4d3d] to-[#0c3b2e] opacity-50" />
 
       <div className="relative mx-auto px-4 sm:px-6 lg:px-8">
@@ -326,7 +367,7 @@ const Header = () => {
                   My Profile
                 </Link>
                 <button
-                  onClick={() => signOut({ callbackUrl: "/" })}
+                  onClick={handleLogout}
                   className="block w-full text-left px-3 py-2 text-white hover:bg-[#0c3b2e93] rounded-lg transition-colors duration-200 text-sm font-medium"
                 >
                   Logout
