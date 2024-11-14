@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import clientPromise from "@/lib/mongodb";
 
-// Mark route as dynamic since it involves database operations
+// Mark this route as dynamic since it involves database operations
 export const dynamic = "force-dynamic";
 
 /**
@@ -21,6 +21,8 @@ const isValidEmail = (email) => {
  * @returns {object} Validation result and message
  */
 const isValidPassword = (password) => {
+  // Implement password validation rules
+  // This function returns an object with isValid and message properties
   if (password.length < 8) {
     return {
       isValid: false,

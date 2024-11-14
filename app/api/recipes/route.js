@@ -5,7 +5,7 @@ import clientPromise from "@/lib/mongodb";
 export const dynamic = "force-dynamic";
 
 /**
- * Handles GET requests for recipes with pagination, filtering, sorting, and category/tag filtering.
+ * Handles GET requests for recipes with pagination, filtering, sorting, and category/tag/ingredient filtering.
  * @param {Request} request - The incoming HTTP request
  * @returns {Promise<NextResponse>} JSON response with recipes data, total count, pagination details, and categories.
  */
@@ -22,7 +22,8 @@ export async function GET(request) {
     const tags = searchParams.getAll("tags[]");
     const tagMatchType = searchParams.get("tagMatchType") || "all";
     const ingredients = searchParams.getAll("ingredients[]");
-    const ingredientMatchType = searchParams.get("ingredientMatchType") || "all";
+    const ingredientMatchType =
+      searchParams.get("ingredientMatchType") || "all";
     const numberOfSteps = searchParams.get("numberOfSteps");
 
     // Connect to MongoDB
@@ -49,24 +50,29 @@ export async function GET(request) {
       }
     }
 
-if (ingredients.length > 0) {
-  if (ingredientMatchType === "all") {
-    query.$and = ingredients.map(ing => ({ [`ingredients.${ing}`]: { $exists: true } }));
-  } else {
-    query.$or = ingredients.map(ing => ({ [`ingredients.${ing}`]: { $exists: true } }));
-  }
-}
-  console.log(query);
-    // Add number of steps filter
-    if (numberOfSteps) {
-      const stepsCount = parseInt(numberOfSteps, 10);
-      if(!isNaN(stepsCount)){
-        query.instructions = { $size: stepsCount};
+    // Ingredient filtering based on the match type
+    if (ingredients.length > 0) {
+      if (ingredientMatchType === "all") {
+        query.$and = ingredients.map((ing) => ({
+          [`ingredients.${ing}`]: { $exists: true },
+        }));
+      } else {
+        query.$or = ingredients.map((ing) => ({
+          [`ingredients.${ing}`]: { $exists: true },
+        }));
       }
     }
 
-     // Calculate number of documents to skip
-     const skip = (page - 1) * limit;
+    // Add number of steps filter
+    if (numberOfSteps) {
+      const stepsCount = parseInt(numberOfSteps, 10);
+      if (!isNaN(stepsCount)) {
+        query.instructions = { $size: stepsCount };
+      }
+    }
+
+    // Calculate number of documents to skip
+    const skip = (page - 1) * limit;
 
     // Handle sorting
     let sortObject = { $natural: 1 };

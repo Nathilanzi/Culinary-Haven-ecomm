@@ -6,6 +6,13 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 // Mark route as dynamic since it involves database operations
 export const dynamic = "force-dynamic";
 
+/**
+ * Fetch a recipe by its ID.
+ * @param {Object} request - The HTTP request object.
+ * @param {Object} params - The route parameters.
+ * @param {string} params.id - The ID of the recipe to fetch.
+ * @returns {Promise<NextResponse>} A response containing the recipe data, or an error if the recipe is not found.
+ */
 export async function GET(request, { params }) {
   try {
     const { id } = params;
@@ -28,6 +35,13 @@ export async function GET(request, { params }) {
   }
 }
 
+/**
+ * Update a recipe's description and version history.
+ * @param {Object} request - The HTTP request object.
+ * @param {Object} params - The route parameters.
+ * @param {string} params.id - The ID of the recipe to update.
+ * @returns {Promise<NextResponse>} A response containing the updated recipe data, or an error if the recipe is not found or the description is invalid.
+ */
 export async function PATCH(request, { params }) {
   try {
     const session = await getServerSession(authOptions);
