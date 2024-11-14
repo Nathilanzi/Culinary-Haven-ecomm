@@ -4,6 +4,9 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { ObjectId } from "mongodb";
 
+// Mark route as dynamic since it involves database operations
+export const dynamic = "force-dynamic";
+
 // Generate an ID using ObjectId
 function generateId() {
   return new ObjectId().toString();
