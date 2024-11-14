@@ -1,13 +1,31 @@
+/**
+ * This file contains a Next.js API route handler function that performs a search for recipe suggestions based on a provided query string.
+ *
+ * @module api/search
+ */
+
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
 // Mark route as dynamic since it depends on request parameters
 export const dynamic = "force-dynamic";
 
+/**
+ * Escapes special regular expression characters in a given string.
+ *
+ * @param {string} string - The input string to be escaped.
+ * @returns {string} The escaped string.
+ */
 function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/**
+ * Next.js API route handler function for handling GET requests to the /api/search endpoint.
+ *
+ * @param {import("next/server").NextRequestEvent} request - The incoming request object.
+ * @returns {Promise<import("next/server").NextResponse>} The response object with the search suggestions.
+ */
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);

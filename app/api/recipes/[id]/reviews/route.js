@@ -7,33 +7,46 @@ import { ObjectId } from "mongodb";
 // Mark route as dynamic since it involves database operations
 export const dynamic = "force-dynamic";
 
-// Generate an ID using ObjectId
+/**
+ * Generate a unique MongoDB ObjectId as a string.
+ * @returns {string} A unique MongoDB ObjectId as a string.
+ */
 function generateId() {
   return new ObjectId().toString();
 }
 
-// Validate review data
+/**
+ * Validate the review data.
+ * @param {Object} review - The review object to validate.
+ * @param {number} review.rating - The rating of the review (1-5).
+ * @param {string} [review.comment] - The comment of the review.
+ * @returns {Object} An object with a `valid` property indicating if the review is valid, and an `error` property with the error message if not valid.
+ */
 function validateReview(review) {
   const { rating, comment } = review;
-  
+
   if (!rating || typeof rating !== "number" || rating < 1 || rating > 5) {
     return { valid: false, error: "Invalid rating" };
   }
-  
+
   if (comment && typeof comment !== "string") {
     return { valid: false, error: "Invalid comment format" };
   }
-  
+
   return { valid: true };
 }
 
-// Helper function to update recipe average rating
+/**
+ * Update the average rating and review count for a recipe.
+ * @param {Object} db - The MongoDB database instance.
+ * @param {string} recipeId - The ID of the recipe to update.
+ */
 async function updateRecipeRating(db, recipeId) {
   const recipe = await db.collection("recipes").findOne({ _id: recipeId });
   if (recipe && recipe.reviews) {
     const totalRating = recipe.reviews.reduce((sum, review) => sum + review.rating, 0);
-    const averageRating = recipe.reviews.length > 0 
-      ? Number((totalRating / recipe.reviews.length).toFixed(1)) 
+    const averageRating = recipe.reviews.length > 0
+      ? Number((totalRating / recipe.reviews.length).toFixed(1))
       : 0;
 
     await db.collection("recipes").updateOne(
@@ -44,6 +57,13 @@ async function updateRecipeRating(db, recipeId) {
 }
 
 // GET all reviews for a recipe
+/**
+ * Fetch all reviews for a given recipe.
+ * @param {Object} request - The HTTP request object.
+ * @param {Object} params - The route parameters.
+ * @param {string} params.id - The ID of the recipe.
+ * @returns {Promise<NextResponse>} A response containing the reviews, total reviews, average rating, review count, and the current user.
+ */
 export async function GET(request, { params }) {
   try {
     const session = await getServerSession(authOptions);
@@ -59,7 +79,7 @@ export async function GET(request, { params }) {
     }
 
     let reviews = recipe.reviews || [];
-    
+
     // Add isOwner flag to each review based on userId or username
     const reviewsWithOwnership = reviews.map(review => ({
       ...review,
@@ -83,10 +103,17 @@ export async function GET(request, { params }) {
 }
 
 // POST a new review
+/**
+ * Create a new review for a recipe.
+ * @param {Object} request - The HTTP request object.
+ * @param {Object} params - The route parameters.
+ * @param {string} params.id - The ID of the recipe.
+ * @returns {Promise<NextResponse>} A response containing the newly created review.
+ */
 export async function POST(request, { params }) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -132,12 +159,12 @@ export async function POST(request, { params }) {
     }
 
     await updateRecipeRating(db, params.id);
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       review: {
         ...review,
         isOwner: true
-      } 
+      }
     });
   } catch (error) {
     console.error("Error adding review:", error);
@@ -146,10 +173,17 @@ export async function POST(request, { params }) {
 }
 
 // PUT to update an existing review
+/**
+ * Update an existing review for a recipe.
+ * @param {Object} request - The HTTP request object.
+ * @param {Object} params - The route parameters.
+ * @param {string} params.id - The ID of the recipe.
+ * @returns {Promise<NextResponse>} A response indicating the success of the update.
+ */
 export async function PUT(request, { params }) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -182,7 +216,7 @@ export async function PUT(request, { params }) {
     }
 
     const result = await db.collection("recipes").updateOne(
-      { 
+      {
         _id: params.id,
         "reviews._id": body.reviewId
       },
@@ -209,10 +243,17 @@ export async function PUT(request, { params }) {
 }
 
 // DELETE a review
+/**
+ * Delete an existing review for a recipe.
+ * @param {Object} request - The HTTP request object.
+ * @param {Object} params - The route parameters.
+ * @param {string} params.id - The ID of the recipe.
+ * @returns {Promise<NextResponse>} A response indicating the success of the deletion.
+ */
 export async function DELETE(request, { params }) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

@@ -1,20 +1,23 @@
+/**
+ * Retrieves the user's profile from the database and returns it as a JSON response.
+ *
+ * This route is marked as dynamic since it depends on the user's session and headers.
+ *
+ * @returns {Promise<NextResponse>} - A JSON response with the user's profile or an error message.
+ */
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import clientPromise from "@/lib/mongodb";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-// Mark route as dynamic since it depends on session and headers
 export const dynamic = "force-dynamic";
 
-/**
- * GET handler for retrieving user profile
- * @returns {Promise<NextResponse>} JSON response with user profile or error
- */
 export async function GET() {
   try {
-    // Get server session with auth options
+    // Get the user's session using the authOptions
     const session = await getServerSession(authOptions);
 
+    // If there is no session, return a 401 Unauthorized response
     if (!session) {
       return NextResponse.json(
         { error: "Authentication required" },
@@ -32,6 +35,7 @@ export async function GET() {
         { projection: { password: 0, _id: 0 } }
       );
 
+    // If the user's profile is not found, return a 404 Not Found response
     if (!user) {
       return NextResponse.json(
         { error: "User profile not found" },
@@ -39,6 +43,7 @@ export async function GET() {
       );
     }
 
+    // Return the user's profile as a JSON response
     return NextResponse.json(user);
   } catch (error) {
     console.error("Profile retrieval error:", error);
@@ -50,14 +55,19 @@ export async function GET() {
 }
 
 /**
- * PUT handler for updating user profile
+ * Updates the user's profile in the database.
+ *
+ * This route is marked as dynamic since it depends on the user's session and headers.
+ *
  * @param {Request} request - The incoming HTTP request
- * @returns {Promise<NextResponse>} JSON response with update status
+ * @returns {Promise<NextResponse>} - A JSON response with the update status.
  */
 export async function PUT(request) {
   try {
+    // Get the user's session using the authOptions
     const session = await getServerSession(authOptions);
 
+    // If there is no session, return a 401 Unauthorized response
     if (!session) {
       return NextResponse.json(
         { error: "Authentication required" },
@@ -65,9 +75,10 @@ export async function PUT(request) {
       );
     }
 
+    // Get the updates from the request body
     const updates = await request.json();
 
-    // Validate required fields
+    // Validate that update data is provided
     if (!updates || Object.keys(updates).length === 0) {
       return NextResponse.json(
         { error: "No update data provided" },
@@ -75,7 +86,7 @@ export async function PUT(request) {
       );
     }
 
-    // Filter allowed fields to update
+    // Filter the allowed fields to update
     const allowedUpdates = ["name", "image"];
     const sanitizedUpdates = Object.keys(updates)
       .filter((key) => allowedUpdates.includes(key))
@@ -84,9 +95,11 @@ export async function PUT(request) {
         return obj;
       }, {});
 
+    // Connect to the MongoDB database
     const client = await clientPromise;
     const db = client.db("devdb");
 
+    // Update the user's profile in the "users" collection
     const result = await db.collection("users").updateOne(
       { email: session.user.email },
       {
@@ -97,6 +110,7 @@ export async function PUT(request) {
       }
     );
 
+    // If the user's profile is not found, return a 404 Not Found response
     if (result.matchedCount === 0) {
       return NextResponse.json(
         { error: "User profile not found" },
@@ -104,6 +118,7 @@ export async function PUT(request) {
       );
     }
 
+    // If no changes were made, return a 200 OK response with a message
     if (result.modifiedCount === 0) {
       return NextResponse.json(
         { message: "No changes were made to the profile" },
@@ -111,6 +126,7 @@ export async function PUT(request) {
       );
     }
 
+    // Return a 200 OK response with a success message
     return NextResponse.json(
       { message: "Profile updated successfully" },
       { status: 200 }
