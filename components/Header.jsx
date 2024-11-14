@@ -77,52 +77,41 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
-  const UserMenu = () => {
-    const toggleUserMenu = () => {
-      setIsUserMenuOpen(!isUserMenuOpen);
-    };
-
-    const handleLogout = async () => {
-      try {
-        setIsUserMenuOpen(false); // Close menu before logging out
-        const result = await signOut({
-          redirect: false, // Prevent automatic redirect
-          callbackUrl: "/",
-        });
-
-        if (result?.url) {
-          // Show success alert
-          setNavAlertConfig({
-            isVisible: true,
-            message: "Successfully signed out",
-            type: "success",
-          });
-
-          // After a short delay, redirect to the URL returned by signOut
-          setTimeout(() => {
-            router.push(result.url);
-          }, 3000); // Give time for the alert to be visible
-        } else {
-          throw new Error("Logout failed");
-        }
-      } catch (error) {
+  const handleLogout = async () => {
+    try {
+      setIsUserMenuOpen(false);
+      const result = await signOut({ redirect: false, callbackUrl: "/" });
+      if (result?.url) {
         setNavAlertConfig({
           isVisible: true,
-          message: "Error signing out",
-          type: "error",
+          message: "Successfully signed out",
+          type: "success",
         });
+        setTimeout(() => router.push(result.url), 3000);
+      } else {
+        throw new Error("Logout failed");
       }
-    };
+    } catch (error) {
+      setNavAlertConfig({
+        isVisible: true,
+        message: "Error signing out",
+        type: "error",
+      });
+    }
+  };
 
-    const handleLogin = () => {
-      setIsUserMenuOpen(false); // Close menu before navigating
-      router.push("/auth/signin");
-    };
+  const handleLogin = () => {
+    setIsUserMenuOpen(false);
+    router.push("/auth/signin");
+  };
 
-    const handleSignup = () => {
-      setIsUserMenuOpen(false); // Close menu before navigating
-      router.push("/auth/signup");
-    };
+  const handleSignup = () => {
+    setIsUserMenuOpen(false);
+    router.push("/auth/signup");
+  };
+
+  const UserMenu = () => {
+    const toggleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
 
     return (
       <div className="relative" ref={userMenuRef}>
@@ -236,9 +225,7 @@ const Header = () => {
       <div className="relative mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div
-            className={`flex items-center ${
-              isSearchVisible ? "hidden sm:flex" : "flex"
-            }`}
+            className={`flex items-center ${isSearchVisible ? "hidden sm:flex" : "flex"}`}
           >
             <Link href="/" className="flex items-center space-x-3">
               <div className="bg-gray-100 rounded-lg">
@@ -258,9 +245,7 @@ const Header = () => {
 
           <div className="flex flex-grow space-x-6 items-center justify-end">
             <div
-              className={`flex-grow max-w-md ${
-                isSearchVisible ? "w-full" : "w-auto"
-              }`}
+              className={`flex-grow max-w-md ${isSearchVisible ? "w-full" : "w-auto"}`}
             >
               <Suspense>
                 <SearchBar
@@ -277,7 +262,7 @@ const Header = () => {
               >
                 Recipes
               </Link>
-              <div className="flex justify-center ">
+              <div className="flex justify-center">
                 <Link
                   href="/favorites"
                   className={`relative flex items-center text-white`}
