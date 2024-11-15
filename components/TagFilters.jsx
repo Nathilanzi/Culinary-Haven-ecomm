@@ -250,10 +250,10 @@ export default function TagFilter({
                               transition-all duration-200 font-medium
                               flex items-center justify-between
                               ${
-                                currentTags.includes(tag)
-                                  ? "bg-blue-50 text-blue-700 hover:bg-blue-100"
-                                  : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                              }`}
+                    currentTags.includes(tag)
+                      ? "bg-blue-50 text-blue-700 hover:bg-blue-100"
+                      : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                    }`}
                     >
                       <span>{tag}</span>
                       {currentTags.includes(tag) && <CheckIcon />}

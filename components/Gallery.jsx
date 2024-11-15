@@ -37,7 +37,7 @@ const Gallery = ({ images }) => {
     <div className="relative overflow-hidden shadow-md group">
       {/* Set the height for uniformity */}
       <div className="w-full h-[15rem]">
-      {isLoading && (
+        {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center">
             {/* Loading spinner */}
             <svg
@@ -69,10 +69,10 @@ const Gallery = ({ images }) => {
               index === currentIndex
                 ? "opacity-100 translate-x-0"
                 : index === (currentIndex - 1 + images.length) % images.length
-                ? "opacity-0 -translate-x-full"
-                : index === (currentIndex + 1) % images.length
-                ? "opacity-0 translate-x-full"
-                : "opacity-0"
+                  ? "opacity-0 -translate-x-full"
+                  : index === (currentIndex + 1) % images.length
+                    ? "opacity-0 translate-x-full"
+                    : "opacity-0"
             }`}
           >
             <Image

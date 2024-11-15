@@ -67,7 +67,7 @@ const Header = () => {
         isOpen &&
         mobileMenuRef.current &&
         !mobileMenuRef.current.contains(event.target) &&
-        !event.target.closest('button[aria-label="toggle-mobile-menu"]')
+        !event.target.closest("button[aria-label=\"toggle-mobile-menu\"]")
       ) {
         setIsOpen(false);
       }
@@ -265,7 +265,7 @@ const Header = () => {
               <div className="flex justify-center">
                 <Link
                   href="/favorites"
-                  className={`relative flex items-center text-white`}
+                  className={"relative flex items-center text-white"}
                 >
                   Favorites
                   {favoritesCount > 0 && (
@@ -327,7 +327,7 @@ const Header = () => {
             <div className="flex ml-3">
               <Link
                 href="/favorites"
-                className={`relative flex items-center text-white`}
+                className={"relative flex items-center text-white"}
               >
                 Favorites
                 {favoritesCount > 0 && (

@@ -17,7 +17,7 @@ export default function Favorites() {
 
   useEffect(() => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push("/auth/signin");
       return;
     }
 
@@ -55,8 +55,8 @@ export default function Favorites() {
     fetchFavorites();
     
     // Listen for favorites updates
-    window.addEventListener('favoritesUpdated', fetchFavorites);
-    return () => window.removeEventListener('favoritesUpdated', fetchFavorites);
+    window.addEventListener("favoritesUpdated", fetchFavorites);
+    return () => window.removeEventListener("favoritesUpdated", fetchFavorites);
   }, [session, router]);
 
   const handleFavoriteToggle = (recipeId) => {
@@ -81,23 +81,23 @@ export default function Favorites() {
         </div>
       ) : (
         <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {favorites.map((recipe) => (
-            <div key={recipe._id} className="relative">
-              <RecipeCard
-                recipe={recipe}
-                showFavoriteButton
-                isFavorited={true}
-                onFavoriteToggle={handleFavoriteToggle}
-                additionalInfo={
-                  <p className="text-sm text-gray-500 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            {favorites.map((recipe) => (
+              <div key={recipe._id} className="relative">
+                <RecipeCard
+                  recipe={recipe}
+                  showFavoriteButton
+                  isFavorited={true}
+                  onFavoriteToggle={handleFavoriteToggle}
+                  additionalInfo={
+                    <p className="text-sm text-gray-500 mt-2">
                     Added to favorites: {new Date(recipe.favorited_at).toLocaleDateString()}
-                  </p>
-                }
-              />
-            </div>
-          ))}
-        </div>
+                    </p>
+                  }
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

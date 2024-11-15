@@ -116,7 +116,7 @@ export default function FilterSection({
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-          <svg
+            <svg
               className="w-5 h-5 text-[#0C3B2E] dark:text-[#A3C9A7]"
               fill="none"
               strokeWidth="2"
