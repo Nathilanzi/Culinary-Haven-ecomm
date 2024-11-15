@@ -1,6 +1,6 @@
 "use client";
 import swal from "sweetalert";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -127,13 +127,13 @@ function ReviewSection({ recipeId }) {
     }
 
     const result = await Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "Do you really want to delete this review?",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!',
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
     });
 
     if (result.isConfirmed) {
@@ -193,90 +193,90 @@ function ReviewSection({ recipeId }) {
             <div>
               <p className="text-gray-700 mb-2 font-semibold dark:text-gray-300">Sort by Date:</p>
               <button
-                onClick={() => handleSortChange('date', 'desc')}
+                onClick={() => handleSortChange("date", "desc")}
                 className={`bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-black dark:bg-[#333836] dark:hover:bg-[#444944] dark:text-gray-100 ${
-                  sortBy === 'date' && sortOrder === 'desc' ? 'bg-gray-400 dark:bg-[#56605B]' : ''
+                  sortBy === "date" && sortOrder === "desc" ? "bg-gray-400 dark:bg-[#56605B]" : ""
                 }`}
               >
                 Newest
               </button>
               <button
-                onClick={() => handleSortChange('date', 'asc')}
+                onClick={() => handleSortChange("date", "asc")}
                 className={`bg-gray-200 px-4 py-2 ml-2 rounded-lg hover:bg-gray-300 transition-colors text-black dark:bg-[#333836] dark:hover:bg-[#444944] dark:text-gray-100 ${
-                  sortBy === 'date' && sortOrder === 'asc' ? 'bg-gray-400 dark:bg-[#56605B]' : ''
+                  sortBy === "date" && sortOrder === "asc" ? "bg-gray-400 dark:bg-[#56605B]" : ""
                 }`}
               >
                 Oldest
               </button>
             </div>
 
-          {/* Sort by Rating */}
+            {/* Sort by Rating */}
             <div>
-                <p className="text-gray-700 mb-2 font-semibold dark:text-gray-300">Sort by Rating:</p>
-                <button
-                  onClick={() => handleSortChange('rating', 'desc')}
-                  className={`bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-black dark:bg-[#333836] dark:hover:bg-[#444944] dark:text-gray-100 ${
-                    sortBy === 'rating' && sortOrder === 'desc' ? 'bg-gray-400 dark:bg-[#56605B]' : ''
-                  }`}
-                >
+              <p className="text-gray-700 mb-2 font-semibold dark:text-gray-300">Sort by Rating:</p>
+              <button
+                onClick={() => handleSortChange("rating", "desc")}
+                className={`bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-black dark:bg-[#333836] dark:hover:bg-[#444944] dark:text-gray-100 ${
+                  sortBy === "rating" && sortOrder === "desc" ? "bg-gray-400 dark:bg-[#56605B]" : ""
+                }`}
+              >
                   Highest
-                </button>
-                <button
-                  onClick={() => handleSortChange('rating', 'asc')}
-                  className={`bg-gray-200 px-4 py-2 ml-2 rounded-lg hover:bg-gray-300 transition-colors text-black dark:bg-[#333836] dark:hover:bg-[#444944] dark:text-gray-100 ${
-                    sortBy === 'rating' && sortOrder === 'asc' ? 'bg-gray-400 dark:bg-[#56605B]' : ''
-                  }`}
-                >
+              </button>
+              <button
+                onClick={() => handleSortChange("rating", "asc")}
+                className={`bg-gray-200 px-4 py-2 ml-2 rounded-lg hover:bg-gray-300 transition-colors text-black dark:bg-[#333836] dark:hover:bg-[#444944] dark:text-gray-100 ${
+                  sortBy === "rating" && sortOrder === "asc" ? "bg-gray-400 dark:bg-[#56605B]" : ""
+                }`}
+              >
                   Lowest
-                </button>
-                <button
-                  onClick={() => { setSortBy("date"); setSortOrder("desc"); }}
-                  className="ml-5 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors dark:bg-[#B04646] dark:hover:bg-[#8F3A3A]"
-                >
+              </button>
+              <button
+                onClick={() => { setSortBy("date"); setSortOrder("desc"); }}
+                className="ml-5 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors dark:bg-[#B04646] dark:hover:bg-[#8F3A3A]"
+              >
                   Reset Filters
-                </button>
-              </div>
+              </button>
             </div>
+          </div>
   
-            {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded relative dark:bg-[#502D2D] dark:text-[#D9A2A2]">
-            <span className="block sm:inline">{error}</span>
-          </div>
-        )}
+          {error && (
+            <div className="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded relative dark:bg-[#502D2D] dark:text-[#D9A2A2]">
+              <span className="block sm:inline">{error}</span>
+            </div>
+          )}
 
-        {!session && (
-          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded dark:bg-[#4A4A27] dark:text-[#E0DA9E]">
-            <p>Please <button onClick={() => signIn()} className="text-blue-600 hover:underline dark:text-blue-400">sign in</button> to leave a review.</p>
-          </div>
-        )}
+          {!session && (
+            <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded dark:bg-[#4A4A27] dark:text-[#E0DA9E]">
+              <p>Please <button onClick={() => signIn()} className="text-blue-600 hover:underline dark:text-blue-400">sign in</button> to leave a review.</p>
+            </div>
+          )}
 
-        {session && canAddReview && !editingReviewId && (
-          <div className="mb-8 p-4 bg-gray-50 rounded-lg dark:bg-[#2C2F2D]">
-            <h3 className="text-lg font-semibold mb-4 dark:text-gray-100">Add a Review</h3>
-            {/* Review form */}
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Rating</label>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setNewReview({ ...newReview, rating: star })}
-                    onMouseEnter={() => setHover(star)}
-                    onMouseLeave={() => setHover(0)}
-                    className="focus:outline-none"
-                  >
-                    <Star
-                      className={`w-6 h-6 ${
-                        star <= (hover || newReview.rating)
-                          ? "fill-yellow-400 text-yellow-400 dark:text-[#FFC857]"
-                          : "text-gray-300 dark:text-[#555956]"
-                      }`}
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>  
+          {session && canAddReview && !editingReviewId && (
+            <div className="mb-8 p-4 bg-gray-50 rounded-lg dark:bg-[#2C2F2D]">
+              <h3 className="text-lg font-semibold mb-4 dark:text-gray-100">Add a Review</h3>
+              {/* Review form */}
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Rating</label>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setNewReview({ ...newReview, rating: star })}
+                      onMouseEnter={() => setHover(star)}
+                      onMouseLeave={() => setHover(0)}
+                      className="focus:outline-none"
+                    >
+                      <Star
+                        className={`w-6 h-6 ${
+                          star <= (hover || newReview.rating)
+                            ? "fill-yellow-400 text-yellow-400 dark:text-[#FFC857]"
+                            : "text-gray-300 dark:text-[#555956]"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>  
 
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">
@@ -364,7 +364,7 @@ function ReviewSection({ recipeId }) {
             </div>
           )}
 
-        <div className="space-y-4">
+          <div className="space-y-4">
             {reviews.map((review) => (
               <div
                 key={review._id}

@@ -3,6 +3,7 @@ import ImageSelector from "../../../components/ImageSelector.jsx";
 import BackButton from "../../../components/BackButton";
 import ReviewSection from "@/components/ReviewSection";
 import RecipeEdit from "@/components/RecipeEdit";
+import Link from "next/link";
 
 const TimeIcon = () => (
   <svg
@@ -33,32 +34,32 @@ const TimeIcon = () => (
 
 const TotalTime = () => (
   <svg className="h-7 text-black" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-  {/* <!-- Clock face --> */}
-  <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="2"/>
+    {/* <!-- Clock face --> */}
+    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="2"/>
   
-  {/* <!-- Hour markers --> */}
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(0 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(30 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(60 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(90 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(120 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(150 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(180 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(210 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(240 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(270 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(300 50 50)"/>
-  <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(330 50 50)"/>
+    {/* <!-- Hour markers --> */}
+    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(0 50 50)"/>
+    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(30 50 50)"/>
+    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(60 50 50)"/>
+    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(90 50 50)"/>
+    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(120 50 50)"/>
+    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(150 50 50)"/>
+    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(180 50 50)"/>
+    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(210 50 50)"/>
+    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(240 50 50)"/>
+    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(270 50 50)"/>
+    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(300 50 50)"/>
+    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(330 50 50)"/>
   
-  {/* <!-- Hour hand (pointing to 10) --> */}
-  <line x1="50" y1="50" x2="50" y2="25" stroke="currentColor" strokeWidth="3" strokeLinecap="round" transform="rotate(-60 50 50)"/>
+    {/* <!-- Hour hand (pointing to 10) --> */}
+    <line x1="50" y1="50" x2="50" y2="25" stroke="currentColor" strokeWidth="3" strokeLinecap="round" transform="rotate(-60 50 50)"/>
   
-  {/* <!-- Minute hand (pointing to 2) --> */}
-  <line x1="50" y1="50" x2="50" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" transform="rotate(60 50 50)"/>
+    {/* <!-- Minute hand (pointing to 2) --> */}
+    <line x1="50" y1="50" x2="50" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" transform="rotate(60 50 50)"/>
   
-  {/* <!-- Center dot --> */}
-  <circle cx="50" cy="50" r="2" fill="currentColor"/>
-</svg>
+    {/* <!-- Center dot --> */}
+    <circle cx="50" cy="50" r="2" fill="currentColor"/>
+  </svg>
 );
 
 const ServingsIcon = () => (
@@ -258,12 +259,14 @@ export default async function RecipeDetail({ params }) {
             >
               Retry
             </button>
-            <button
-              onClick={() => router.push("/")}
-              className="px-6 py-2 bg-teal-500 text-white rounded-lg transition-colors hover:bg-teal-600 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:bg-teal-400 dark:hover:bg-teal-500"
-            >
-              Return to HomePage
-            </button>
+            <Link href="/">
+  <button
+    className="px-6 py-2 bg-teal-500 text-white rounded-lg transition-colors hover:bg-teal-600 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:bg-teal-400 dark:hover:bg-teal-500"
+  >
+    Return to HomePage
+  </button>
+</Link>
+
           </div>
         </div>
       </div>
@@ -318,7 +321,7 @@ export default async function RecipeDetail({ params }) {
               {/* Recipe Meta Info */}
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mt-4 sm:mt-6 max-w-3xl mx-auto px-2 sm:px-0">
                 <div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600">
-                <TimeIcon />
+                  <TimeIcon />
                   <span className="text-sm text-gray-500 font-medium mt-2">
                     Prep: {recipe.prep}
                   </span>
@@ -425,27 +428,27 @@ export default async function RecipeDetail({ params }) {
             <div className="mt-8">
               <RecipeEdit recipe={recipe} />
             </div>
-          {/* Recipe Tags */}
-          {recipe.tags && recipe.tags.length > 0 && (
-            <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-gray-700">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            {/* Recipe Tags */}
+            {recipe.tags && recipe.tags.length > 0 && (
+              <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-gray-700">
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                 Tags
-              </h2>
-              <div className="flex flex-wrap gap-3">
-                {recipe.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="bg-teal-100 text-teal-800 text-sm px-4 py-2 rounded-full dark:bg-teal-700 dark:text-teal-300"
-                  >
-                    {tag}
-                  </span>
-                ))}
+                </h2>
+                <div className="flex flex-wrap gap-3">
+                  {recipe.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="bg-teal-100 text-teal-800 text-sm px-4 py-2 rounded-full dark:bg-teal-700 dark:text-teal-300"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
 }
