@@ -1,4 +1,16 @@
 "use client";
+
+/**
+ * @fileoverview SignIn component that handles user authentication through email/password and Google OAuth
+ * @requires react
+ * @requires next-auth/react
+ * @requires next/navigation
+ * @requires lucide-react
+ * @requires next/link
+ * @requires next/image
+ * @requires @/components/Alert
+ */
+
 import { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -7,11 +19,20 @@ import Link from "next/link";
 import Image from "next/image";
 import Alert from "@/components/Alert";
 
+/**
+ * SignIn component for user authentication
+ * @returns {JSX.Element} The SignIn form component
+ */
 export default function SignIn() {
+  // Initialize hooks for routing and session management
   const router = useRouter();
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
+
+  // Get callback URL from search params or default to home
   const callbackUrl = searchParams.get("callbackUrl") || "/";
+
+  // Initialize state variables
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,7 +46,9 @@ export default function SignIn() {
     type: "success",
   });
 
-  // Check for redirect message from signup
+  /**
+   * Check for redirect message from signup page
+   */
   useEffect(() => {
     const signupSuccess = searchParams.get("signupSuccess");
     if (signupSuccess === "true") {
@@ -37,17 +60,27 @@ export default function SignIn() {
     }
   }, [searchParams]);
 
-  // Redirect if already authenticated
+  /**
+   * Redirect authenticated users
+   */
   useEffect(() => {
     if (status === "authenticated" && session) {
       router.push(callbackUrl);
     }
   }, [session, status, router, callbackUrl]);
 
+  /**
+   * Handle form input changes
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event
+   */
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  /**
+   * Handle form submission for credentials login
+   * @param {React.FormEvent<HTMLFormElement>} e - The form submission event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -55,6 +88,7 @@ export default function SignIn() {
     setAlert({ show: false, message: "", type: "success" });
 
     try {
+      // Attempt to sign in with credentials
       const result = await signIn("credentials", {
         redirect: false,
         email: formData.email,
@@ -62,6 +96,7 @@ export default function SignIn() {
       });
 
       if (result?.error) {
+        // Handle authentication error
         setError(result.error);
         setAlert({
           show: true,
@@ -69,19 +104,21 @@ export default function SignIn() {
           type: "error",
         });
       } else {
+        // Handle successful login
         setAlert({
           show: true,
           message: "Successfully logged in! Redirecting...",
           type: "success",
         });
 
-        // Wait for alert to be visible before redirecting
+        // Delay redirect to show success message
         setTimeout(() => {
           router.push(callbackUrl);
           router.refresh();
         }, 3000);
       }
     } catch (error) {
+      // Handle unexpected errors
       setError("An unexpected error occurred");
       setAlert({
         show: true,
@@ -93,11 +130,15 @@ export default function SignIn() {
     }
   };
 
+  /**
+   * Handle Google OAuth sign-in
+   */
   const handleGoogleSignIn = () => {
     setLoading(true);
     signIn("google", { callbackUrl, redirect: true });
   };
 
+  // Show loading spinner while checking authentication status
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -106,20 +147,26 @@ export default function SignIn() {
     );
   }
 
+  // Return null if user is authenticated
   if (status === "authenticated") {
     return null;
   }
 
+  // Render sign-in form
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-10">
+      {/* Alert component for displaying messages */}
       <Alert
         message={alert.message}
         type={alert.type}
         isVisible={alert.show}
         onClose={() => setAlert({ ...alert, show: false })}
       />
+
       <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-lg">
+        {/* Header section with logo and welcome message */}
         <div className="text-center mb-8">
+          {/* Logo */}
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4">
             <Image
               src="/logo.png"
@@ -129,6 +176,7 @@ export default function SignIn() {
               className="h-10 w-12"
             />
           </div>
+          {/* Welcome text */}
           <h2 className="text-2xl font-semibold text-gray-900">
             Welcome back to Calinary Haven
           </h2>
@@ -137,11 +185,14 @@ export default function SignIn() {
           </p>
         </div>
 
+        {/* Google Sign-in button */}
         <div className="flex items-center justify-center">
+          {/* Google OAuth button */}
           <button
             onClick={handleGoogleSignIn}
             className="flex items-center px-16 justify-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
           >
+            {/* Google icon SVG */}
             <svg viewBox="0 0 24 24" className="w-6 h-6">
               <path
                 d="M12,5c1.6167603,0,3.1012573,0.5535278,4.2863159,1.4740601l3.637146-3.4699707 C17.8087769,1.1399536,15.0406494,0,12,0C7.392395,0,3.3966675,2.5999146,1.3858032,6.4098511l4.0444336,3.1929321 C6.4099731,6.9193726,8.977478,5,12,5z"
@@ -164,6 +215,7 @@ export default function SignIn() {
           </button>
         </div>
 
+        {/* Divider */}
         <div className="relative my-3">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-300"></div>
@@ -173,7 +225,9 @@ export default function SignIn() {
           </div>
         </div>
 
+        {/* Credentials sign-in form */}
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Error message display */}
           {error && (
             <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg">
               {error}
@@ -232,6 +286,7 @@ export default function SignIn() {
           </button>
         </form>
 
+        {/* Sign-up link */}
         <p className="mt-6 text-center text-sm text-gray-600">
           Don&apos;t have an account?
           <Link
