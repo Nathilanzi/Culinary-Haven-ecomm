@@ -1,4 +1,16 @@
 "use client";
+
+/**
+ * @fileoverview SignUp component that handles user registration through email/password and Google OAuth
+ * @requires react
+ * @requires next-auth/react
+ * @requires next/navigation
+ * @requires lucide-react
+ * @requires next/link
+ * @requires next/image
+ * @requires @/components/Alert
+ */
+
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -7,30 +19,64 @@ import Link from "next/link";
 import Image from "next/image";
 import Alert from "@/components/Alert";
 
+/**
+ * @typedef {Object} FormData
+ * @property {string} name - User's full name
+ * @property {string} email - User's email address
+ * @property {string} password - User's password
+ * @property {string} confirmPassword - Password confirmation
+ */
+
+/**
+ * SignUp component for user registration
+ * @returns {JSX.Element} The SignUp form component
+ */
 export default function SignUp() {
+  // Initialize router for navigation
   const router = useRouter();
+
+  // State management
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  /**
+   * Form data state
+   * @type {[FormData, Function]}
+   */
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+
+  /**
+   * Alert state for displaying notifications
+   */
   const [alert, setAlert] = useState({
     show: false,
     message: "",
     type: "success",
   });
 
+  /**
+   * Handle form input changes
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event
+   */
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  /**
+   * Handle form submission for user registration
+   * @param {React.FormEvent<HTMLFormElement>} e - The form submission event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate password match
     if (formData.password !== formData.confirmPassword) {
       setAlert({
         show: true,
@@ -39,10 +85,12 @@ export default function SignUp() {
       });
       return;
     }
+
     setLoading(true);
     setError("");
 
     try {
+      // Send registration request to API
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,14 +107,14 @@ export default function SignUp() {
         throw new Error(data.error || "Something went wrong");
       }
 
-      // Show success alert
+      // Show success message
       setAlert({
         show: true,
         message: "Account created successfully! Please sign in to continue.",
         type: "success",
       });
 
-      // Redirect to sign in page after 2 seconds
+      // Redirect to sign in page after delay
       setTimeout(() => {
         router.push("/auth/signin");
       }, 3000);
@@ -77,6 +125,9 @@ export default function SignUp() {
     }
   };
 
+  /**
+   * Handle Google OAuth sign-up
+   */
   const handleGoogleSignUp = () => {
     setLoading(true);
     signIn("google", { callbackUrl: "/", redirect: true });
@@ -84,14 +135,18 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-10">
+      {/* Alert component for notifications */}
       <Alert
         message={alert.message}
         type={alert.type}
         isVisible={alert.show}
         onClose={() => setAlert({ ...alert, show: false })}
       />
+
       <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-lg">
+        {/* Header section */}
         <div className="text-center mb-8">
+          {/* Logo */}
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4">
             <Image
               src="/logo.png"
@@ -101,6 +156,7 @@ export default function SignUp() {
               className="h-10 w-12"
             />
           </div>
+          {/* Title and subtitle */}
           <h2 className="text-2xl font-semibold text-gray-900">
             Create account
           </h2>
@@ -109,11 +165,13 @@ export default function SignUp() {
           </p>
         </div>
 
+        {/* Google Sign-up button */}
         <div className="flex items-center justify-center">
           <button
             onClick={handleGoogleSignUp}
             className="flex items-center justify-center p-3 px-16 border border-gray-300 rounded-lg hover:bg-gray-50"
           >
+            {/* Google logo SVG */}
             <svg viewBox="0 0 24 24" className="w-6 h-6">
               <path
                 d="M12,5c1.6167603,0,3.1012573,0.5535278,4.2863159,1.4740601l3.637146-3.4699707 C17.8087769,1.1399536,15.0406494,0,12,0C7.392395,0,3.3966675,2.5999146,1.3858032,6.4098511l4.0444336,3.1929321 C6.4099731,6.9193726,8.977478,5,12,5z"
@@ -136,6 +194,7 @@ export default function SignUp() {
           </button>
         </div>
 
+        {/* Divider */}
         <div className="relative my-3">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-300"></div>
@@ -145,7 +204,9 @@ export default function SignUp() {
           </div>
         </div>
 
+        {/* Registration form */}
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Error message display */}
           {error && (
             <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg">
               {error}
@@ -238,6 +299,7 @@ export default function SignUp() {
             </div>
           </div>
 
+          {/* Submit button */}
           <button
             type="submit"
             disabled={loading}
@@ -247,6 +309,7 @@ export default function SignUp() {
           </button>
         </form>
 
+        {/* Sign-in link */}
         <p className="mt-6 text-center text-sm text-gray-600">
           Already have an account?
           <Link
