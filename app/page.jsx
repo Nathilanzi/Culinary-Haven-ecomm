@@ -5,6 +5,7 @@ import { getRecipes, getCategories, getTags, getIngredients } from "@/lib/api";
 import FilterSection from "@/components/FilterSection";
 import Loader from "@/components/Loader";
 import ClearFiltersButton from "@/components/ClearFiltersButton";
+import RecipeCarousel from "@/components/RecipeCarousel";
 
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
@@ -76,47 +77,45 @@ function NoResults({ hasFilters }) {
   );
 }
 
-export default async function Home({ searchParams }) {
-  // Extract and sanitize query parameters
-  const page = Number(searchParams?.page) || 1;
-  const limit = Number(searchParams?.limit) || 20;
-  const sortBy = searchParams?.sortBy || "$natural";
-  const order = searchParams?.order || "asc";
-  const search = searchParams?.search || "";
-  const category = searchParams?.category || "";
-  const numberOfSteps = searchParams?.numberOfSteps || null;
+export default async function Home({ searchParams: rawSearchParams }) {
+  // Wait for searchParams to be ready
+  const searchParams = await Promise.resolve(rawSearchParams);
+
+  // Parse query parameters with proper type handling
+  const params = {
+    page: parseInt(searchParams.page || "1", 10),
+    limit: parseInt(searchParams.limit || "20", 10),
+    sortBy: searchParams.sortBy || "$natural",
+    order: searchParams.order || "asc",
+    search: searchParams.search || "",
+    category: searchParams.category || "",
+    numberOfSteps: searchParams.numberOfSteps
+      ? parseInt(searchParams.numberOfSteps, 10)
+      : null,
+    tagMatchType: searchParams.tagMatchType || "all",
+    ingredientMatchType: searchParams.ingredientMatchType || "all",
+  };
 
   // Handle array parameters
-  const tags = searchParams?.["tags[]"]
-    ? Array.isArray(searchParams["tags[]"])
-      ? searchParams["tags[]"]
-      : [searchParams["tags[]"]]
-    : [];
+  const tags = Array.isArray(searchParams["tags[]"])
+    ? searchParams["tags[]"]
+    : searchParams["tags[]"]
+      ? [searchParams["tags[]"]]
+      : [];
 
-  const ingredients = searchParams?.["ingredients[]"]
-    ? Array.isArray(searchParams["ingredients[]"])
-      ? searchParams["ingredients[]"]
-      : [searchParams["ingredients[]"]]
-    : [];
-
-  const tagMatchType = searchParams?.tagMatchType || "all";
-  const ingredientMatchType = searchParams?.ingredientMatchType || "all";
+  const ingredients = Array.isArray(searchParams["ingredients[]"])
+    ? searchParams["ingredients[]"]
+    : searchParams["ingredients[]"]
+      ? [searchParams["ingredients[]"]]
+      : [];
 
   // Fetch all data concurrently
   const [recipesData, categories, availableTags, availableIngredients] =
     await Promise.all([
       getRecipes({
-        page,
-        limit,
-        search,
-        sortBy,
-        order,
-        category,
+        ...params,
         tags,
-        tagMatchType,
         ingredients,
-        ingredientMatchType,
-        numberOfSteps,
       }),
       getCategories(),
       getTags(),
@@ -134,18 +133,18 @@ export default async function Home({ searchParams }) {
 
   const filters = {
     tags,
-    numberOfSteps,
+    numberOfSteps: params.numberOfSteps,
     ingredients,
-    category,
-    search,
+    category: params.category,
+    search: params.search,
   };
 
   const hasFilters =
     tags.length > 0 ||
-    numberOfSteps ||
+    params.numberOfSteps ||
     ingredients.length > 0 ||
-    category ||
-    search;
+    params.category ||
+    params.search;
 
   return (
     <div className="min-h-screen">
@@ -153,12 +152,14 @@ export default async function Home({ searchParams }) {
         <div className="rounded-lg">
           <FilterSection
             categories={categories}
-            initialCategory={category}
-            initialSort={sortBy}
-            initialOrder={order}
+            initialCategory={params.category}
+            initialSort={params.sortBy}
+            initialOrder={params.order}
             availableTags={availableTags}
             availableIngredients={availableIngredients}
           />
+
+          <RecipeCarousel />
 
           {error ? (
             <div className="text-center py-12 text-red-600">
@@ -170,7 +171,7 @@ export default async function Home({ searchParams }) {
               {total > 0 && <ResultsSummary total={total} filters={filters} />}
 
               <Suspense fallback={<Loader />}>
-                <RecipeGrid recipes={recipes} searchQuery={search} />
+                <RecipeGrid recipes={recipes} searchQuery={params.search} />
               </Suspense>
 
               {recipes.length > 0 ? (

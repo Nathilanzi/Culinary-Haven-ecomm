@@ -112,12 +112,12 @@ export default function FilterSection({
   };
 
   return (
-    <div className="bg-white mt-10 rounded-xl shadow-lg border border-gray-200 transition-all duration-300">
+    <div className="bg-white rounded-xl shadow-lg transition-all duration-300 dark:bg-[#333333] ">
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-          <svg
-              className="w-5 h-5 text-gray-600"
+            <svg
+              className="w-5 h-5 text-[#0C3B2E] dark:text-[#A3C9A7]"
               fill="none"
               strokeWidth="2"
               stroke="currentColor"
@@ -130,7 +130,7 @@ export default function FilterSection({
                 d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
               />
             </svg>
-            <h2 className="text-lg font-semibold text-gray-800">Filters</h2>
+            <h2 className="text-lg font-semibold text-[#0C3B2E] dark:text-[#A3C9A7]">Filters</h2>
             {isFilterActive && (
               <span className="bg-blue-100 text-blue-600 text-sm px-2 py-1 rounded-full">
                 Active
@@ -139,10 +139,10 @@ export default function FilterSection({
           </div>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+            className="hover:text-gray-700 transition-colors duration-200 text-[#0C3B2E] dark:text-[#A3C9A7]"
           >
             <svg
-              className={`w-5 h-5 transform transition-transform duration-200 ${
+              className={`w-5 h-5 transform transition-transform duration-200  ${
                 isExpanded ? "rotate-180" : ""
               }`}
               fill="none"

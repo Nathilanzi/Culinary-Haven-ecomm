@@ -1,187 +1,209 @@
+/**
+ * This module provides functions to interact with a MongoDB database for a recipe application.
+ *
+ * It includes the following functionality:
+ * - Connecting to the MongoDB database
+ * - Initializing and creating indexes for the "recipes" and "favorites" collections
+ * - Retrieving a user's favorite recipes
+ * - Adding a new favorite recipe for a user
+ * - Removing a favorite recipe for a user
+ * - Retrieving the number of favorite recipes for a user
+ *
+ * @module mongodb-client
+ */
+
 import { MongoClient } from "mongodb";
 
-// Check for required environment variable
+// Check if the required environment variable is set
 if (!process.env.MONGODB_URI) {
-  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
+  throw new Error("Invalid/Missing environment variable: \"MONGODB_URI\"");
 }
 
-// Get MongoDB connection string from environment variables
+// Set the MongoDB connection options
 const uri = process.env.MONGODB_URI;
 const options = {
   maxPoolSize: 10,
   minPoolSize: 5,
-  maxIdleTimeMS: 60000,
-  connectTimeoutMS: 10000,
+  maxIdleTimeMS: 30000,
+  connectTimeoutMS: 5000,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 10000,
+  retryWrites: true,
+  w: "majority",
 };
 
 // Declare variables for MongoDB client and its promise
 let client;
 let clientPromise;
 
-// Initialize indexes
+/**
+ * Initialize the indexes for the "recipes" and "favorites" collections.
+ *
+ * @param {MongoClient} client - The MongoDB client instance.
+ * @returns {Promise<void>}
+ */
 async function initializeIndexes(client) {
   const db = client.db("devdb");
-  const collection = db.collection("recipes");
-  const errors = [];
 
   try {
-    // Get existing indexes
-    const existingIndexes = await collection.listIndexes().toArray();
-    const indexNames = existingIndexes.map((index) => index.name);
-
-    // Only attempt to drop if the index exists
-    if (indexNames.includes("recipe_search_index")) {
-      try {
-        await collection.dropIndex("recipe_search_index");
-        // Wait a short time to ensure the index drop is complete
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      } catch (error) {
-        if (error.code !== 27) {
-          // Skip if index doesn't exist
-          errors.push(
-            `Failed to drop index recipe_search_index: ${error.message}`
-          );
+    // Initialize recipe indexes
+    const recipes = db.collection("recipes");
+    await Promise.all([
+      recipes.createIndex(
+        { title: "text", description: "text", tags: "text" },
+        {
+          weights: { title: 10, description: 5, tags: 3 },
+          name: "recipe_search_index",
+          background: true,
         }
-      }
-    }
+      ),
+      recipes.createIndex({ category: 1 }, { background: true }),
+      recipes.createIndex({ tags: 1 }, { background: true }),
+      recipes.createIndex({ "ingredients.name": 1 }, { background: true }),
+      recipes.createIndex({ category: 1, createdAt: -1 }, { background: true }),
+      recipes.createIndex({ averageRating: -1 }, { background: true }),
+    ]);
 
-    // Create new indexes in sequence
-    const indexOperations = [
-      // Create the new compound text index
-      {
-        operation: async () => {
-          try {
-            await collection.createIndex(
-              {
-                title: "text",
-                description: "text",
-                tags: "text",
-              },
-              {
-                weights: {
-                  title: 10,
-                  description: 5,
-                  tags: 3,
-                },
-                name: "recipe_search_index",
-                background: true, // Add background index building
-              }
-            );
-          } catch (error) {
-            if (error.code !== 85) {
-              // Skip if index already exists
-              throw error;
-            }
-          }
-        },
-        name: "recipe_search_index",
-      },
-      {
-        operation: () =>
-          collection.createIndex({ category: 1 }, { background: true }),
-        name: "category_index",
-      },
-      {
-        operation: () =>
-          collection.createIndex({ tags: 1 }, { background: true }),
-        name: "tags_index",
-      },
-      {
-        operation: () =>
-          collection.createIndex(
-            { "ingredients.name": 1 },
-            { background: true }
-          ),
-        name: "ingredients_index",
-      },
-      {
-        operation: () =>
-          collection.createIndex({ instructions: 1 }, { background: true }),
-        name: "instructions_index",
-      },
-      {
-        operation: () =>
-          collection.createIndex(
-            { category: 1, createdAt: -1 },
-            { background: true }
-          ),
-        name: "category_date_index",
-      },
-    ];
+    // Initialize favorites indexes
+    const favorites = db.collection("favorites");
+    await Promise.all([
+      favorites.createIndex({ userId: 1, recipeId: 1 }, { unique: true }),
+      favorites.createIndex({ userId: 1, createdAt: -1 }),
+    ]);
 
-    // Execute each index operation with retries
-    for (const { operation, name } of indexOperations) {
-      let retries = 3;
-      while (retries > 0) {
-        try {
-          await operation();
-          break;
-        } catch (error) {
-          retries--;
-          if (retries === 0) {
-            if (error.code !== 85) {
-              // Skip if index already exists
-              errors.push(`Failed to create index ${name}: ${error.message}`);
-            }
-          } else {
-            // Wait before retrying
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-          }
-        }
-      }
-    }
-
-    if (errors.length > 0) {
-      // Log errors but don't throw
-      console.error(
-        `Index initialization completed with warnings: ${errors.join("; ")}`
-      );
-    }
+    console.log("Indexes initialized successfully");
   } catch (error) {
-    // Log error but don't throw
-    console.error(`Index initialization error: ${error.message}`);
+    console.error("Index initialization error:", error);
+    // Continue even if index creation fails
   }
 }
 
-if (process.env.NODE_ENV === "development") {
-  // For development: Maintain a cached connection to prevent multiple connections
-  if (!global._mongoClientPromise) {
-    // If no cached connection exists, create a new client
+/**
+ * Initialize the MongoDB connection and create the necessary indexes.
+ *
+ * @returns {Promise<MongoClient>} - The connected MongoDB client instance.
+ */
+async function initializeConnection() {
+  try {
     client = new MongoClient(uri, options);
-    // Store the client promise globally
-    global._mongoClientPromise = client
-      .connect()
-      .then(async (client) => {
-        try {
-          await initializeIndexes(client);
-        } catch (error) {
-          console.error("Index initialization failed:", error);
-        }
-        return client;
-      })
-      .catch((error) => {
-        throw new Error(`Failed to connect to MongoDB: ${error.message}`);
-      });
+    const connectedClient = await client.connect();
+
+    // Test the connection
+    const admin = connectedClient.db("admin");
+    await admin.command({ ping: 1 });
+    console.log("MongoDB connection established successfully");
+
+    // Initialize indexes
+    await initializeIndexes(connectedClient);
+
+    return connectedClient;
+  } catch (error) {
+    console.error("Failed to initialize MongoDB connection:", error);
+    throw error;
   }
-  // Use the cached promise
+}
+
+// Initialize the MongoDB connection and create a shared promise
+if (process.env.NODE_ENV === "development") {
+  if (!global._mongoClientPromise) {
+    global._mongoClientPromise = initializeConnection();
+  }
   clientPromise = global._mongoClientPromise;
 } else {
-  // For production: Create a new client instance for each connection
-  client = new MongoClient(uri, options);
-  clientPromise = client
-    .connect()
-    .then(async (client) => {
-      try {
-        await initializeIndexes(client);
-      } catch (error) {
-        console.error("Index initialization failed:", error);
-      }
-      return client;
-    })
-    .catch((error) => {
-      throw new Error(`Failed to connect to MongoDB: ${error.message}`);
-    });
+  clientPromise = initializeConnection();
 }
 
-// Export the client promise for use in other parts of the application
 export default clientPromise;
+
+/**
+ * Retrieve a user's favorite recipes, including the recipe details.
+ *
+ * @param {string} userId - The ID of the user.
+ * @returns {Promise<Array<{ _id: string, userId: string, recipeId: string, createdAt: Date, recipe: object }>>} - An array of favorite recipes with their details.
+ */
+export async function getFavorites(userId) {
+  const client = await clientPromise;
+  const db = client.db("devdb");
+
+  return db
+    .collection("favorites")
+    .aggregate([
+      { $match: { userId } },
+      {
+        $lookup: {
+          from: "recipes",
+          localField: "recipeId",
+          foreignField: "_id",
+          as: "recipe",
+        },
+      },
+      { $unwind: "$recipe" },
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          recipeId: 1,
+          createdAt: 1,
+          recipe: 1,
+        },
+      },
+      { $sort: { createdAt: -1 } },
+    ])
+    .toArray();
+}
+
+/**
+ * Add a new favorite recipe for a user.
+ *
+ * @param {string} userId - The ID of the user.
+ * @param {string} recipeId - The ID of the recipe.
+ * @returns {Promise<boolean>} - Returns true if the favorite was added successfully, false if the favorite already exists.
+ */
+export async function addFavorite(userId, recipeId) {
+  const client = await clientPromise;
+  const db = client.db("devdb");
+
+  try {
+    await db.collection("favorites").insertOne({
+      userId,
+      recipeId,
+      createdAt: new Date(),
+    });
+    return true;
+  } catch (error) {
+    if (error.code === 11000) {
+      return false;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Remove a favorite recipe for a user.
+ *
+ * @param {string} userId - The ID of the user.
+ * @param {string} recipeId - The ID of the recipe.
+ * @returns {Promise<boolean>} - Returns true if the favorite was removed successfully, false otherwise.
+ */
+export async function removeFavorite(userId, recipeId) {
+  const client = await clientPromise;
+  const db = client.db("devdb");
+
+  const result = await db
+    .collection("favorites")
+    .deleteOne({ userId, recipeId });
+  return result.deletedCount > 0;
+}
+
+/**
+ * Retrieve the number of favorite recipes for a user.
+ *
+ * @param {string} userId - The ID of the user.
+ * @returns {Promise<number>} - The number of favorite recipes for the user.
+ */
+export async function getFavoritesCount(userId) {
+  const client = await clientPromise;
+  const db = client.db("devdb");
+
+  return db.collection("favorites").countDocuments({ userId });
+}

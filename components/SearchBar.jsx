@@ -137,28 +137,28 @@ const SearchBar = ({ isVisible, onToggle }) => {
     if (!showSuggestions) return;
 
     switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault();
-        setHighlightedIndex((prev) =>
-          prev < suggestions.length - 1 ? prev + 1 : prev
-        );
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : -1));
-        break;
-      case "Enter":
-        e.preventDefault();
-        if (highlightedIndex >= 0) {
-          handleSuggestionClick(suggestions[highlightedIndex]);
-        } else {
-          setShowSuggestions(false);
-          updateURL(search);
-        }
-        break;
-      case "Escape":
+    case "ArrowDown":
+      e.preventDefault();
+      setHighlightedIndex((prev) =>
+        prev < suggestions.length - 1 ? prev + 1 : prev
+      );
+      break;
+    case "ArrowUp":
+      e.preventDefault();
+      setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+      break;
+    case "Enter":
+      e.preventDefault();
+      if (highlightedIndex >= 0) {
+        handleSuggestionClick(suggestions[highlightedIndex]);
+      } else {
         setShowSuggestions(false);
-        break;
+        updateURL(search);
+      }
+      break;
+    case "Escape":
+      setShowSuggestions(false);
+      break;
     }
   };
 

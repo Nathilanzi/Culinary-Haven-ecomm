@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
+// Mark route as dynamic since it involves database operations
+export const dynamic = "force-dynamic";
+
+/**
+ * Fetches a list of distinct ingredients from the "recipes" collection in the database.
+ * @returns {Promise<NextResponse>} - A NextResponse object with the list of ingredients.
+ */
 export async function GET() {
   try {
     const client = await clientPromise;
@@ -19,6 +26,7 @@ export async function GET() {
         { $sort: { _id: 1 } }
       ]).toArray();
 
+    // Return the list of ingredient names
     return NextResponse.json(ingredients.map(ing => ing._id));
   } catch (error) {
     console.error("Error fetching ingredients:", error);
