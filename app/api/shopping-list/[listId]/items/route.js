@@ -68,3 +68,54 @@ export async function POST(request, { params }) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request, { params }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { listId } = params;
+    const { index } = await request.json(); // Change from itemId to index
+
+    const client = await clientPromise;
+    const db = client.db("devdb");
+
+    // Verify list ownership
+    const list = await db.collection("shopping_lists").findOne({
+      _id: new ObjectId(listId),
+      userId: session.user.id,
+    });
+
+    if (!list) {
+      return NextResponse.json({ error: "List not found" }, { status: 404 });
+    }
+
+    // Create a copy of items array and remove the item at the specified index
+    const updatedItems = list.items.filter((_, itemIndex) => itemIndex !== index);
+
+    // Update the document with the new items array
+    const result = await db.collection("shopping_lists").updateOne(
+      { _id: new ObjectId(listId) },
+      {
+        $set: { 
+          items: updatedItems,
+          updatedAt: new Date() 
+        }
+      }
+    );
+
+    if (result.modifiedCount === 0) {
+      return NextResponse.json(
+        { error: "Failed to remove item" },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error removing item from shopping list:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
