@@ -34,3 +34,25 @@ export async function POST(request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db("devdb");
+
+    const lists = await db
+      .collection("shopping_lists")
+      .find({ userId: session.user.id })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    return NextResponse.json(lists);
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
