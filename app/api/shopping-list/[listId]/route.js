@@ -51,3 +51,42 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request, { params }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { listId } = params;
+    const client = await clientPromise;
+    const db = client.db("devdb");
+
+    // Verify list ownership before deletion
+    const list = await db.collection("shopping_lists").findOne({
+      _id: new ObjectId(listId),
+      userId: session.user.id,
+    });
+
+    if (!list) {
+      return NextResponse.json({ error: "List not found" }, { status: 404 });
+    }
+
+    const result = await db
+      .collection("shopping_lists")
+      .deleteOne({ _id: new ObjectId(listId) });
+
+    if (result.deletedCount === 0) {
+      return NextResponse.json(
+        { error: "Failed to delete list" },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting shopping list:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
