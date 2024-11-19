@@ -4,6 +4,8 @@ import BackButton from "../../../components/BackButton";
 import ReviewSection from "@/components/ReviewSection";
 import RecipeEdit from "@/components/RecipeEdit";
 import Link from "next/link";
+import VoiceAssistant from "@/components/VoiceAssistant/VoiceAssistant"
+
 import TextToSpeech from "@/components/TextToSpeech";
 
 const TimeIcon = () => (
@@ -381,6 +383,7 @@ export default async function RecipeDetail({ params }) {
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                 Ingredients
               </h2>
+              <VoiceAssistant instructions={recipe.instructions} />
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(recipe.ingredients).map(
                   ([ingredient, amount], index) => (
