@@ -4,12 +4,8 @@ import BackButton from "../../../components/BackButton";
 import ReviewSection from "@/components/ReviewSection";
 import RecipeEdit from "@/components/RecipeEdit";
 import Link from "next/link";
-import dynamic from "next/dynamic";
+import VoiceAssistant from "@/components/VoiceAssistant/VoiceAssistant"
 
-
-const VoiceAssistant = dynamic(() => import("@/components/VoiceAssistant/VoiceAssistant"), {
-  ssr: false
-})
 
 const TimeIcon = () => (
   <svg
