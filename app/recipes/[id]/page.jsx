@@ -4,6 +4,7 @@ import BackButton from "../../../components/BackButton";
 import ReviewSection from "@/components/ReviewSection";
 import RecipeEdit from "@/components/RecipeEdit";
 import Link from "next/link";
+import TextToSpeech from "@/components/TextToSpeech";
 
 const TimeIcon = () => (
   <svg
@@ -402,7 +403,8 @@ export default async function RecipeDetail({ params }) {
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                 Instructions
               </h2>
-              <ol className="space-y-4">
+              <TextToSpeech instructions={recipe.instructions} />
+              <ol className="mt-4 space-y-4">
                 {recipe.instructions.map((step, index) => (
                   <li
                     key={index}
@@ -411,9 +413,11 @@ export default async function RecipeDetail({ params }) {
                     <span className="w-8 h-8 bg-teal-100 text-teal-700 rounded-full flex items-center justify-center font-medium mr-4 flex-shrink-0 dark:bg-teal-700 dark:text-teal-300">
                       {index + 1}
                     </span>
-                    <span className="text-gray-700 leading-relaxed dark:text-gray-300">
-                      {step}
-                    </span>
+                    <div className="flex-1">
+                      <span className="text-gray-700 leading-relaxed dark:text-gray-300">
+                        {step}
+                      </span>
+                    </div>
                   </li>
                 ))}
               </ol>
@@ -428,6 +432,7 @@ export default async function RecipeDetail({ params }) {
             <div className="mt-8">
               <RecipeEdit recipe={recipe} />
             </div>
+            
             {/* Recipe Tags */}
             {recipe.tags && recipe.tags.length > 0 && (
               <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-gray-700">
