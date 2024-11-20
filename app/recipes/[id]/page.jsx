@@ -5,8 +5,9 @@ import ReviewSection from "@/components/ReviewSection";
 import RecipeEdit from "@/components/RecipeEdit";
 import Link from "next/link";
 import VoiceAssistant from "@/components/VoiceAssistant/VoiceAssistant"
-
+// import { useShoppingList } from "@/lib/Stores/shoppingListStore";
 import TextToSpeech from "@/components/TextToSpeech";
+import ShoppingList from "@/components/ShoppingList";
 
 const TimeIcon = () => (
   <svg
@@ -149,6 +150,8 @@ const NutritionIcon = () => (
   </svg>
 );
 
+
+
 export async function generateMetadata({ params }) {
   const { id } = params;
 
@@ -244,12 +247,17 @@ const formatNutritionData = (nutrition) => {
   return null;
 };
 
+// Define addToShoppingList outside try-catch block
+// const { addToShoppingList } = useShoppingList();
+
 export default async function RecipeDetail({ params }) {
   const { id } = params;
+ 
 
   let recipe;
   try {
     recipe = await getRecipeById(id);
+
   } catch (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800">
@@ -263,6 +271,7 @@ export default async function RecipeDetail({ params }) {
               Retry
             </button>
             <Link href="/">
+
   <button
     className="px-6 py-2 bg-teal-500 text-white rounded-lg transition-colors hover:bg-teal-600 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:bg-teal-400 dark:hover:bg-teal-500"
   >
@@ -421,6 +430,33 @@ export default async function RecipeDetail({ params }) {
                         {step}
                       </span>
                     </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+             {/* Shopping List Section */}
+             <div className="mt-8">
+              <ShoppingList ingredients={recipe.ingredients} />
+            </div>
+
+            {/* Instructions Section */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-gray-700">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                Instructions
+              </h2>
+              <ol className="space-y-4">
+                {recipe.instructions.map((step, index) => (
+                  <li
+                    key={index}
+                    className="flex bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors dark:bg-gray-800 dark:hover:bg-gray-700"
+                  >
+                    <span className="w-8 h-8 bg-teal-100 text-teal-700 rounded-full flex items-center justify-center font-medium mr-4 flex-shrink-0 dark:bg-teal-700 dark:text-teal-300">
+                      {index + 1}
+                    </span>
+                    <span className="text-gray-700 leading-relaxed dark:text-gray-300">
+                      {step}
+                    </span>
                   </li>
                 ))}
               </ol>
