@@ -207,6 +207,9 @@ export default async function RecipeDetail({ params }) {
           <p className="text-gray-700 font-medium dark:text-gray-300">
             Recipe not found
           </p>
+          <p className="text-gray-700 font-medium dark:text-gray-300">
+            Recipe not found
+          </p>
         </div>
       </div>
     );
@@ -345,6 +348,9 @@ export default async function RecipeDetail({ params }) {
                       <div className="text-lg font-semibold text-red-700 dark:text-red-400">
                         {allergen}
                       </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {item.label}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -356,7 +362,6 @@ export default async function RecipeDetail({ params }) {
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                 Ingredients
               </h2>
-              <VoiceAssistant instructions={recipe.instructions} />
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(recipe.ingredients).map(
                   ([ingredient, amount], index) => (
@@ -409,10 +414,12 @@ export default async function RecipeDetail({ params }) {
               <RecipeEdit recipe={recipe} />
             </div>
 
+
             {/* Recipe Tags */}
             {recipe.tags && recipe.tags.length > 0 && (
               <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-gray-700">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Tags
                   Tags
                 </h2>
                 <div className="flex flex-wrap gap-3">
