@@ -4,8 +4,6 @@ import BackButton from "../../../components/BackButton";
 import ReviewSection from "@/components/ReviewSection";
 import RecipeEdit from "@/components/RecipeEdit";
 import Link from "next/link";
-import VoiceAssistant from "@/components/VoiceAssistant/VoiceAssistant"
-
 import TextToSpeech from "@/components/TextToSpeech";
 
 const TimeIcon = () => (
@@ -36,32 +34,157 @@ const TimeIcon = () => (
 );
 
 const TotalTime = () => (
-  <svg className="h-7 text-black" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    className="h-7 text-black"
+    viewBox="0 0 100 100"
+    xmlns="http://www.w3.org/2000/svg"
+  >
     {/* <!-- Clock face --> */}
-    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="2"/>
-  
+    <circle
+      cx="50"
+      cy="50"
+      r="45"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+
     {/* <!-- Hour markers --> */}
-    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(0 50 50)"/>
-    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(30 50 50)"/>
-    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(60 50 50)"/>
-    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(90 50 50)"/>
-    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(120 50 50)"/>
-    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(150 50 50)"/>
-    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(180 50 50)"/>
-    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(210 50 50)"/>
-    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(240 50 50)"/>
-    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(270 50 50)"/>
-    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(300 50 50)"/>
-    <line x1="50" y1="10" x2="50" y2="15" stroke="currentColor" strokeWidth="2" transform="rotate(330 50 50)"/>
-  
+    <line
+      x1="50"
+      y1="10"
+      x2="50"
+      y2="15"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(0 50 50)"
+    />
+    <line
+      x1="50"
+      y1="10"
+      x2="50"
+      y2="15"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(30 50 50)"
+    />
+    <line
+      x1="50"
+      y1="10"
+      x2="50"
+      y2="15"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(60 50 50)"
+    />
+    <line
+      x1="50"
+      y1="10"
+      x2="50"
+      y2="15"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(90 50 50)"
+    />
+    <line
+      x1="50"
+      y1="10"
+      x2="50"
+      y2="15"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(120 50 50)"
+    />
+    <line
+      x1="50"
+      y1="10"
+      x2="50"
+      y2="15"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(150 50 50)"
+    />
+    <line
+      x1="50"
+      y1="10"
+      x2="50"
+      y2="15"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(180 50 50)"
+    />
+    <line
+      x1="50"
+      y1="10"
+      x2="50"
+      y2="15"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(210 50 50)"
+    />
+    <line
+      x1="50"
+      y1="10"
+      x2="50"
+      y2="15"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(240 50 50)"
+    />
+    <line
+      x1="50"
+      y1="10"
+      x2="50"
+      y2="15"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(270 50 50)"
+    />
+    <line
+      x1="50"
+      y1="10"
+      x2="50"
+      y2="15"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(300 50 50)"
+    />
+    <line
+      x1="50"
+      y1="10"
+      x2="50"
+      y2="15"
+      stroke="currentColor"
+      strokeWidth="2"
+      transform="rotate(330 50 50)"
+    />
+
     {/* <!-- Hour hand (pointing to 10) --> */}
-    <line x1="50" y1="50" x2="50" y2="25" stroke="currentColor" strokeWidth="3" strokeLinecap="round" transform="rotate(-60 50 50)"/>
-  
+    <line
+      x1="50"
+      y1="50"
+      x2="50"
+      y2="25"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      transform="rotate(-60 50 50)"
+    />
+
     {/* <!-- Minute hand (pointing to 2) --> */}
-    <line x1="50" y1="50" x2="50" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" transform="rotate(60 50 50)"/>
-  
+    <line
+      x1="50"
+      y1="50"
+      x2="50"
+      y2="20"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      transform="rotate(60 50 50)"
+    />
+
     {/* <!-- Center dot --> */}
-    <circle cx="50" cy="50" r="2" fill="currentColor"/>
+    <circle cx="50" cy="50" r="2" fill="currentColor" />
   </svg>
 );
 
@@ -126,9 +249,7 @@ const CookIcon = () => (
     stroke="currentColor"
     className="w-6 h-6 text-[#0C3B2E] dark:text-[#A3C9A7]"
   >
-    <path
-      d="M76,40V16a12,12,0,0,1,24,0V40a12,12,0,0,1-24,0Zm52,12a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,128,52Zm40,0a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,168,52Zm83.2002,53.6001L224,126v58a36.04061,36.04061,0,0,1-36,36H68a36.04061,36.04061,0,0,1-36-36V126L4.7998,105.6001A12.0002,12.0002,0,0,1,19.2002,86.3999L32,96V88A20.02229,20.02229,0,0,1,52,68H204a20.02229,20.02229,0,0,1,20,20v8l12.7998-9.6001a12.0002,12.0002,0,0,1,14.4004,19.2002ZM200,92H56v92a12.01375,12.01375,0,0,0,12,12H188a12.01375,12.01375,0,0,0,12-12Z"
-    />
+    <path d="M76,40V16a12,12,0,0,1,24,0V40a12,12,0,0,1-24,0Zm52,12a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,128,52Zm40,0a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,168,52Zm83.2002,53.6001L224,126v58a36.04061,36.04061,0,0,1-36,36H68a36.04061,36.04061,0,0,1-36-36V126L4.7998,105.6001A12.0002,12.0002,0,0,1,19.2002,86.3999L32,96V88A20.02229,20.02229,0,0,1,52,68H204a20.02229,20.02229,0,0,1,20,20v8l12.7998-9.6001a12.0002,12.0002,0,0,1,14.4004,19.2002ZM200,92H56v92a12.01375,12.01375,0,0,0,12,12H188a12.01375,12.01375,0,0,0,12-12Z" />
   </svg>
 );
 
@@ -199,7 +320,9 @@ export async function generateMetadata({ params }) {
       other: {
         "prep-time": recipe.prep,
         "cook-time": recipe.cook,
-        "total-time": `${parseInt(recipe.prep) + parseInt(recipe.cook)} minutes`, // Corrected
+        "total-time": `${
+          parseInt(recipe.prep) + parseInt(recipe.cook)
+        } minutes`, // Corrected
         "recipe-yield": recipe.servings,
       },
     };
@@ -254,7 +377,9 @@ export default async function RecipeDetail({ params }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800">
         <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-center space-y-4 dark:bg-gray-700">
-          <p className="text-red-500 font-medium dark:text-red-400">Error: {error.message}</p>
+          <p className="text-red-500 font-medium dark:text-red-400">
+            Error: {error.message}
+          </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => window.location.reload()}
@@ -263,13 +388,10 @@ export default async function RecipeDetail({ params }) {
               Retry
             </button>
             <Link href="/">
-  <button
-    className="px-6 py-2 bg-teal-500 text-white rounded-lg transition-colors hover:bg-teal-600 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:bg-teal-400 dark:hover:bg-teal-500"
-  >
-    Return to HomePage
-  </button>
-</Link>
-
+              <button className="px-6 py-2 bg-teal-500 text-white rounded-lg transition-colors hover:bg-teal-600 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:bg-teal-400 dark:hover:bg-teal-500">
+                Return to HomePage
+              </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -280,7 +402,9 @@ export default async function RecipeDetail({ params }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800">
         <div className="bg-white p-8 rounded-2xl shadow-lg dark:bg-gray-700">
-          <p className="text-gray-700 font-medium dark:text-gray-300">Recipe not found</p>
+          <p className="text-gray-700 font-medium dark:text-gray-300">
+            Recipe not found
+          </p>
         </div>
       </div>
     );
@@ -371,7 +495,9 @@ export default async function RecipeDetail({ params }) {
                           {item.unit}
                         </span>
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">{item.label}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {item.label}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -383,7 +509,6 @@ export default async function RecipeDetail({ params }) {
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                 Ingredients
               </h2>
-              <VoiceAssistant instructions={recipe.instructions} />
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(recipe.ingredients).map(
                   ([ingredient, amount], index) => (
@@ -435,12 +560,12 @@ export default async function RecipeDetail({ params }) {
             <div className="mt-8">
               <RecipeEdit recipe={recipe} />
             </div>
-            
+
             {/* Recipe Tags */}
             {recipe.tags && recipe.tags.length > 0 && (
               <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-gray-700">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                Tags
+                  Tags
                 </h2>
                 <div className="flex flex-wrap gap-3">
                   {recipe.tags.map((tag, index) => (
