@@ -170,7 +170,6 @@ async function getAllergensByRecipeId(recipeId) {
 
 export default async function RecipeDetail({ params }) {
   const { id } = params;
- 
 
   let recipe;
   try {
@@ -341,13 +340,13 @@ export default async function RecipeDetail({ params }) {
                   {presentAllergens.map((allergen, index) => (
                     <div
                       key={index}
-                      className="bg-gray-50 p-4 rounded-xl hover:bg-gray-100 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600"
+                      className="flex flex-col items-center bg-gray-50 p-4 rounded-xl hover:bg-gray-100 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600"
                     >
                       {/* Render the allergen SVG if available */}
                       {allergenSVGs[allergen.toLowerCase()] || (
                         <span>No SVG Available</span>
                       )}
-                      <div className="text-lg font-semibold text-red-700 dark:text-red-400">
+                      <div className="text-sm text-gray-500 font-medium mt-2 dark:text-gray-400">
                         {allergen}
                       </div>
                     </div>
@@ -403,8 +402,8 @@ export default async function RecipeDetail({ params }) {
               </ol>
             </div>
 
-             {/* Shopping List Section */}
-             <div className="mt-8">
+            {/* Shopping List Section */}
+            <div className="mt-8">
               <ShoppingList ingredients={recipe.ingredients} />
             </div>
 
