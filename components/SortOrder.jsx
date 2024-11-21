@@ -3,7 +3,10 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
-// SVG Icons as components
+/**
+ * ChevronDownIcon component: SVG for a down arrow icon.
+ * @returns {JSX.Element} - SVG element representing the ChevronDown icon.
+ */
 const ChevronDownIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -19,6 +22,10 @@ const ChevronDownIcon = () => (
   </svg>
 );
 
+/**
+ * CloseIcon component: SVG for a close (X) icon.
+ * @returns {JSX.Element} - SVG element representing the Close icon.
+ */
 const CloseIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -35,6 +42,10 @@ const CloseIcon = () => (
   </svg>
 );
 
+/** 
+ * Sorting options with keys and labels for the dropdown.
+ * @constant {Object} 
+ */
 const sortOptions = {
   "$natural-asc": "Default Sort",
   "prep-asc": "Prep Time (Low to High)",
@@ -47,28 +58,49 @@ const sortOptions = {
   "instructionCount-desc": "Steps (Most to Fewest)",
 };
 
+/**
+ * SortOrder component: Renders a button and modal for selecting a sorting option.
+ *
+ * @param {Object} props - Props for the SortOrder component.
+ * @param {string} props.currentSort - Current sort field.
+ * @param {string} props.currentOrder - Current sort order (asc/desc).
+ * @returns {JSX.Element} - The SortOrder component.
+ */
 export default function SortOrder({ currentSort, currentOrder }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState("$natural-asc");
 
-  // Update selectedSort based on URL changes
+  /**
+   * Effect to update the selected sort option based on URL parameters.
+   */
   useEffect(() => {
-    const sortBy = searchParams.get("sortBy") || "$natural"; 
-    const order = searchParams.get("order") || "asc"; 
+    const sortBy = searchParams.get("sortBy") || "$natural";
+    const order = searchParams.get("order") || "asc";
     const sortKey = `${sortBy}-${order}`;
     setSelectedSort(sortOptions[sortKey] ? sortKey : "$natural-asc");
   }, [searchParams]);
 
+  /**
+   * Handles changes in the dropdown selection.
+   *
+   * @param {React.ChangeEvent<HTMLSelectElement>} e - Event object.
+   */
   const handleSortChange = (e) => {
     setSelectedSort(e.target.value);
   };
 
+  /**
+   * Clears the selected sort option and resets to default.
+   */
   const clearSort = () => {
     setSelectedSort("$natural-asc");
   };
 
+  /**
+   * Applies the selected sort option and updates the URL parameters.
+   */
   const applySort = () => {
     const [sortBy, order] = selectedSort.split("-");
     const params = new URLSearchParams(searchParams);
@@ -86,6 +118,9 @@ export default function SortOrder({ currentSort, currentOrder }) {
     toggleModal();
   };
 
+  /**
+   * Toggles the visibility of the modal.
+   */
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
   return (
@@ -94,8 +129,7 @@ export default function SortOrder({ currentSort, currentOrder }) {
         onClick={toggleModal}
         className="group flex items-center justify-between w-full md:w-48 px-6 py-3 bg-emerald-950/30 border-2 border-emerald-800/50 rounded-full text-emerald-50 focus:outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-800/50 transition-all duration-300 hover:bg-emerald-950/40 hover:border-emerald-700/60"
       >
-        <span className="truncate">{sortOptions[selectedSort]}</span>{" "}
-        {/* Display the label */}
+        <span className="truncate">{sortOptions[selectedSort]}</span>
         <ChevronDownIcon />
       </button>
 

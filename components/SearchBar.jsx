@@ -4,7 +4,10 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getRecipeSuggestions } from "@/lib/api";
 
-// Metadata setup for page
+/**
+ * Metadata for the recipe search page
+ * @type {Object}
+ */
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
   description:
@@ -16,6 +19,20 @@ export const metadata = {
   },
 };
 
+/**
+ * Props for the SearchBar component
+ * @typedef {Object} SearchBarProps
+ * @property {boolean} isVisible - Determines if the search bar is currently visible
+ * @property {() => void} onToggle - Function to toggle the search bar's visibility
+ */
+
+/**
+ * A dynamic search bar component with autocomplete suggestions
+ * 
+ * @component
+ * @param {SearchBarProps} props - Component properties
+ * @returns {React.ReactElement} Rendered search bar component
+ */
 const SearchBar = ({ isVisible, onToggle }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -29,6 +46,13 @@ const SearchBar = ({ isVisible, onToggle }) => {
   const searchTimeoutRef = useRef(null);
   const urlUpdateTimeoutRef = useRef(null);
 
+  /**
+   * Highlights matching search terms in text
+   * 
+   * @param {string} text - The text to highlight
+   * @param {string} searchTerm - The term to highlight within the text
+   * @returns {React.ReactNode} Text with matching terms highlighted
+   */
   const highlightMatch = (text, searchTerm) => {
     if (!searchTerm) return text;
     try {
@@ -58,6 +82,12 @@ const SearchBar = ({ isVisible, onToggle }) => {
     }
   }, [isVisible]);
 
+  /**
+   * Updates the URL with current search parameters
+   * 
+   * @param {string} searchTerm - The current search term
+   * @description Debounces URL updates to prevent excessive navigation
+   */
   const updateURL = useCallback(
     (searchTerm) => {
       if (urlUpdateTimeoutRef.current) {
@@ -78,6 +108,12 @@ const SearchBar = ({ isVisible, onToggle }) => {
     [searchParams, router]
   );
 
+  /**
+   * Fetches recipe suggestions based on user input
+   * 
+   * @param {string} value - The search input value
+   * @description Retrieves recipe suggestions from API when input meets minimum length
+   */
   const fetchSuggestions = useCallback(async (value) => {
     if (!value.trim() || value.length < 3) {
       setSuggestions([]);
@@ -98,6 +134,12 @@ const SearchBar = ({ isVisible, onToggle }) => {
     }
   }, []);
 
+  /**
+   * Handles changes to the search input
+   * 
+   * @param {React.ChangeEvent<HTMLInputElement>} e - Input change event
+   * @description Updates search state, fetches suggestions, and updates URL
+   */
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearch(value);
@@ -118,6 +160,12 @@ const SearchBar = ({ isVisible, onToggle }) => {
     updateURL(value);
   };
 
+  /**
+   * Handles selection of a suggestion
+   * 
+   * @param {Object} suggestion - Selected recipe suggestion
+   * @description Updates search, URL, and closes suggestion dropdown
+   */
   const handleSuggestionClick = (suggestion) => {
     const searchTerm = suggestion.title;
     setSearch(searchTerm);
@@ -133,6 +181,12 @@ const SearchBar = ({ isVisible, onToggle }) => {
     router.push(`/?${params.toString()}`);
   };
 
+  /**
+   * Handles keyboard navigation in suggestions
+   * 
+   * @param {React.KeyboardEvent<HTMLInputElement>} e - Keyboard event
+   * @description Allows arrow key navigation and selection of suggestions
+   */
   const handleKeyDown = (e) => {
     if (!showSuggestions) return;
 
@@ -162,6 +216,11 @@ const SearchBar = ({ isVisible, onToggle }) => {
     }
   };
 
+  /**
+   * Resets the search input and URL
+   * 
+   * @description Clears search state, suggestions, and resets URL
+   */
   const resetSearch = () => {
     setSearch("");
     setSuggestions([]);
@@ -181,6 +240,11 @@ const SearchBar = ({ isVisible, onToggle }) => {
 
   // Handle clicks outside of suggestions
   useEffect(() => {
+    /**
+     * Closes suggestions when clicking outside
+     * 
+     * @param {MouseEvent} event - Click event
+     */
     const handleClickOutside = (event) => {
       if (
         suggestionsRef.current &&
@@ -195,8 +259,8 @@ const SearchBar = ({ isVisible, onToggle }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Cleanup timeouts on unmount
   useEffect(() => {
-    // Store the ref value in a variable at the start of the effect
     const currentTimeoutRef = searchTimeoutRef.current;
 
     return () => {
