@@ -1,6 +1,6 @@
 /**
  * Imports necessary dependencies and components for the RecipeDetail page.
- * 
+ *
  * @module RecipeDetail
  */
 import { getRecipeById } from "../../../lib/api";
@@ -9,7 +9,6 @@ import BackButton from "../../../components/BackButton";
 import ReviewSection from "@/components/ReviewSection";
 import RecipeEdit from "@/components/RecipeEdit";
 import Link from "next/link";
-import VoiceAssistant from "@/components/VoiceAssistant/VoiceAssistant";
 import {
   TimeIcon,
   TotalTime,
@@ -22,7 +21,7 @@ import TextToSpeech from "@/components/TextToSpeech";
 
 /**
  * Generates metadata for the recipe detail page, including SEO attributes and OpenGraph tags.
- * 
+ *
  * @async
  * @param {Object} params - The parameters object.
  * @param {string} params.id - The ID of the recipe.
@@ -94,7 +93,7 @@ export async function generateMetadata({ params }) {
 
 /**
  * Formats nutrition data into a structured array.
- * 
+ *
  * @param {Object|Array} nutrition - The raw nutrition data.
  * @returns {Array|null} A formatted array of nutrition facts, or null if invalid.
  */
@@ -134,16 +133,17 @@ const formatNutritionData = (nutrition) => {
 
 /**
  * Fetches allergens associated with a recipe by its ID.
- * 
+ *
  * @async
  * @param {string} recipeId - The ID of the recipe.
  * @returns {Promise<Array>} A list of allergens or an empty array in case of errors.
  */
 
 async function getAllergensByRecipeId(recipeId) {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
-  console.log('API_BASE_URL:', process.env.NEXT_PUBLIC_API_BASE_URL);
-  
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
+  console.log("API_BASE_URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
+
   try {
     const response = await fetch(`${API_BASE_URL}/api/allergens/${recipeId}`);
     const data = await response.json();
@@ -157,7 +157,7 @@ async function getAllergensByRecipeId(recipeId) {
 /**
  * Fetches and displays detailed information about a specific recipe.
  * Handles errors and displays fallback content if the recipe is not found or there is an error.
- * 
+ *
  * @async
  * @param {Object} params - The parameters object.
  * @param {string} params.id - The ID of the recipe.
@@ -168,7 +168,6 @@ export default async function RecipeDetail({ params }) {
   const { id } = params;
 
   let recipe;
-
   try {
     recipe = await getRecipeById(id);
 
@@ -204,9 +203,6 @@ export default async function RecipeDetail({ params }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800">
         <div className="bg-white p-8 rounded-2xl shadow-lg dark:bg-gray-700">
-          <p className="text-gray-700 font-medium dark:text-gray-300">
-            Recipe not found
-          </p>
           <p className="text-gray-700 font-medium dark:text-gray-300">
             Recipe not found
           </p>
@@ -342,14 +338,12 @@ export default async function RecipeDetail({ params }) {
                       key={index}
                       className="bg-gray-50 p-4 rounded-xl hover:bg-gray-100 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600"
                     >
+                      {/* Render the allergen SVG if available */}
                       {allergenSVGs[allergen.toLowerCase()] || (
-                        <span>No SVG</span>
+                        <span>No SVG Available</span>
                       )}
                       <div className="text-lg font-semibold text-red-700 dark:text-red-400">
                         {allergen}
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {item.label}
                       </div>
                     </div>
                   ))}
@@ -414,12 +408,10 @@ export default async function RecipeDetail({ params }) {
               <RecipeEdit recipe={recipe} />
             </div>
 
-
             {/* Recipe Tags */}
             {recipe.tags && recipe.tags.length > 0 && (
               <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-gray-700">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                  Tags
                   Tags
                 </h2>
                 <div className="flex flex-wrap gap-3">
