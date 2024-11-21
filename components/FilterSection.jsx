@@ -2,12 +2,24 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
+import {
+  Filter,
+  X,
+  ChevronDown,
+  RefreshCcw,
+  Sliders,
+  CheckCircle2,
+} from "lucide-react";
 import TagFilter from "@/components/TagFilters";
 import NumberOfStepsFilter from "@/components/NumberOfStepsFilter";
 import IngredientsFilter from "@/components/IngredientsFilter";
 import CategoryFilter from "@/components/CategoryFilter";
 import SortOrder from "@/components/SortOrder";
 
+/**
+ * Default filter values for resetting and initializing the component
+ * @type {Object}
+ */
 const DEFAULT_VALUES = {
   category: "",
   sortBy: "$natural",
@@ -18,6 +30,20 @@ const DEFAULT_VALUES = {
   tagMatchType: "all",
 };
 
+/**
+ * FilterSection component for managing recipe filters with advanced filtering options
+ *
+ * @component
+ * @param {Object} props - Component properties
+ * @param {string[]} [props.categories=[]] - List of available recipe categories
+ * @param {string} [props.initialCategory=""] - Initial selected category
+ * @param {string} [props.initialSort="$natural"] - Initial sort method
+ * @param {string} [props.initialOrder="asc"] - Initial sort order
+ * @param {string[]} [props.availableTags=[]] - List of available tags for filtering
+ * @param {string[]} [props.availableIngredients=[]] - List of available ingredients for filtering
+ *
+ * @returns {React.ReactElement} Rendered filter section component
+ */
 export default function FilterSection({
   categories = [],
   initialCategory = DEFAULT_VALUES.category,
@@ -26,219 +52,215 @@ export default function FilterSection({
   availableTags = [],
   availableIngredients = [],
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isAdvancedFilters, setIsAdvancedFilters] = useState(false);
-  const [category, setCategory] = useState(initialCategory);
-  const [sortBy, setSortBy] = useState(initialSort);
-  const [order, setOrder] = useState(initialOrder);
-  const [search, setSearch] = useState("");
-  const [numberOfSteps, setNumberOfSteps] = useState("");
+  // Next.js navigation and routing hooks
+  const router = useRouter(); // Hook for programmatic navigation
+  const pathname = usePathname(); // Current page's pathname
+  const searchParams = useSearchParams(); // Current URL search parameters
 
+  // State for managing filter expansion and advanced filters
+  const [isExpanded, setIsExpanded] = useState(false); // Controls overall filter section visibility
+  const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false); // Controls advanced filters visibility
+
+  // State for tracking current filter settings
+  const [filterState, setFilterState] = useState({
+    category: initialCategory,
+    sortBy: initialSort,
+    order: initialOrder,
+    search: "",
+    numberOfSteps: "",
+  });
+
+  /**
+   * Updates the URL with new filter parameters
+   * Handles adding, removing, and setting URL search parameters
+   *
+   * @param {Object} newParams - New parameters to update in the URL
+   */
   const updateUrl = (newParams) => {
+    // Create a new URLSearchParams instance from current search params
     const params = new URLSearchParams(searchParams.toString());
 
+    // Process each new parameter
     Object.entries(newParams).forEach(([key, value]) => {
       if (Array.isArray(value)) {
+        // For array values, remove existing and append all new values
         params.delete(key);
-        if (value.length > 0) {
-          value.forEach((v) => params.append(key, v));
-        }
+        value.forEach((v) => params.append(key, v));
       } else if (value === DEFAULT_VALUES[key]) {
+        // If value matches default, remove the parameter
         params.delete(key);
       } else if (value) {
+        // If value exists, set the parameter
         params.set(key, value);
       } else {
+        // If no value, remove the parameter
         params.delete(key);
       }
     });
 
+    // Navigate to the updated URL
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  useEffect(() => {
-    const currentCategory = searchParams.get("category") || initialCategory;
-    const currentSort = searchParams.get("sortBy") || initialSort;
-    const currentOrder = searchParams.get("order") || initialOrder;
-    const currentSearch = searchParams.get("search") || "";
-    const currentNumberOfSteps = searchParams.get("numberOfSteps") || "";
-
-    setCategory(currentCategory);
-    setSortBy(currentSort);
-    setOrder(currentOrder);
-    setSearch(currentSearch);
-    setNumberOfSteps(currentNumberOfSteps);
-  }, [searchParams, initialCategory, initialSort, initialOrder]);
-
-  const isFilterActive = useMemo(() => {
-    if (!searchParams) return false;
-
-    const hasTagFilters =
-      searchParams.has("tags[]") || searchParams.has("tagMatchType");
-    const hasIngredientFilters =
-      searchParams.has("ingredients[]") ||
-      searchParams.has("ingredientMatchType");
-
-    return (
-      category !== initialCategory ||
-      search !== "" ||
-      sortBy !== initialSort ||
-      order !== initialOrder ||
-      numberOfSteps !== "" ||
-      hasTagFilters ||
-      hasIngredientFilters
-    );
-  }, [
-    category,
-    search,
-    sortBy,
-    order,
-    numberOfSteps,
-    searchParams,
-    initialCategory,
-    initialSort,
-    initialOrder,
-  ]);
-
-  const handleReset = () => {
-    setCategory(DEFAULT_VALUES.category);
-    setSortBy(DEFAULT_VALUES.sortBy);
-    setOrder(DEFAULT_VALUES.order);
-    setSearch(DEFAULT_VALUES.search);
-    setNumberOfSteps(DEFAULT_VALUES.numberOfSteps);
+  /**
+   * Resets all filters to their default values
+   * Clears filter state and navigates to the base pathname
+   */
+  const handleResetFilters = () => {
+    setFilterState({
+      category: DEFAULT_VALUES.category,
+      sortBy: DEFAULT_VALUES.sortBy,
+      order: DEFAULT_VALUES.order,
+      search: DEFAULT_VALUES.search,
+      numberOfSteps: DEFAULT_VALUES.numberOfSteps,
+    });
     router.push(pathname);
   };
 
+  /**
+   * Memoized function to detect if any filters are currently active
+   *
+   * @returns {boolean} Whether any filters are currently applied
+   */
+  const isFilterActive = useMemo(() => {
+    return (
+      // Check if any filter state differs from default
+      Object.entries(filterState).some(
+        ([key, value]) => value !== DEFAULT_VALUES[key]
+      ) ||
+      // Also check if search params exist
+      searchParams.toString() !== ""
+    );
+  }, [filterState, searchParams]);
+
+  // Render the filter section
   return (
-    <div className="bg-white rounded-xl shadow-lg transition-all duration-300 dark:bg-[#333333] ">
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-3">
-            <svg
-              className="w-5 h-5 text-[#0C3B2E] dark:text-[#A3C9A7]"
-              fill="none"
-              strokeWidth="2"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
+    <div className="bg-white dark:bg-neutral-900 shadow-xl rounded-2xl overflow-hidden transition-all duration-300 max-w-7xl mx-auto">
+      {/* Filter Section Header */}
+      <div className="px-4 sm:px-6 py-4 bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-neutral-800 dark:to-teal-900 border-b border-neutral-100 dark:border-neutral-700">
+        {/* Header content with title, active indicator, and expand/collapse button */}
+        <div className="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+          {/* Left side: Filter title and icon */}
+          <div className="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
+            <div className="flex items-center space-x-3">
+              <Filter className="w-6 h-6 text-teal-600 dark:text-emerald-400" />
+              <h2 className="text-lg font-semibold text-teal-800 dark:text-emerald-300">
+                Recipe Filters
+              </h2>
+              {/* Active filters indicator */}
+              {isFilterActive && (
+                <span className="ml-2 px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs rounded-full hidden sm:flex items-center">
+                  <CheckCircle2 className="w-4 h-4 mr-1" />
+                  Active
+                </span>
+              )}
+            </div>
+
+            {/* Mobile expand/collapse button */}
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-neutral-600 dark:text-neutral-300 hover:text-teal-600 dark:hover:text-emerald-400 transition-colors sm:hidden"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+              <ChevronDown
+                className={`w-6 h-6 transition-transform ${
+                  isExpanded ? "rotate-180" : ""
+                }`}
               />
-            </svg>
-            <h2 className="text-lg font-semibold text-[#0C3B2E] dark:text-[#A3C9A7]">Filters</h2>
-            {isFilterActive && (
-              <span className="bg-blue-100 text-blue-600 text-sm px-2 py-1 rounded-full">
-                Active
-              </span>
-            )}
+            </button>
           </div>
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="hover:text-gray-700 transition-colors duration-200 text-[#0C3B2E] dark:text-[#A3C9A7]"
-          >
-            <svg
-              className={`w-5 h-5 transform transition-transform duration-200  ${
-                isExpanded ? "rotate-180" : ""
-              }`}
-              fill="none"
-              strokeWidth="2"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-        </div>
-        <div
-          className={`transition-all duration-300 ease-in-out ${
-            isExpanded
-              ? "opacity-100 max-h-[1000px]"
-              : "opacity-0 max-h-0 overflow-hidden"
-          }`}
-        >
-          <button
-            onClick={() => setIsAdvancedFilters(!isAdvancedFilters)}
-            className="bg-gray-100 text-gray-700 text-sm px-4 py-2 rounded-md mb-4"
-          >
-            {isAdvancedFilters ? "Hide Advanced Filters" : "Show Advanced Filters"}
-          </button>
 
-          {isAdvancedFilters && (
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row gap-3 py-4">
-                <div className="bg-white/50 shadow-sm rounded-lg p-2 flex flex-wrap sm:flex-nowrap gap-2 items-center border border-gray-200">
-                  <NumberOfStepsFilter
-                    searchParams={searchParams}
-                    updateUrl={updateUrl}
-                    className="min-w-[120px]"
-                  />
-                  <div className="h-8 w-px bg-gray-200 hidden sm:block" />
-                  <TagFilter
-                    availableTags={availableTags}
-                    searchParams={searchParams}
-                    updateUrl={updateUrl}
-                    className="min-w-[120px]"
-                  />
-                  <div className="h-8 w-px bg-gray-200 hidden sm:block" />
-                  <IngredientsFilter
-                    availableIngredients={availableIngredients}
-                    searchParams={searchParams}
-                    updateUrl={updateUrl}
-                    className="min-w-[120px]"
-                  />
-                </div>
+          {/* Right side: Reset filters and desktop expand/collapse button */}
+          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-5 w-full sm:w-auto">
+            {/* Reset filters button */}
+            {isFilterActive && (
+              <div className="flex justify-center sm:justify-end w-full">
+                <button
+                  onClick={handleResetFilters}
+                  className="flex items-center space-x-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors text-sm w-full sm:w-auto"
+                >
+                  <RefreshCcw className="w-4 h-4" />
+                  <span>Reset All</span>
+                </button>
               </div>
+            )}
 
+            {/* Desktop expand/collapse button */}
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="hidden sm:block text-neutral-600 dark:text-neutral-300 hover:text-teal-600 dark:hover:text-emerald-400 transition-colors"
+            >
+              <ChevronDown
+                className={`w-6 h-6 transition-transform ${
+                  isExpanded ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Expandable Filters Section */}
+      {isExpanded && (
+        <div className="p-4 sm:p-6 space-y-6 bg-neutral-50 dark:bg-neutral-800">
+          {/* Advanced Filters Toggle Button */}
+          <div className="flex justify-center">
+            <button
+              onClick={() => setIsAdvancedFiltersOpen(!isAdvancedFiltersOpen)}
+              className="flex items-center space-x-2 bg-white dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 px-4 py-2 rounded-lg text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors w-full sm:w-auto justify-center"
+            >
+              <Sliders className="w-4 h-4" />
+              <span>
+                {isAdvancedFiltersOpen
+                  ? "Hide Advanced Filters"
+                  : "Show Advanced Filters"}
+              </span>
+            </button>
+          </div>
+
+          {/* Advanced Filters Content */}
+          {isAdvancedFiltersOpen && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Number of Steps Filter */}
+              <NumberOfStepsFilter
+                searchParams={searchParams}
+                updateUrl={updateUrl}
+              />
+              {/* Tag Filter */}
+              <TagFilter
+                availableTags={availableTags}
+                searchParams={searchParams}
+                updateUrl={updateUrl}
+              />
+              {/* Ingredients Filter */}
+              <IngredientsFilter
+                availableIngredients={availableIngredients}
+                searchParams={searchParams}
+                updateUrl={updateUrl}
+              />
+              {/* No Filter Applied Message */}
               {!isFilterActive && (
-                <div className="text-gray-500 text-sm italic mt-4">
+                <div className="flex text-gray-500 dark:text-gray-100 text-sm italic mt-4">
                   No filter applied
                 </div>
               )}
             </div>
           )}
 
-          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+          {/* Category and Sort Order Section */}
+          <div className="flex flex-col sm:flex-row items-center justify-between pt-4 border-t border-gray-100 space-y-4 sm:space-y-0">
+            {/* Category Filter */}
             <CategoryFilter
               categories={categories}
-              currentCategory={category}
+              currentCategory={filterState.category}
             />
-            <SortOrder currentSort={sortBy} currentOrder={order} />
-
-            {isFilterActive && (
-              <button
-                onClick={handleReset}
-                className="group flex items-center px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all duration-200"
-              >
-                <svg
-                  className="w-4 h-4 mr-2 transition-transform duration-300 group-hover:rotate-180"
-                  fill="none"
-                  strokeWidth="2"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  />
-                </svg>
-                Reset All
-              </button>
-            )}
+            {/* Sort Order Filter */}
+            <SortOrder
+              currentSort={filterState.sortBy}
+              currentOrder={filterState.order}
+            />
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
