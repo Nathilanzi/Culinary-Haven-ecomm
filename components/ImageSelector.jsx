@@ -1,11 +1,23 @@
 "use client";
+
 import { useState } from "react";
 import Image from "next/image";
 
+/**
+ * ImageSelector component that allows users to view and select images from a gallery.
+ * Displays a main selected image and thumbnails that can be clicked to update the main image.
+ *
+ * @param {Object} props - The component props.
+ * @param {string[]} props.images - An array of image URLs to display in the selector.
+ * 
+ * @returns {JSX.Element} The rendered ImageSelector component.
+ */
 export default function ImageSelector({ images }) {
+  // State hook to track the currently selected image
   const [selectedImage, setSelectedImage] = useState(images[0]); // Default to the first image
 
-  const fixedImageSize = { width: 500, height: 500 }; // Fixed size for the images
+  // Define fixed size for the images
+  const fixedImageSize = { width: 500, height: 500 };
 
   return (
     <div>
