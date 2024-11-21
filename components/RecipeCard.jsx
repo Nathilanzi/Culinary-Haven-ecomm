@@ -6,7 +6,12 @@ import { useState } from "react";
 import FavoritesButton from "./FavoritesButton";
 import Alert from "./Alert";
 
-// Highlight text function
+/**
+ * Highlights search query text within a given text string
+ * @param {string} text - The text to be searched and highlighted
+ * @param {string} query - The search query to highlight
+ * @returns {Array<string|JSX.Element>} Array of text parts with highlighted matches
+ */
 function highlightText(text, query) {
   if (!query) return text;
   const regex = new RegExp(`(${query})`, "gi");
@@ -21,18 +26,35 @@ function highlightText(text, query) {
   );
 }
 
+/**
+ * RecipeCard component displays detailed information about a single recipe
+ * @param {Object} props - Component properties
+ * @param {Object} props.recipe - The recipe object containing all recipe details
+ * @param {string} [props.searchQuery=''] - Optional search query for text highlighting
+ * @param {boolean} [props.isFavorited] - Initial favorited state of the recipe
+ * @param {Function} [props.toggleFavorite] - Function to toggle favorite status
+ * @returns {JSX.Element} Rendered recipe card component
+ */
 export default function RecipeCard({
   recipe,
   searchQuery = "",
   isFavorited: initialIsFavorited,
   toggleFavorite,
 }) {
+  // State for hover and alert functionality
   const [isHovered, setIsHovered] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success");
+
+  // Ensure images is an array, defaulting to empty array if undefined
   const images = Array.isArray(recipe?.images) ? recipe.images : [];
 
+  /**
+   * Handles the favorite toggle action and shows appropriate alert
+   * @param {boolean} success - Whether the favorite toggle was successful
+   * @param {string} message - Alert message to display
+   */
   const handleFavoriteToggle = async (success, message) => {
     setAlertMessage(message);
     setAlertType(success ? "success" : "error");
@@ -46,19 +68,20 @@ export default function RecipeCard({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Image Section */}
+        {/* Image Section with Gallery and Favorites */}
         <div className="relative overflow-hidden object-contain">
           <Gallery images={images} />
 
           {/* Favorites Button */}
           <div className="absolute top-2 right-2 z-10">
-            {/* Pass isFavorited and toggleFavorite to FavoritesButton */}
             <FavoritesButton
               recipeId={recipe._id}
               isFavorited={initialIsFavorited}
               onFavoriteToggle={handleFavoriteToggle}
             />
           </div>
+
+          {/* Hoverable Description Overlay */}
           <div
             className={`absolute bottom-0 left-0 right-0 p-2 bg-black bg-opacity-75 text-white text-sm transition-all duration-500 transform ${
               isHovered
@@ -79,13 +102,16 @@ export default function RecipeCard({
           </div>
         </div>
 
-        {/* Text Section */}
+        {/* Recipe Details Section */}
         <div className="p-4 flex-grow flex flex-col justify-between text-center">
+          {/* Title */}
           <div>
             <h3 className="font-bold text-lg text-[#6D9773] dark:text-[#A3C9A7] mb-2 line-clamp-2">
               {highlightText(recipe.title, searchQuery)}
             </h3>
           </div>
+
+          {/* Publication Date */}
           <div>
             <h3 className="font-light text-sm text-[#6D9773] dark:text-[#A3C9A7] mb-2 line-clamp-2">
               {new Date(recipe.published).toLocaleDateString("en-US", {
@@ -95,6 +121,8 @@ export default function RecipeCard({
               })}
             </h3>
           </div>
+
+          {/* Instruction Count */}
           <div>
             <h3 className="font-light text-sm text-[#6D9773] dark:text-[#A3C9A7] mb-2 line-clamp-2">
               {recipe.instructions.length}{" "}
@@ -104,7 +132,7 @@ export default function RecipeCard({
             </h3>
           </div>
 
-          {/* Prep, Cook, and Serves */}
+          {/* Recipe Metadata Icons */}
           <div className="flex justify-center space-x-8 text-xs text-gray-500 mb-4">
             {/* Prep Time */}
             <div className="flex flex-col items-center">
@@ -153,7 +181,7 @@ export default function RecipeCard({
               <span>{recipe.cook} mins</span>
             </div>
 
-            {/* Servings (Plate Icon) */}
+            {/* Servings */}
             <div className="flex flex-col items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -216,6 +244,8 @@ export default function RecipeCard({
           </Link>
         </div>
       </div>
+
+      {/* Alert Component for Favorite Actions */}
       <Alert
         message={alertMessage}
         type={alertType}
