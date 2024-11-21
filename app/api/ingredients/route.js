@@ -14,7 +14,8 @@ export async function GET() {
     const db = client.db("devdb");
 
     // Get distinct ingredients from all recipes
-    const ingredients = await db.collection("recipes")
+    const ingredients = await db
+      .collection("recipes")
       .aggregate([
         // First get all ingredients object keys
         { $project: { ingredients: { $objectToArray: "$ingredients" } } },
@@ -23,13 +24,17 @@ export async function GET() {
         // Group by the ingredient key (which will be the ingredient name)
         { $group: { _id: "$ingredients.k" } },
         // Sort alphabetically
-        { $sort: { _id: 1 } }
-      ]).toArray();
+        { $sort: { _id: 1 } },
+      ])
+      .toArray();
 
     // Return the list of ingredient names
-    return NextResponse.json(ingredients.map(ing => ing._id));
+    return NextResponse.json(ingredients.map((ing) => ing._id));
   } catch (error) {
     console.error("Error fetching ingredients:", error);
-    return NextResponse.json({ error: "Error fetching ingredients" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error fetching ingredients" },
+      { status: 500 }
+    );
   }
 }

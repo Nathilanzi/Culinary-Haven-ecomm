@@ -1,9 +1,31 @@
+/**
+ * API Handlers for Updating and Deleting Shopping Lists
+ *
+ * @description Provides functionality to update items in a shopping list or delete a shopping list.
+ * Both operations include session-based authentication and list ownership verification.
+ */
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
+/**
+ * Update the items in a shopping list.
+ *
+ * @async
+ * @function PATCH
+ * @param {Request} request - The HTTP request object containing the updated items.
+ * @param {Object} context - The context object containing route parameters.
+ * @param {string} context.params.listId - The ID of the shopping list to update.
+ * @returns {NextResponse} - A JSON response indicating success or an error message.
+ *
+ * @throws {Error} - Returns a 500 error if an unexpected error occurs.
+ *
+ * @example
+ * PATCH /api/shopping_lists/{listId}
+ * Body: { items: [{ name: "Bread", quantity: 2 }] }
+ */
 export async function PATCH(request, { params }) {
   try {
     const session = await getServerSession(authOptions);
@@ -52,6 +74,21 @@ export async function PATCH(request, { params }) {
   }
 }
 
+/**
+ * Delete a shopping list.
+ *
+ * @async
+ * @function DELETE
+ * @param {Request} request - The HTTP request object. The body is not used for deletion.
+ * @param {Object} context - The context object containing route parameters.
+ * @param {string} context.params.listId - The ID of the shopping list to delete.
+ * @returns {NextResponse} - A JSON response indicating success or an error message.
+ *
+ * @throws {Error} - Returns a 500 error if an unexpected error occurs.
+ *
+ * @example
+ * DELETE /api/shopping_lists/{listId}
+ */
 export async function DELETE(request, { params }) {
   try {
     const session = await getServerSession(authOptions);

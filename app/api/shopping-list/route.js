@@ -1,8 +1,30 @@
+/**
+ * API Handlers for Creating, Retrieving, and Updating Shopping Lists
+ *
+ * @description Provides functionality to create, retrieve, and update shopping lists for authenticated users.
+ * Each operation involves session-based authentication and list ownership verification.
+ */
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+
+/**
+ * Create a new shopping list.
+ *
+ * @async
+ * @function POST
+ * @param {Request} request - The HTTP request object containing the items to add to the shopping list.
+ * @returns {NextResponse} - A JSON response containing the newly created list's ID, or an error message.
+ * 
+ * @throws {Error} - Returns a 500 error if an unexpected error occurs.
+ *
+ * @example
+ * POST /api/shopping_lists
+ * Body: { items: [{ name: "Milk", quantity: 2 }] }
+ * Response: { id: "newly_generated_list_id" }
+ */
 
 export async function POST(request) {
   try {
@@ -35,6 +57,19 @@ export async function POST(request) {
   }
 }
 
+/**
+ * Retrieve all shopping lists for the authenticated user.
+ *
+ * @async
+ * @function GET
+ * @returns {NextResponse} - A JSON response containing an array of shopping lists, or an error message.
+ *
+ * @throws {Error} - Returns a 500 error if an unexpected error occurs.
+ *
+ * @example
+ * GET /api/shopping_lists
+ * Response: [{ id: "list1", items: [{ name: "Milk", quantity: 2 }] }, { id: "list2", items: [...] }]
+ */
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -57,6 +92,23 @@ export async function GET() {
   }
 }
 
+/**
+ * Update the items in an existing shopping list.
+ *
+ * @async
+ * @function PATCH
+ * @param {Request} request - The HTTP request object containing the updated items for the shopping list.
+ * @param {Object} context - The context object containing route parameters.
+ * @param {string} context.params.listId - The ID of the shopping list to update.
+ * @returns {NextResponse} - A JSON response indicating success or an error message.
+ *
+ * @throws {Error} - Returns a 500 error if an unexpected error occurs.
+ *
+ * @example
+ * PATCH /api/shopping_lists/{listId}
+ * Body: { items: [{ name: "Bread", quantity: 3 }] }
+ * Response: { success: true }
+ */
 export async function PATCH(request, { params }) {
   try {
     const session = await getServerSession(authOptions);
