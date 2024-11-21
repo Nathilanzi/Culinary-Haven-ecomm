@@ -12,6 +12,7 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
+    "framer-motion": "^11.11.17",
     "google-auth-library": "^9.14.2",
     "lucide-react": "^0.453.0",
     "mongodb": "^6.9.0",
@@ -19,8 +20,9 @@
     "next-auth": "^4.24.10",
     "react": "^18",
     "react-dom": "^18",
+    "sonner": "^1.7.0",
     "sweetalert": "^2.1.2",
-    "sweetalert2": "^11.14.5"
+    "sweetalert2": "^11.6.13"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
