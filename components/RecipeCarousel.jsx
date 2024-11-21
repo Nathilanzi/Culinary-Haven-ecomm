@@ -4,23 +4,53 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
- * Responsive RecipeCarousel component that displays a carousel of recommended recipes.
- * Fetches recipes from the server, shows them in a horizontally scrollable view,
- * and allows users to navigate between them. The carousel is responsive and
- * adjusts the number of visible recipes based on the screen size.
+ * Responsive Recipe Carousel Component
+ * Displays a dynamic, animated carousel of recommended recipes
+ * with responsive design and navigation controls
+ *
  * @component
+ * @returns {React.ReactElement} Rendered recipe carousel
  */
 const ResponsiveRecipeCarousel = () => {
+  /**
+   * State to store all fetched recipes
+   * @type {Array}
+   */
   const [recipes, setRecipes] = useState([]);
+
+  /**
+   * Current index of the carousel
+   * @type {number}
+   */
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
+
+  /**
+   * Recipes currently visible in the carousel
+   * @type {Array}
+   */
   const [visibleRecipes, setVisibleRecipes] = useState([]);
+
+  /**
+   * Direction of carousel navigation (1 for next, -1 for previous)
+   * @type {number}
+   */
+  const [direction, setDirection] = useState(0);
+
+  /**
+   * Next.js router for navigation
+   * @type {Object}
+   */
   const router = useRouter();
 
   /**
-   * Fetch recommended recipes on component mount.
+   * Fetches recommended recipes from the API on component mount
+   * Sets the recipes in the state and handles potential errors
+   *
+   * @async
+   * @function fetchRecipes
    */
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -36,45 +66,55 @@ const ResponsiveRecipeCarousel = () => {
   }, []);
 
   /**
-   * Navigate to the recipe detail page.
-   * @param {string} recipeId - The ID of the recipe to navigate to.
+   * Navigates to the detailed page of a specific recipe
+   *
+   * @param {string} recipeId - The unique identifier of the recipe
    */
   const navigateToRecipeDetails = (recipeId) => {
     router.push(`/recipes/${recipeId}`);
   };
 
   /**
-   * Show the next set of recipes in the carousel.
+   * Moves to the next slide in the carousel
+   * Cycles through recipes in a circular manner
    */
-  const nextSlide = (event) => {
-    event.preventDefault();
+  const nextSlide = () => {
+    setDirection(1);
     setCurrentIndex((prevIndex) => (prevIndex + 1) % recipes.length);
   };
 
   /**
-   * Show the previous set of recipes in the carousel.
+   * Moves to the previous slide in the carousel
+   * Cycles through recipes in a circular manner
    */
-  const prevSlide = (event) => {
-    event.preventDefault();
+  const prevSlide = () => {
+    setDirection(-1);
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? recipes.length - 1 : prevIndex - 1
     );
   };
 
   /**
-   * Determine the number of visible recipes based on the screen size.
+   * Handles responsive recipe display based on screen width
+   * Dynamically adjusts number of visible recipes
    */
   useEffect(() => {
     const handleResize = () => {
       const screenWidth = window.innerWidth;
-      let visibleCount = 4;
+      let visibleCount = 5;
+
+      // Responsive breakpoints for number of visible recipes
       if (screenWidth < 640) {
         visibleCount = 1;
       } else if (screenWidth < 768) {
         visibleCount = 2;
       } else if (screenWidth < 1024) {
         visibleCount = 3;
+      } else if (screenWidth < 1280) {
+        visibleCount = 4;
       }
+
+      // Calculate visible recipes with wraparound
       setVisibleRecipes([
         ...recipes.slice(currentIndex, currentIndex + visibleCount),
         ...recipes.slice(
@@ -83,71 +123,168 @@ const ResponsiveRecipeCarousel = () => {
         ),
       ]);
     };
+
+    // Add and clean up resize event listener
     window.addEventListener("resize", handleResize);
     handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, [recipes, currentIndex]);
 
+  /**
+   * Animation variants for individual recipe cards
+   * Controls scale, opacity, and position during transitions
+   *
+   * @type {Object}
+   */
+  const cardVariants = {
+    initial: (direction) => ({
+      scale: 0.8,
+      opacity: 0,
+      x: direction > 0 ? 100 : -100,
+    }),
+    animate: {
+      scale: 1,
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 20,
+      },
+    },
+    exit: (direction) => ({
+      scale: 0.8,
+      opacity: 0,
+      x: direction > 0 ? -100 : 100,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 20,
+      },
+    }),
+  };
+
+  /**
+   * Animation variants for the entire carousel container
+   * Controls opacity and staggered animation of child elements
+   *
+   * @type {Object}
+   */
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.3,
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
   return (
-    <div
-      className="w-full max-w-7xl mx-auto my-8 px-4 sm:px-6 lg:px-8"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="w-full max-w-7xl mx-auto my-12 px-4 sm:px-6 lg:px-8"
     >
-      <h2 className="text-2xl font-bold mb-4 dark:text-white text-center">
-        Recommended Recipes
-      </h2>
-      <div className="relative overflow-x-auto">
-        <div className="flex justify-center transition-transform duration-500 ease-in-out gap-4">
-          {visibleRecipes.map((recipe, index) => (
-            <div
-              key={recipe._id || index} // Use index as fallback to avoid key warning
-              className="flex-1 sm:flex-none sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 p-2 cursor-pointer"
-              onClick={() => navigateToRecipeDetails(recipe._id)}
-            >
-              <div className="bg-gray-100 rounded-lg flex flex-col h-full shadow-md hover:shadow-lg transition-shadow duration-300 dark:bg-[#333333] dark:text-[#A3C9A7]">
-                <div className="h-48 sm:h-40 lg:h-52 w-full overflow-hidden dark:bg-[#333333] dark:text-[#A3C9A7]">
-                  <Image
-                    src={recipe.images[0]}
-                    alt={recipe.title}
-                    className="w-full h-full object-cover rounded-t-lg"
-                    width={300}
-                    height={300}
-                  />
+      {/* Section Title with Animated Entrance */}
+      <motion.h2
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-4xl font-bold mb-10 dark:text-white text-center tracking-tight text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500"
+      >
+        Discover Culinary Inspirations
+      </motion.h2>
+
+      <div className="relative">
+        {/* Animated Carousel Container */}
+        <AnimatePresence initial={false} custom={direction}>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="flex justify-center space-x-6"
+          >
+            {/* Individual Recipe Cards */}
+            {visibleRecipes.map((recipe, index) => (
+              <motion.div
+                key={recipe._id || index}
+                custom={direction}
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className="flex-1 max-w-[220px] w-full"
+                whileHover={{
+                  scale: 1.05,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                }}
+              >
+                {/* Recipe Card Design */}
+                <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl overflow-hidden transform transition-all duration-300 hover:scale-105">
+                  <div className="relative h-48 w-full overflow-hidden">
+                    <Image
+                      src={recipe.images[0]}
+                      alt={recipe.title}
+                      fill
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-4 bg-white dark:bg-[#1E1E1E]">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100 line-clamp-2 h-12">
+                      {recipe.title}
+                    </h3>
+                    <div className="flex items-center justify-between">
+                      <span className="text-yellow-500 font-bold">
+                        ⭐{" "}
+                        {recipe.averageRating
+                          ? recipe.averageRating.toFixed(1)
+                          : "N/A"}
+                      </span>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => navigateToRecipeDetails(recipe._id)}
+                        className="px-3 py-1 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-full text-sm hover:opacity-90 transition-opacity"
+                      >
+                        View Recipe
+                      </motion.button>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex flex-col items-center justify-center p-4 bg-white rounded-b-lg h-32 dark:bg-[#333333]">
-                  <h3 className="text-lg font-semibold text-center line-clamp-2">
-                    {recipe.title}
-                  </h3>
-                  <p className="text-yellow-500 text-sm">
-                    ⭐{" "}
-                    {recipe.averageRating
-                      ? recipe.averageRating.toFixed(1)
-                      : "N/A"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        {isHovered && recipes.length > visibleRecipes.length && (
-          <div className="absolute top-1/2 left-0 right-0 transform -translate-y-1/2 flex justify-between px-4">
-            <button
+              </motion.div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Navigation Controls */}
+        {recipes.length > visibleRecipes.length && (
+          <>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               onClick={prevSlide}
-              className="bg-gray-100 p-3 rounded-full shadow-md hover:bg-gray-200 transition-colors duration-300 dark:bg-[#333333] dark:hover:bg-[#444444]"
+              className="absolute top-1/2 left-0 bg-white/70 dark:bg-[#333333]/70 p-3 rounded-full hover:bg-white/90 dark:hover:bg-[#333333]/90 transition-all"
             >
-              <ChevronLeftIcon className="h-6 w-6 dark:text-[#A3C9A7]" />
-            </button>
-            <button
+              <ChevronLeftIcon className="h-6 w-6 text-gray-700 dark:text-[#A3C9A7]" />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               onClick={nextSlide}
-              className="bg-gray-100 p-3 rounded-full shadow-md hover:bg-gray-200 transition-colors duration-300 dark:bg-[#333333] dark:hover:bg-[#444444]"
+              className="absolute top-1/2 right-0 bg-white/70 dark:bg-[#333333]/70 p-3 rounded-full hover:bg-white/90 dark:hover:bg-[#333333]/90 transition-all"
             >
-              <ChevronRightIcon className="h-6 w-6 dark:text-[#A3C9A7]" />
-            </button>
-          </div>
+              <ChevronRightIcon className="h-6 w-6 text-gray-700 dark:text-[#A3C9A7]" />
+            </motion.button>
+          </>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
