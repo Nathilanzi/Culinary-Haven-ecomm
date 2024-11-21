@@ -5,6 +5,11 @@ import { ThemeProvider } from "@/ThemeContext";
 import SessionProvider from "@/components/SessionProvider";
 import { getServerSession } from "next-auth/next";
 
+/**
+ * Metadata for the application, including SEO and social sharing configuration.
+ * @constant
+ * @type {Object}
+ */
 export const metadata = {
   title: {
     default: "Culinary Haven - Discover Delicious Recipes",
@@ -53,7 +58,30 @@ export const metadata = {
   },
 };
 
+/**
+ * RootLayout Component
+ *
+ * @param {Object} props - The component props.
+ * @param {React.ReactNode} props.children - The child components to render inside the layout.
+ * @returns {JSX.Element} The rendered root layout for the application.
+ *
+ * @description This is the main layout component for the application, providing a consistent
+ * structure with a header, footer, and session management. It also sets global metadata for SEO
+ * and social sharing purposes.
+ *
+ * @example
+ * // Example usage:
+ * <RootLayout>
+ *   <div>Your content here</div>
+ * </RootLayout>
+ */
 export default async function RootLayout({ children }) {
+  /**
+   * Retrieves the server-side session for the current user.
+   * @async
+   * @function getServerSession
+   * @returns {Promise<Object>} The session object.
+   */
   const session = await getServerSession();
 
   return (
