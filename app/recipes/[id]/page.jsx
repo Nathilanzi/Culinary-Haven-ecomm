@@ -19,6 +19,7 @@ import {
 } from "@/components/Svg";
 import TextToSpeech from "@/components/TextToSpeech";
 import ShoppingList from "@/components/ShoppingList";
+import AddRecipeToListButton from "@/components/AddRecipeToListButton";
 
 /**
  * Generates metadata for the recipe detail page, including SEO attributes and OpenGraph tags.
@@ -357,9 +358,15 @@ export default async function RecipeDetail({ params }) {
 
             {/* Ingredients Section */}
             <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-gray-700">
+            <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                 Ingredients
               </h2>
+              <AddRecipeToListButton
+               ingredients={recipe.ingredients}
+               shoppingListId="your-shopping-list-id" // You'll need to provide this
+              />
+              </div>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(recipe.ingredients).map(
                   ([ingredient, amount], index) => (
