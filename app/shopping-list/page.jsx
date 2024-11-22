@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { ShoppingCart, Trash2, Check, Loader2, X, Share2 } from "lucide-react";
+import { ShoppingCart, Trash2, Check, Loader2, X, Share2, PlusCircle } from "lucide-react";
 import BackButton from "@/components/BackButton";
 
 export default function ShoppingListPage() {
@@ -12,6 +12,9 @@ export default function ShoppingListPage() {
   const [deleting, setDeleting] = useState({});
   const [removingItem, setRemovingItem] = useState({});
   const [updatingQuantity, setUpdatingQuantity] = useState({});
+  const [addingItem, setAddingItem] = useState({}); // State for adding new item
+  const [newIngredient, setNewIngredient] = useState(""); // New ingredient input
+  const [newAmount, setNewAmount] = useState(""); // New amount input
 
   const fetchLists = async () => {
     if (!session) return;
@@ -131,7 +134,37 @@ export default function ShoppingListPage() {
     }
   };
 
-  // Function to generate the WhatsApp sharing link
+  // Function to add a new item to an existing shopping list
+  const addItemToList = async (listId) => {
+    if (!newIngredient || !newAmount) return; // Ensure ingredient and amount are provided
+
+    try {
+      setAddingItem({ id: listId });
+      const list = lists.find((l) => l._id === listId);
+      if (!list) return;
+
+      const updatedItems = [...list.items, { ingredient: newIngredient, amount: newAmount, purchased: false }];
+
+      const response = await fetch(`/api/shopping-list/${listId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ items: updatedItems }),
+      });
+
+      if (!response.ok) throw new Error("Failed to add new item");
+
+      setNewIngredient(""); // Reset the input field
+      setNewAmount(""); // Reset the input field
+      fetchLists();
+    } catch (error) {
+      console.error("Error adding item:", error);
+    } finally {
+      setAddingItem({ id: null });
+    }
+  };
+
   const generateWhatsAppLink = (list) => {
     const listText = list.items
       .map((item) => `${item.amount} ${item.ingredient}${item.purchased ? ' (Purchased)' : ''}`)
@@ -202,14 +235,14 @@ export default function ShoppingListPage() {
                         href={generateWhatsAppLink(list)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                        className="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300"
                       >
                         <Share2 className="w-5 h-5" />
                       </a>
                       <button
                         onClick={() => deleteList(list._id)}
                         disabled={deleting[list._id]}
-                        className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
+                        className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                       >
                         {deleting[list._id] ? (
                           <Loader2 className="w-5 h-5 animate-spin" />
@@ -219,57 +252,82 @@ export default function ShoppingListPage() {
                       </button>
                     </div>
                   </div>
-                  <ul className="space-y-2">
+
+                  {/* List items */}
+                  <div className="space-y-2">
                     {list.items.map((item, index) => (
-                      <li
-                        key={index}
-                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                      >
+                      <div key={index} className="flex justify-between items-center">
                         <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            checked={item.purchased}
-                            onChange={() => markAsPurchased(list._id, index)}
-                            className="h-4 w-4 text-teal-600 dark:text-teal-400"
-                          />
+                          <button
+                            onClick={() => markAsPurchased(list._id, index)}
+                            className={`${
+                              item.purchased ? "text-teal-600" : "text-gray-600"
+                            }`}
+                          >
+                            <Check className="w-5 h-5" />
+                          </button>
                           <span
                             className={`${
                               item.purchased ? "line-through text-gray-500" : ""
-                            } text-sm font-medium text-gray-900 dark:text-gray-100`}
+                            }`}
                           >
                             {item.amount} {item.ingredient}
                           </span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="number"
-                            value={item.amount}
-                            onChange={(e) =>
-                              updateQuantity(
-                                list._id,
-                                index,
-                                parseInt(e.target.value, 10)
-                              )
-                            }
-                            disabled={updatingQuantity.id === list._id && updatingQuantity.index === index}
-                            className="w-16 text-center text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none"
-                          />
+                        <div className="flex space-x-2">
                           <button
                             onClick={() => removeItem(list._id, index)}
                             disabled={removingItem.id === list._id && removingItem.index === index}
-                            className="ml-3 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+                            className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                           >
-                            {removingItem.id === list._id &&
-                            removingItem.index === index ? (
+                            {removingItem.id === list._id && removingItem.index === index ? (
                               <Loader2 className="w-5 h-5 animate-spin" />
                             ) : (
                               <X className="w-5 h-5" />
                             )}
                           </button>
+                          <input
+                            type="number"
+                            value={item.amount}
+                            onChange={(e) =>
+                              updateQuantity(list._id, index, e.target.value)
+                            }
+                            className="w-16 px-2 py-1 border rounded-md text-sm text-gray-800 dark:text-gray-100 dark:bg-gray-700"
+                          />
                         </div>
-                      </li>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
+
+                  {/* Add new item */}
+                  <div className="mt-4">
+                    <input
+                      type="text"
+                      placeholder="Ingredient name"
+                      value={newIngredient}
+                      onChange={(e) => setNewIngredient(e.target.value)}
+                      className="w-full px-4 py-2 border rounded-md text-sm dark:bg-gray-700 dark:text-gray-100"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Amount"
+                      value={newAmount}
+                      onChange={(e) => setNewAmount(e.target.value)}
+                      className="w-full px-4 py-2 border rounded-md text-sm mt-2 dark:bg-gray-700 dark:text-gray-100"
+                    />
+                    <button
+                      onClick={() => addItemToList(list._id)}
+                      disabled={addingItem.id === list._id}
+                      className="mt-2 w-full bg-teal-600 text-white py-2 rounded-md hover:bg-teal-700"
+                    >
+                      {addingItem.id === list._id ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <PlusCircle className="w-5 h-5 mr-2" />
+                      )}
+                      Add Item
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
