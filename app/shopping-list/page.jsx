@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { ShoppingCart, Trash2, Check, Loader2, X } from "lucide-react";
+import { ShoppingCart, Trash2, Check, Loader2, X, Share2 } from "lucide-react";
 import BackButton from "@/components/BackButton";
 
 export default function ShoppingListPage() {
@@ -11,6 +11,7 @@ export default function ShoppingListPage() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState({});
   const [removingItem, setRemovingItem] = useState({});
+  const [updatingQuantity, setUpdatingQuantity] = useState({});
 
   const fetchLists = async () => {
     if (!session) return;
@@ -101,6 +102,45 @@ export default function ShoppingListPage() {
     }
   };
 
+  const updateQuantity = async (id, index, newQuantity) => {
+    try {
+      setUpdatingQuantity({ id, index });
+      const list = lists.find((l) => l._id === id);
+      if (!list) return;
+
+      const updatedItems = [...list.items];
+      updatedItems[index] = {
+        ...updatedItems[index],
+        amount: newQuantity,
+      };
+
+      const response = await fetch(`/api/shopping-list/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ items: updatedItems }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update quantity");
+      fetchLists();
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+    } finally {
+      setUpdatingQuantity({ id: null, index: null });
+    }
+  };
+
+  // Function to generate the WhatsApp sharing link
+  const generateWhatsAppLink = (list) => {
+    const listText = list.items
+      .map((item) => `${item.amount} ${item.ingredient}${item.purchased ? ' (Purchased)' : ''}`)
+      .join("\n");
+
+    const message = encodeURIComponent(`Shopping List: \n${listText}`);
+    return `https://wa.me/?text=${message}`;
+  };
+
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -157,17 +197,27 @@ export default function ShoppingListPage() {
                         Created: {new Date(list.createdAt).toLocaleDateString()}
                       </span>
                     </div>
-                    <button
-                      onClick={() => deleteList(list._id)}
-                      disabled={deleting[list._id]}
-                      className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
-                    >
-                      {deleting[list._id] ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <Trash2 className="w-5 h-5" />
-                      )}
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      <a
+                        href={generateWhatsAppLink(list)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                      >
+                        <Share2 className="w-5 h-5" />
+                      </a>
+                      <button
+                        onClick={() => deleteList(list._id)}
+                        disabled={deleting[list._id]}
+                        className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
+                      >
+                        {deleting[list._id] ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                   <ul className="space-y-2">
                     {list.items.map((item, index) => (
@@ -175,47 +225,48 @@ export default function ShoppingListPage() {
                         key={index}
                         className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
                       >
-                        <div className="flex items-center space-x-3">
-                          <button
-                            onClick={() => markAsPurchased(list._id, index)}
-                            className={`
-                              w-5 h-5 rounded-full border-2 flex items-center justify-center
-                              ${
-                                item.purchased
-                                  ? "bg-teal-500 border-teal-500"
-                                  : "border-gray-300 dark:border-gray-600"
-                              }
-                            `}
-                          >
-                            {item.purchased && (
-                              <Check className="w-4 h-4 text-white" />
-                            )}
-                          </button>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={item.purchased}
+                            onChange={() => markAsPurchased(list._id, index)}
+                            className="h-4 w-4 text-teal-600 dark:text-teal-400"
+                          />
                           <span
                             className={`${
-                              item.purchased
-                                ? "line-through text-gray-500 dark:text-gray-400"
-                                : "text-gray-800 dark:text-gray-200"
-                            }`}
+                              item.purchased ? "line-through text-gray-500" : ""
+                            } text-sm font-medium text-gray-900 dark:text-gray-100`}
                           >
                             {item.amount} {item.ingredient}
                           </span>
                         </div>
-                        <button
-                          onClick={() => removeItem(list._id, index)}
-                          disabled={
-                            removingItem.id === list._id &&
-                            removingItem.index === index
-                          }
-                          className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
-                        >
-                          {removingItem.id === list._id &&
-                          removingItem.index === index ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                          ) : (
-                            <X className="w-5 h-5" />
-                          )}
-                        </button>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="number"
+                            value={item.amount}
+                            onChange={(e) =>
+                              updateQuantity(
+                                list._id,
+                                index,
+                                parseInt(e.target.value, 10)
+                              )
+                            }
+                            disabled={updatingQuantity.id === list._id && updatingQuantity.index === index}
+                            className="w-16 text-center text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none"
+                          />
+                          <button
+                            onClick={() => removeItem(list._id, index)}
+                            disabled={removingItem.id === list._id && removingItem.index === index}
+                            className="ml-3 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+                          >
+                            {removingItem.id === list._id &&
+                            removingItem.index === index ? (
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                              <X className="w-5 h-5" />
+                            )}
+                          </button>
+                        </div>
                       </li>
                     ))}
                   </ul>
