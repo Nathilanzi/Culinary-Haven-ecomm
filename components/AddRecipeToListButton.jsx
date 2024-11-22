@@ -1,26 +1,52 @@
 "use client";
 
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { ListPlus } from 'lucide-react';
 
+/**
+ * AddRecipeToListButton Component
+ *
+ * A button component that allows users to add a recipe's ingredients to a shopping list.
+ * Displays notifications for success or error messages and handles API requests.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object} props.ingredients - The ingredients object where the key is the ingredient name and the value is the amount.
+ * @param {string} props.shoppingListId - The ID of the shopping list to which ingredients will be added.
+ * @returns {JSX.Element} The rendered button component.
+ */
 const AddRecipeToListButton = ({ ingredients, shoppingListId }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [notification, setNotification] = useState(null);
 
+  /**
+   * Show notification
+   *
+   * Displays a notification with the specified message and type for 3 seconds.
+   *
+   * @param {string} message - The message to display.
+   * @param {string} [type='success'] - The type of the notification ('success' or 'error').
+   */
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 3000);
   };
 
+  /**
+   * Add ingredients to the shopping list
+   *
+   * Sends an API request to add the ingredients to the shopping list. Displays success or error messages.
+   *
+   * @async
+   * @throws Will throw an error if the API request fails or the server response is invalid.
+   */
   const addIngredientsToList = async () => {
     try {
       setIsLoading(true);
 
-      // Transform ingredients object into array format
+      // Transform ingredients object into an array format
       const items = Object.entries(ingredients).map(([ingredient, amount]) => ({
         ingredient,
-        amount: amount.toString()
+        amount: amount.toString(),
       }));
 
       const response = await fetch('/api/shopping-list', {
@@ -30,11 +56,10 @@ const AddRecipeToListButton = ({ ingredients, shoppingListId }) => {
         },
         body: JSON.stringify({ 
           items,
-          name: `Shopping List ${new Date().toLocaleDateString()}`
+          name: `Shopping List ${new Date().toLocaleDateString()}`,
         }),
       });
 
-      // Handle non-JSON responses
       try {
         const data = await response.json();
         
@@ -44,7 +69,6 @@ const AddRecipeToListButton = ({ ingredients, shoppingListId }) => {
 
         showNotification(`${items.length} ingredients added to shopping list`);
       } catch (parseError) {
-        // If response is not JSON, handle accordingly
         if (response.status === 404) {
           throw new Error('Shopping list endpoint not found');
         } else if (response.status === 401) {
