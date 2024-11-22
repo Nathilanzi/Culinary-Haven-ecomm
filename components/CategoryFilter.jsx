@@ -3,7 +3,14 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
-// SVG Icons as components
+/**
+ * ChevronDownIcon
+ * 
+ * A reusable SVG icon component representing a down chevron.
+ * 
+ * @component
+ * @returns {JSX.Element} SVG icon of a chevron pointing downwards.
+ */
 const ChevronDownIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -19,6 +26,14 @@ const ChevronDownIcon = () => (
   </svg>
 );
 
+/**
+ * CloseIcon
+ * 
+ * A reusable SVG icon component representing a close (X) icon.
+ * 
+ * @component
+ * @returns {JSX.Element} SVG icon of a close button.
+ */
 const CloseIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -35,28 +50,64 @@ const CloseIcon = () => (
   </svg>
 );
 
+/**
+ * CategoryFilter
+ * 
+ * A React component for filtering items by category. It provides a dropdown
+ * to select a category, applies the selected category to the URL query parameters,
+ * and displays a modal interface for category selection.
+ * 
+ * @component
+ * @param {Object} props - Props passed to the component.
+ * @param {Array<string>} props.categories - Array of available category options.
+ * @param {string} props.currentCategory - The currently selected category.
+ * 
+ * @example
+ * const categories = ["Electronics", "Books", "Clothing"];
+ * const currentCategory = "Books";
+ * 
+ * <CategoryFilter categories={categories} currentCategory={currentCategory} />
+ * 
+ * @returns {JSX.Element} A category filter component.
+ */
 export default function CategoryFilter({ categories, currentCategory }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(currentCategory);
 
-  // Add useEffect to sync with URL changes
+  /**
+   * Syncs the selected category with the URL query parameters when they change.
+   */
   useEffect(() => {
     const categoryFromUrl = searchParams.get("category") || "";
     setSelectedCategory(categoryFromUrl);
   }, [searchParams]);
 
+  /**
+   * Updates the selected category state.
+   * 
+   * @param {string} value - The category selected by the user.
+   */
   const handleCategoryChange = (value) => {
     setSelectedCategory(value);
   };
 
+  /**
+   * Clears the currently selected category.
+   */
   const clearFilters = () => {
     setSelectedCategory("");
   };
 
+  /**
+   * Toggles the visibility of the modal.
+   */
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
+  /**
+   * Applies the selected category filter by updating the URL query parameters.
+   */
   const applyFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
     if (selectedCategory && selectedCategory !== "All Categories") {
@@ -64,7 +115,7 @@ export default function CategoryFilter({ categories, currentCategory }) {
     } else {
       params.delete("category");
     }
-    params.delete("page");
+    params.delete("page"); // Reset pagination
     router.push(`/?${params.toString()}`);
     toggleModal();
   };

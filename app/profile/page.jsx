@@ -4,6 +4,15 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+/**
+ * Profile Component
+ *
+ * @description Renders the user profile page, allowing users to view and update their profile information,
+ * including their name and profile image. Handles authentication checks and redirects unauthenticated users
+ * to the sign-in page.
+ *
+ * @returns {JSX.Element} The rendered profile page.
+ */
 export default function Profile() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -16,15 +25,20 @@ export default function Profile() {
     image: "",
   });
 
+  /**
+   * Effect to fetch user profile data or redirect unauthenticated users.
+   */
   useEffect(() => {
     if (!session) {
       router.push("/auth/signin");
       return;
     }
-
     fetchUserProfile();
   }, [session, router]);
 
+  /**
+   * Fetch user profile data from the server.
+   */
   const fetchUserProfile = async () => {
     try {
       const res = await fetch("/api/auth/profile");
@@ -44,10 +58,18 @@ export default function Profile() {
     }
   };
 
+  /**
+   * Handle form input changes.
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event.
+   */
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  /**
+   * Submit profile updates to the server.
+   * @param {React.FormEvent<HTMLFormElement>} e - The form submission event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -73,10 +95,14 @@ export default function Profile() {
     }
   };
 
+  /**
+   * Log out the user.
+   */
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/" });
   };
 
+  // Display loading or error state if applicable
   if (loading) return <div className="text-center p-4">Loading...</div>;
   if (error) return <div className="text-red-500 text-center p-4">{error}</div>;
 

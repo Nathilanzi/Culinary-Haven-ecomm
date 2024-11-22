@@ -2,7 +2,28 @@
 
 import { ErrorLayout, Button } from "@/components/ErrorShared";
 
+/**
+ * ErrorPage Component
+ *
+ * @param {Object} props - The component props.
+ * @param {number} [props.statusCode=500] - The HTTP status code of the error (defaults to 500).
+ * @returns {JSX.Element} The rendered error page.
+ *
+ * @description This component displays a user-friendly error page with options to refresh
+ * the page or navigate back to the homepage. It uses the `ErrorLayout` component to format
+ * the error message and the `Button` component for actions.
+ *
+ * @example
+ * // Example usage:
+ * <ErrorPage statusCode={404} />
+ */
 export default function ErrorPage({ statusCode = 500 }) {
+  /**
+   * Refreshes the current page.
+   *
+   * @function refreshPage
+   * @description Reloads the current page to retry the last action.
+   */
   const refreshPage = () => {
     window.location.reload();
   };

@@ -1,5 +1,24 @@
 import React from "react";
 
+/**
+ * A reusable component for rendering left and right arrow buttons.
+ * Designed for navigation purposes in carousels or other UI elements.
+ *
+ * @param {Object} props - The props for the component.
+ * @param {Function} props.onPrevClick - Callback function executed when the previous button is clicked.
+ * @param {Function} props.onNextClick - Callback function executed when the next button is clicked.
+ * @param {boolean} [props.disabled=false] - Indicates whether the buttons are disabled.
+ *
+ * @returns {JSX.Element} The rendered ArrowButtons component with two navigational buttons.
+ *
+ * @example
+ * // Example usage in a carousel
+ * <ArrowButtons
+ *   onPrevClick={() => console.log("Previous button clicked")}
+ *   onNextClick={() => console.log("Next button clicked")}
+ *   disabled={false}
+ * />
+ */
 const ArrowButtons = ({ onPrevClick, onNextClick, disabled }) => {
   return (
     <>

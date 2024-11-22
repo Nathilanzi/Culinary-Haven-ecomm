@@ -3,6 +3,28 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+/**
+ * Pagination component for managing and displaying paginated results
+ * 
+ * @component
+ * @param {Object} props - The component props
+ * @param {number} props.currentPage - The current active page number
+ * @param {number} props.totalPages - Total number of pages available
+ * @param {number} props.totalResults - Total number of results across all pages
+ * @param {number} props.resultsPerPage - Number of results displayed per page
+ * @param {boolean} [props.isLoading=false] - Indicates if results are currently loading
+ * 
+ * @returns {JSX.Element|null} Pagination navigation component or null if only one page exists
+ * 
+ * @example
+ * <Pagination 
+ *   currentPage={1} 
+ *   totalPages={5} 
+ *   totalResults={50} 
+ *   resultsPerPage={10} 
+ *   isLoading={false} 
+ * />
+ */
 export default function Pagination({ 
   currentPage, 
   totalPages, 
@@ -17,6 +39,9 @@ export default function Pagination({
 
   // Handle responsive behavior
   useEffect(() => {
+    /**
+     * Check and update mobile view status based on window width
+     */
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 640);
     };
@@ -30,12 +55,23 @@ export default function Pagination({
     setPage(currentPage);
   }, [currentPage]);
 
+  /**
+   * Create a query string with updated page number
+   * 
+   * @param {number} newPage - The new page number to set in the URL
+   * @returns {string} Serialized query string with updated page parameter
+   */
   const createQueryString = (newPage) => {
     const params = new URLSearchParams(searchParams);
     params.set("page", newPage.toString());
     return params.toString();
   };
 
+  /**
+   * Handle page change navigation
+   * 
+   * @param {number} newPage - The page number to navigate to
+   */
   const onPageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages && !isLoading) {
       setPage(newPage);
@@ -48,6 +84,11 @@ export default function Pagination({
   const startResult = Math.min((currentPage - 1) * resultsPerPage + 1, totalResults);
   const endResult = Math.min(currentPage * resultsPerPage, totalResults);
 
+  /**
+   * Render page number buttons with dynamic display logic
+   * 
+   * @returns {Array<JSX.Element>} Array of page number buttons
+   */
   const renderPageNumbers = () => {
     const pageNumbers = [];
     const maxPagesToShow = isMobile ? 3 : 5;
