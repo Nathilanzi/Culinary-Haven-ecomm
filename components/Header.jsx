@@ -3,6 +3,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { Suspense } from "react";
+import {
+  User,
+  Heart,
+  Settings,
+  LogOut,
+  ShoppingCart,
+  BookOpen,
+} from "lucide-react";
 import SearchBar from "./SearchBar";
 import Image from "next/image";
 import ThemeToggle from "./ThemeToggle";
@@ -29,6 +37,11 @@ const Header = () => {
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleSearch = () => setIsSearchVisible(!isSearchVisible);
 
+  /**
+   * Updates the count of user's favorite items
+   * @async
+   * @function updateFavoritesCount
+   */
   const updateFavoritesCount = useCallback(async () => {
     if (session) {
       try {
@@ -67,7 +80,7 @@ const Header = () => {
         isOpen &&
         mobileMenuRef.current &&
         !mobileMenuRef.current.contains(event.target) &&
-        !event.target.closest("button[aria-label=\"toggle-mobile-menu\"]")
+        !event.target.closest('button[aria-label="toggle-mobile-menu"]')
       ) {
         setIsOpen(false);
       }
@@ -77,6 +90,11 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
+  /**
+   * Handles user logout process
+   * @async
+   * @function handleLogout
+   */
   const handleLogout = async () => {
     try {
       setIsUserMenuOpen(false);
@@ -100,16 +118,10 @@ const Header = () => {
     }
   };
 
-  const handleLogin = () => {
-    setIsUserMenuOpen(false);
-    router.push("/auth/signin");
-  };
-
-  const handleSignup = () => {
-    setIsUserMenuOpen(false);
-    router.push("/auth/signup");
-  };
-
+  /**
+   * User menu component with dropdown functionality
+   * @component UserMenu
+   */
   const UserMenu = () => {
     const toggleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
 
@@ -117,7 +129,7 @@ const Header = () => {
       <div className="relative" ref={userMenuRef}>
         <button
           onClick={toggleUserMenu}
-          className="flex items-center space-x-2 p-2 rounded-full text-white hover:bg-[#0c3b2e93] transition-colors duration-300 focus:outline-none"
+          className="flex items-center space-x-2 p-2 rounded-full text-white hover:bg-teal-600/30 transition-colors duration-300 focus:outline-none"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -135,72 +147,78 @@ const Header = () => {
           </svg>
         </button>
         {isUserMenuOpen && (
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
-            {status === "authenticated" ? (
-              <>
-                <div className="flex justify-end px-4 py-2">
-                  <ThemeToggle />
-                </div>
-                <Link
-                  href="/profile"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                  onClick={() => setIsUserMenuOpen(false)}
-                >
-                  My Profile
-                </Link>
-                <Link
-                  href="/saved-recipes"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                  onClick={() => setIsUserMenuOpen(false)}
-                >
-                  Saved Recipes
-                </Link>
-                <Link
-                  href="/settings"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                  onClick={() => setIsUserMenuOpen(false)}
-                >
-                  Settings
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="flex justify-end px-4 py-2">
-                  <ThemeToggle />
-                </div>
-                <Link
-                  href="/profile"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  My Profile
-                </Link>
-                <button
-                  onClick={handleLogin}
-                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  Sign In
-                </button>
-                <button
-                  onClick={handleSignup}
-                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  Sign Up
-                </button>
-                <Link
-                  href="/settings"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                  onClick={() => setIsUserMenuOpen(false)}
-                >
-                  Settings
-                </Link>
-              </>
-            )}
+          <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 py-2 z-50 overflow-hidden">
+            <div className="px-4 py-3 bg-teal-50 border-b border-teal-100">
+              <p className="text-sm text-teal-800 font-medium truncate">
+                {session?.user?.name || "Guest"}
+              </p>
+              <p className="text-xs text-teal-600 truncate">
+                {session?.user?.email || "Not signed in"}
+              </p>
+            </div>
+            <div className="py-1">
+              {status === "authenticated" ? (
+                <>
+                  <div className="px-4 py-2 flex justify-end">
+                    <ThemeToggle />
+                  </div>
+                  <Link
+                    href="/profile"
+                    className="flex items-center px-4 py-2 text-sm text-teal-800 hover:bg-teal-50 transition-colors"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    My Profile
+                  </Link>
+                  <Link
+                    href="/saved-recipes"
+                    className="flex items-center px-4 py-2 text-sm text-teal-800 hover:bg-teal-50 transition-colors"
+                  >
+                    <Heart className="mr-2 h-4 w-4" />
+                    Saved Recipes
+                  </Link>
+                  <Link
+                    href="/settings"
+                    className="flex items-center px-4 py-2 text-sm text-teal-800 hover:bg-teal-50 transition-colors"
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center transition-colors"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" /> Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="px-4 py-2 flex justify-end">
+                    <ThemeToggle />
+                  </div>
+                  <Link
+                    href="/profile"
+                    className="flex items-center px-4 py-2 text-sm text-teal-800 hover:bg-teal-50 transition-colors"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    My Profile
+                  </Link>
+                  <Link
+                    href="/auth/signin"
+                    className="flex items-center px-4 py-2 text-sm text-teal-800 hover:bg-teal-50 transition-colors"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/auth/signup"
+                    className="flex items-center px-4 py-2 text-sm text-teal-800 hover:bg-teal-50 transition-colors"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -209,7 +227,7 @@ const Header = () => {
 
   return (
     <nav
-      className="bg-[#0C3B2E] dark:bg-[#0A2A21] dark:text-[#DAF1DE] shadow-md fixed z-50 w-full"
+      className="bg-teal-700 dark:bg-teal-900 dark:text-teal-100 shadow-md fixed z-50 w-full"
       ref={navbarRef}
     >
       <Alert
@@ -220,7 +238,6 @@ const Header = () => {
           setNavAlertConfig((prev) => ({ ...prev, isVisible: false }))
         }
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0c3b2e] via-[#0f4d3d] to-[#0c3b2e] opacity-50" />
 
       <div className="relative mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -243,7 +260,7 @@ const Header = () => {
             </Link>
           </div>
 
-          <div className="flex flex-grow space-x-6 items-center justify-end">
+          <div className="flex flex-grow space-x-10 items-center justify-end">
             <div
               className={`flex-grow max-w-md ${isSearchVisible ? "w-full" : "w-auto"}`}
             >
@@ -255,11 +272,12 @@ const Header = () => {
               </Suspense>
             </div>
 
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden md:flex items-center space-x-7">
               <Link
                 href="/"
-                className="text-white hover:text-gray-200 transition-colors duration-200 text-sm font-medium"
+                className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
               >
+                <BookOpen className="mr-2 h-4 w-4" />
                 Recipes
               </Link>
               <div className="flex justify-center">
@@ -267,6 +285,7 @@ const Header = () => {
                   href="/favorites"
                   className={"relative flex items-center text-white"}
                 >
+                  <Heart className="mr-2 h-4 w-4" />
                   Favorites
                   {favoritesCount > 0 && (
                     <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -275,13 +294,15 @@ const Header = () => {
                   )}
                 </Link>
               </div>
-
-              <Link
-                href="/shopping-list"
-                className="text-white hover:text-gray-200 transition-colors duration-200 text-sm font-medium"
-              >
-                Shopping List
-              </Link>
+              <div className="flex justify-center">
+                <Link
+                  href="/shopping-list"
+                  className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
+                >
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  Shopping List
+                </Link>
+              </div>
               <UserMenu />
             </div>
           </div>
@@ -289,7 +310,7 @@ const Header = () => {
           <button
             onClick={toggleMenu}
             aria-label="toggle-mobile-menu"
-            className="md:hidden p-2 rounded-lg text-white hover:bg-[#0c3b2e93] transition-colors duration-200 focus:outline-none"
+            className="md:hidden p-2 rounded-lg text-white hover:bg-teal-600/30 transition-colors duration-200 focus:outline-none"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -312,15 +333,15 @@ const Header = () => {
       {isOpen && (
         <div
           ref={mobileMenuRef}
-          className="md:hidden relative bg-[#0C3B2E] border-t border-[#ffffff1a]"
+          className="md:hidden bg-teal-700 border-t border-teal-600"
         >
-          <div className="flex justify-end px-4 py-2">
-            <ThemeToggle />
-          </div>
-          <div className="px-4 py-3 space-y-2">
+          <div className="px-4 py-4 space-y-3">
+            <div className="flex justify-end px-3 py-2">
+              <ThemeToggle />
+            </div>
             <Link
               href="/"
-              className="block px-3 py-2 text-white hover:bg-[#0c3b2e93] rounded-lg transition-colors duration-200 text-sm font-medium"
+              className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
             >
               Recipes
             </Link>
@@ -339,7 +360,7 @@ const Header = () => {
             </div>
             <Link
               href="/shopping-list"
-              className="block px-3 py-2 text-white hover:bg-[#0c3b2e93] rounded-lg transition-colors duration-200 text-sm font-medium"
+              className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
             >
               Shopping List
             </Link>
@@ -347,28 +368,40 @@ const Header = () => {
               <>
                 <Link
                   href="/profile"
-                  className="block px-3 py-2 text-white hover:bg-[#0c3b2e93] rounded-lg transition-colors duration-200 text-sm font-medium"
+                  className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
                 >
                   My Profile
                 </Link>
+                <Link
+                  href="/settings"
+                  className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
+                >
+                  Settings
+                </Link>
                 <button
                   onClick={handleLogout}
-                  className="block w-full text-left px-3 py-2 text-white hover:bg-[#0c3b2e93] rounded-lg transition-colors duration-200 text-sm font-medium"
+                  className="w-full text-left px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors flex items-center"
                 >
-                  Logout
+                  <LogOut className="mr-2 h-5 w-5" /> Logout
                 </button>
               </>
             ) : (
               <>
                 <Link
+                  href="/profile"
+                  className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
+                >
+                  My Profile
+                </Link>
+                <Link
                   href="/auth/signin"
-                  className="block px-3 py-2 text-white hover:bg-[#0c3b2e93] rounded-lg transition-colors duration-200 text-sm font-medium"
+                  className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/auth/signup"
-                  className="block px-3 py-2 text-white hover:bg-[#0c3b2e93] rounded-lg transition-colors duration-200 text-sm font-medium"
+                  className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
                 >
                   Sign Up
                 </Link>
