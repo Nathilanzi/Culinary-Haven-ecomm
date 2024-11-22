@@ -1,7 +1,14 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
+import { Suspense } from "react";
+import { User, Heart, Settings, LogOut } from "lucide-react";
+import Image from "next/image";
+import ThemeToggle from "./ThemeToggle";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Alert from "./Alert";
 import { getRecipeSuggestions } from "@/lib/api";
 
 /**
@@ -28,7 +35,7 @@ export const metadata = {
 
 /**
  * A dynamic search bar component with autocomplete suggestions
- * 
+ *
  * @component
  * @param {SearchBarProps} props - Component properties
  * @returns {React.ReactElement} Rendered search bar component
@@ -48,7 +55,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
 
   /**
    * Highlights matching search terms in text
-   * 
+   *
    * @param {string} text - The text to highlight
    * @param {string} searchTerm - The term to highlight within the text
    * @returns {React.ReactNode} Text with matching terms highlighted
@@ -84,7 +91,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
 
   /**
    * Updates the URL with current search parameters
-   * 
+   *
    * @param {string} searchTerm - The current search term
    * @description Debounces URL updates to prevent excessive navigation
    */
@@ -110,7 +117,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
 
   /**
    * Fetches recipe suggestions based on user input
-   * 
+   *
    * @param {string} value - The search input value
    * @description Retrieves recipe suggestions from API when input meets minimum length
    */
@@ -136,7 +143,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
 
   /**
    * Handles changes to the search input
-   * 
+   *
    * @param {React.ChangeEvent<HTMLInputElement>} e - Input change event
    * @description Updates search state, fetches suggestions, and updates URL
    */
@@ -162,7 +169,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
 
   /**
    * Handles selection of a suggestion
-   * 
+   *
    * @param {Object} suggestion - Selected recipe suggestion
    * @description Updates search, URL, and closes suggestion dropdown
    */
@@ -183,7 +190,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
 
   /**
    * Handles keyboard navigation in suggestions
-   * 
+   *
    * @param {React.KeyboardEvent<HTMLInputElement>} e - Keyboard event
    * @description Allows arrow key navigation and selection of suggestions
    */
@@ -191,34 +198,34 @@ const SearchBar = ({ isVisible, onToggle }) => {
     if (!showSuggestions) return;
 
     switch (e.key) {
-    case "ArrowDown":
-      e.preventDefault();
-      setHighlightedIndex((prev) =>
-        prev < suggestions.length - 1 ? prev + 1 : prev
-      );
-      break;
-    case "ArrowUp":
-      e.preventDefault();
-      setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : -1));
-      break;
-    case "Enter":
-      e.preventDefault();
-      if (highlightedIndex >= 0) {
-        handleSuggestionClick(suggestions[highlightedIndex]);
-      } else {
+      case "ArrowDown":
+        e.preventDefault();
+        setHighlightedIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : prev
+        );
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (highlightedIndex >= 0) {
+          handleSuggestionClick(suggestions[highlightedIndex]);
+        } else {
+          setShowSuggestions(false);
+          updateURL(search);
+        }
+        break;
+      case "Escape":
         setShowSuggestions(false);
-        updateURL(search);
-      }
-      break;
-    case "Escape":
-      setShowSuggestions(false);
-      break;
+        break;
     }
   };
 
   /**
    * Resets the search input and URL
-   * 
+   * @description Resets the search input and URL to their initial state
    * @description Clears search state, suggestions, and resets URL
    */
   const resetSearch = () => {
@@ -242,7 +249,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
   useEffect(() => {
     /**
      * Closes suggestions when clicking outside
-     * 
+     *
      * @param {MouseEvent} event - Click event
      */
     const handleClickOutside = (event) => {
@@ -261,42 +268,64 @@ const SearchBar = ({ isVisible, onToggle }) => {
 
   // Cleanup timeouts on unmount
   useEffect(() => {
-    const currentTimeoutRef = searchTimeoutRef.current;
-
     return () => {
-      if (currentTimeoutRef) clearTimeout(currentTimeoutRef);
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
       if (urlUpdateTimeoutRef.current)
         clearTimeout(urlUpdateTimeoutRef.current);
     };
   }, []);
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="relative w-full">
-      <div className="flex items-center justify-end">
+    <form
+      onSubmit={(e) => e.preventDefault()}
+      className="relative flex items-center w-full justify-end h-10"
+    >
+      <div className="relative flex items-center">
         <div
-          className={`relative overflow-visible transition-all duration-300 ease-in-out ${
-            isVisible ? "w-full" : "w-10"
+          className={`absolute right-10 overflow-visible transition-all duration-300 ease-in-out ${
+            isVisible
+              ? "opacity-100 visible w-56 lg:w-[25rem] sm:w-64 md:w-64 translate-x-0"
+              : "opacity-0 invisible w-10 translate-x-full"
           }`}
         >
           <input
             ref={searchInputRef}
             id="search"
             type="text"
-            placeholder="Search recipes (minimum 3 characters)..."
+            placeholder="Search recipes..."
             value={search}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            className={`w-full px-4 py-3 pr-12 rounded-full text-sm text-gray-800 bg-white/95 backdrop-blur-sm border border-gray-200 focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-none shadow-sm transition-all duration-300 ease-in-out ${
-              isVisible
-                ? "opacity-100 translate-x-0"
-                : "opacity-0 translate-x-full"
-            }`}
+            className="w-full h-10 px-4 py-2 text-sm text-gray-800 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-full focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-none shadow-sm"
           />
+
+          {search && (
+            <button
+              type="button"
+              onClick={resetSearch}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-150"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+              <span className="sr-only">Clear search</span>
+            </button>
+          )}
 
           {showSuggestions && search.length >= 3 && (
             <div
               ref={suggestionsRef}
-              className="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg max-h-80 overflow-y-auto border border-gray-100 divide-y divide-gray-50"
+              className="absolute right-0 z-50 w-full mt-2 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg max-h-80 overflow-y-auto border border-gray-100 divide-y divide-gray-50"
             >
               {loading ? (
                 <div className="flex items-center justify-center p-4">
@@ -335,55 +364,30 @@ const SearchBar = ({ isVisible, onToggle }) => {
               )}
             </div>
           )}
-
-          <button
-            type="button"
-            onClick={onToggle}
-            className={`absolute right-0 top-0 flex items-center justify-center w-12 h-full text-teal-700 bg-gray-50 hover:text-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/20 transition-all duration-300 ease-in-out ${
-              isVisible ? "rounded-r-full" : "rounded-full"
-            }`}
-          >
-            <svg
-              className={`w-5 h-5 transition-transform duration-300 ${
-                isVisible ? "rotate-90" : ""
-              }`}
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="sr-only">Toggle search</span>
-          </button>
         </div>
-      </div>
 
-      {search && isVisible && (
         <button
           type="button"
-          onClick={resetSearch}
-          className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-150"
+          onClick={onToggle}
+          className="flex items-center justify-center w-10 h-10 bg-white/90 text-teal-700 hover:text-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/20 rounded-full transition-colors duration-150"
+          aria-label="Toggle search"
         >
           <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+            className={`w-5 h-5 transition-transform duration-300 ${
+              isVisible ? "rotate-90" : ""
+            }`}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
           >
             <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
+              fillRule="evenodd"
+              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+              clipRule="evenodd"
             />
           </svg>
-          <span className="sr-only">Clear search</span>
         </button>
-      )}
+      </div>
     </form>
   );
 };
