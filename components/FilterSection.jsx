@@ -1,15 +1,18 @@
 "use client";
 
+/** @requires next/navigation for routing and URL parameter handling */
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useState, useEffect, useMemo } from "react";
-import {
-  Filter,
-  X,
-  ChevronDown,
-  RefreshCcw,
-  Sliders,
-  CheckCircle2,
-} from "lucide-react";
+
+/** @requires react for state management and memoization */
+import { useState, useMemo } from "react";
+
+/** @requires framer-motion for animations */
+import { motion, AnimatePresence } from "framer-motion";
+
+/** @requires lucide-react for icons */
+import { Filter, X, RefreshCcw, Sliders, CheckCircle2 } from "lucide-react";
+
+/** @requires Custom filter components */
 import TagFilter from "@/components/TagFilters";
 import NumberOfStepsFilter from "@/components/NumberOfStepsFilter";
 import IngredientsFilter from "@/components/IngredientsFilter";
@@ -17,8 +20,15 @@ import CategoryFilter from "@/components/CategoryFilter";
 import SortOrder from "@/components/SortOrder";
 
 /**
- * Default filter values for resetting and initializing the component
- * @type {Object}
+ * Default filter values object that defines the initial state of all filters
+ * @constant {Object} DEFAULT_VALUES
+ * @property {string} category - The recipe category filter
+ * @property {string} sortBy - The sorting field
+ * @property {string} order - The sort order (ascending/descending)
+ * @property {string} search - The search query
+ * @property {string} numberOfSteps - Filter for number of recipe steps
+ * @property {Array} tags - Array of selected tags
+ * @property {string} tagMatchType - Type of tag matching ("all" or "any")
  */
 const DEFAULT_VALUES = {
   category: "",
@@ -31,18 +41,16 @@ const DEFAULT_VALUES = {
 };
 
 /**
- * FilterSection component for managing recipe filters with advanced filtering options
- *
+ * FilterSection component that provides a comprehensive filtering interface for recipes
  * @component
- * @param {Object} props - Component properties
- * @param {string[]} [props.categories=[]] - List of available recipe categories
- * @param {string} [props.initialCategory=""] - Initial selected category
- * @param {string} [props.initialSort="$natural"] - Initial sort method
- * @param {string} [props.initialOrder="asc"] - Initial sort order
- * @param {string[]} [props.availableTags=[]] - List of available tags for filtering
- * @param {string[]} [props.availableIngredients=[]] - List of available ingredients for filtering
- *
- * @returns {React.ReactElement} Rendered filter section component
+ * @param {Object} props - Component props
+ * @param {Array} [props.categories=[]] - Available recipe categories
+ * @param {string} [props.initialCategory=DEFAULT_VALUES.category] - Initial category selection
+ * @param {string} [props.initialSort=DEFAULT_VALUES.sortBy] - Initial sort field
+ * @param {string} [props.initialOrder=DEFAULT_VALUES.order] - Initial sort order
+ * @param {Array} [props.availableTags=[]] - Available tags for filtering
+ * @param {Array} [props.availableIngredients=[]] - Available ingredients for filtering
+ * @returns {JSX.Element} Rendered FilterSection component
  */
 export default function FilterSection({
   categories = [],
@@ -52,16 +60,22 @@ export default function FilterSection({
   availableTags = [],
   availableIngredients = [],
 }) {
-  // Next.js navigation and routing hooks
-  const router = useRouter(); // Hook for programmatic navigation
-  const pathname = usePathname(); // Current page's pathname
-  const searchParams = useSearchParams(); // Current URL search parameters
+  /** @const {Object} router - Next.js router instance for navigation */
+  const router = useRouter();
 
-  // State for managing filter expansion and advanced filters
-  const [isExpanded, setIsExpanded] = useState(false); // Controls overall filter section visibility
-  const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false); // Controls advanced filters visibility
+  /** @const {string} pathname - Current URL pathname */
+  const pathname = usePathname();
 
-  // State for tracking current filter settings
+  /** @const {URLSearchParams} searchParams - Current URL search parameters */
+  const searchParams = useSearchParams();
+
+  /** @const {[boolean, Function]} State for panel visibility */
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+
+  /** @const {[boolean, Function]} State for advanced filters visibility */
+  const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
+
+  /** @const {[Object, Function]} State for filter values */
   const [filterState, setFilterState] = useState({
     category: initialCategory,
     sortBy: initialSort,
@@ -71,9 +85,8 @@ export default function FilterSection({
   });
 
   /**
-   * Updates the URL with new filter parameters
-   * Handles adding, removing, and setting URL search parameters
-   *
+   * Updates URL parameters based on filter changes
+   * @function updateUrl
    * @param {Object} newParams - New parameters to update in the URL
    */
   const updateUrl = (newParams) => {
@@ -104,7 +117,7 @@ export default function FilterSection({
 
   /**
    * Resets all filters to their default values
-   * Clears filter state and navigates to the base pathname
+   * @function handleResetFilters
    */
   const handleResetFilters = () => {
     setFilterState({
@@ -118,149 +131,164 @@ export default function FilterSection({
   };
 
   /**
-   * Memoized function to detect if any filters are currently active
-   *
-   * @returns {boolean} Whether any filters are currently applied
+   * Determines if any filters are currently active
+   * @function isFilterActive
+   * @returns {boolean} True if any filters are applied
    */
   const isFilterActive = useMemo(() => {
     return (
-      // Check if any filter state differs from default
       Object.entries(filterState).some(
         ([key, value]) => value !== DEFAULT_VALUES[key]
-      ) ||
-      // Also check if search params exist
-      searchParams.toString() !== ""
+      ) || searchParams.toString() !== ""
     );
   }, [filterState, searchParams]);
 
   // Render the filter section
   return (
-    <div className="bg-white dark:bg-neutral-900 shadow-xl rounded-2xl overflow-hidden transition-all duration-300 max-w-7xl mx-auto">
-      {/* Filter Section Header */}
-      <div className="px-4 sm:px-6 py-4 bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-neutral-800 dark:to-teal-900 border-b border-neutral-100 dark:border-neutral-700">
-        {/* Header content with title, active indicator, and expand/collapse button */}
-        <div className="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
-          {/* Left side: Filter title and icon */}
-          <div className="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
-            <div className="flex items-center space-x-3">
-              <Filter className="w-6 h-6 text-teal-600 dark:text-emerald-400" />
-              <h2 className="text-lg font-semibold text-teal-800 dark:text-emerald-300">
-                Recipe Filters
-              </h2>
-              {/* Active filters indicator */}
-              {isFilterActive && (
-                <span className="ml-2 px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs rounded-full hidden sm:flex items-center">
-                  <CheckCircle2 className="w-4 h-4 mr-1" />
-                  Active
-                </span>
-              )}
-            </div>
+    <>
+      {/* Trigger Button - Fixed on the left side */}
+      <motion.button
+        onClick={() => setIsPanelOpen(true)}
+        className="fixed left-0 -translate-y-1/2 bg-teal-600 dark:bg-teal-700 text-white p-3 rounded-r-lg shadow-lg hover:bg-teal-700 dark:hover:bg-teal-600 transition-colors z-40 group"
+      >
+        <Filter className="w-5 h-5" />
+        <span className="absolute left-full top-1/2 -translate-y-1/2 bg-teal-600 dark:bg-teal-700 text-white px-2 py-1 rounded-r-md text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap ml-0.5">
+          Open Filters
+        </span>
+      </motion.button>
 
-            {/* Mobile expand/collapse button */}
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="text-neutral-600 dark:text-neutral-300 hover:text-teal-600 dark:hover:text-emerald-400 transition-colors sm:hidden"
-            >
-              <ChevronDown
-                className={`w-6 h-6 transition-transform ${
-                  isExpanded ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-          </div>
+      {/* Overlay Background */}
+      <AnimatePresence>
+        {isPanelOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsPanelOpen(false)}
+            className="fixed inset-0 bg-black/50 z-40"
+          />
+        )}
+      </AnimatePresence>
 
-          {/* Right side: Reset filters and desktop expand/collapse button */}
-          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-5 w-full sm:w-auto">
-            {/* Reset filters button */}
-            {isFilterActive && (
-              <div className="flex justify-center sm:justify-end w-full">
-                <button
-                  onClick={handleResetFilters}
-                  className="flex items-center space-x-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors text-sm w-full sm:w-auto"
-                >
-                  <RefreshCcw className="w-4 h-4" />
-                  <span>Reset All</span>
-                </button>
-              </div>
-            )}
-
-            {/* Desktop expand/collapse button */}
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="hidden sm:block text-neutral-600 dark:text-neutral-300 hover:text-teal-600 dark:hover:text-emerald-400 transition-colors"
-            >
-              <ChevronDown
-                className={`w-6 h-6 transition-transform ${
-                  isExpanded ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Expandable Filters Section */}
-      {isExpanded && (
-        <div className="p-4 sm:p-6 space-y-6 bg-neutral-50 dark:bg-neutral-800">
-          {/* Advanced Filters Toggle Button */}
-          <div className="flex justify-center">
-            <button
-              onClick={() => setIsAdvancedFiltersOpen(!isAdvancedFiltersOpen)}
-              className="flex items-center space-x-2 bg-white dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 px-4 py-2 rounded-lg text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors w-full sm:w-auto justify-center"
-            >
-              <Sliders className="w-4 h-4" />
-              <span>
-                {isAdvancedFiltersOpen
-                  ? "Hide Advanced Filters"
-                  : "Show Advanced Filters"}
-              </span>
-            </button>
-          </div>
-
-          {/* Advanced Filters Content */}
-          {isAdvancedFiltersOpen && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Number of Steps Filter */}
-              <NumberOfStepsFilter
-                searchParams={searchParams}
-                updateUrl={updateUrl}
-              />
-              {/* Tag Filter */}
-              <TagFilter
-                availableTags={availableTags}
-                searchParams={searchParams}
-                updateUrl={updateUrl}
-              />
-              {/* Ingredients Filter */}
-              <IngredientsFilter
-                availableIngredients={availableIngredients}
-                searchParams={searchParams}
-                updateUrl={updateUrl}
-              />
-              {/* No Filter Applied Message */}
-              {!isFilterActive && (
-                <div className="flex text-gray-500 dark:text-gray-100 text-sm italic mt-4">
-                  No filter applied
+      {/* Filter Panel */}
+      <AnimatePresence>
+        {isPanelOpen && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 20 }}
+            className="fixed right-0 top-0 h-full w-full sm:w-[400px] bg-white dark:bg-neutral-900 shadow-2xl z-50 overflow-y-auto"
+          >
+            {/* Panel Header */}
+            <div className="px-4 py-4 bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-neutral-800 dark:to-teal-900 border-b border-neutral-100 dark:border-neutral-700 sticky top-0 z-10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Filter className="w-5 h-5 text-teal-600 dark:text-emerald-400" />
+                  <h2 className="text-base font-semibold text-teal-800 dark:text-emerald-300">
+                    Recipe Filters
+                  </h2>
+                  {isFilterActive && (
+                    <span className="ml-2 px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs rounded-full flex items-center">
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
+                      Active
+                    </span>
+                  )}
                 </div>
+                <motion.button
+                  onClick={() => setIsPanelOpen(false)}
+                  className="text-neutral-600 dark:text-neutral-300 hover:text-teal-600 dark:hover:text-emerald-400 transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <X className="w-5 h-5" />
+                </motion.button>
+              </div>
+
+              {/* Reset Filters Button */}
+              {isFilterActive && (
+                <motion.div
+                  className="mt-3"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <button
+                    onClick={handleResetFilters}
+                    className="flex items-center space-x-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-3 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors text-sm w-full justify-center"
+                  >
+                    <RefreshCcw className="w-4 h-4" />
+                    <span>Reset All</span>
+                  </button>
+                </motion.div>
               )}
             </div>
-          )}
 
-          {/* Category and Sort Order Section */}
-          <div className="flex flex-col sm:flex-row items-center justify-between pt-4 border-t border-gray-100 space-y-4 sm:space-y-0">
-            {/* Category Filter */}
-            <CategoryFilter
-              categories={categories}
-              currentCategory={filterState.category}
-            />
-            {/* Sort Order Filter */}
-            <SortOrder
-              currentSort={filterState.sortBy}
-              currentOrder={filterState.order}
-            />
-          </div>
-        </div>
-      )}
-    </div>
+            {/* Filter Content */}
+            <div className="p-4 space-y-4">
+              {/* Advanced Filters Toggle */}
+              <motion.button
+                onClick={() => setIsAdvancedFiltersOpen(!isAdvancedFiltersOpen)}
+                className="flex items-center space-x-2 bg-white dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 px-3 py-2 rounded-lg text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors w-full justify-center"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Sliders className="w-4 h-4" />
+                <span>
+                  {isAdvancedFiltersOpen
+                    ? "Hide Advanced Filters"
+                    : "Show Advanced Filters"}
+                </span>
+              </motion.button>
+
+              {/* Advanced Filters Section */}
+              <AnimatePresence>
+                {isAdvancedFiltersOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="grid grid-cols-1 gap-3">
+                      <NumberOfStepsFilter
+                        searchParams={searchParams}
+                        updateUrl={updateUrl}
+                      />
+                      <TagFilter
+                        availableTags={availableTags}
+                        searchParams={searchParams}
+                        updateUrl={updateUrl}
+                      />
+                      <IngredientsFilter
+                        availableIngredients={availableIngredients}
+                        searchParams={searchParams}
+                        updateUrl={updateUrl}
+                      />
+                      {!isFilterActive && (
+                        <div className="text-gray-500 text-sm italic mt-4">
+                          No filter applied
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Category and Sort Order Section */}
+              <div className="flex flex-col space-y-3 pt-3 border-t border-gray-100">
+                <CategoryFilter
+                  categories={categories}
+                  currentCategory={filterState.category}
+                />
+                <SortOrder
+                  currentSort={filterState.sortBy}
+                  currentOrder={filterState.order}
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
