@@ -33,10 +33,10 @@ export default function ShoppingListPage() {
     fetchLists();
   }, [session]);
 
-  const removeItem = async (listId, index) => {
+  const removeItem = async (id, index) => {
     try {
-      setRemovingItem({ listId, index });
-      const response = await fetch(`/api/shopping-list/${listId}/items`, {
+      setRemovingItem({ id, index });
+      const response = await fetch(`/api/shopping-list/${id}/items`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -52,15 +52,15 @@ export default function ShoppingListPage() {
       console.error("Error removing item:", error);
       alert("Failed to remove item");
     } finally {
-      setRemovingItem({ listId: null, index: null });
+      setRemovingItem({ id: null, index: null });
     }
   };
 
-  const deleteList = async (listId) => {
+  const deleteList = async (id) => {
     try {
-      setDeleting((prev) => ({ ...prev, [listId]: true }));
+      setDeleting((prev) => ({ ...prev, [id]: true }));
 
-      const response = await fetch(`/api/shopping-list/${listId}`, {
+      const response = await fetch(`/api/shopping-list/${id}`, {
         method: "DELETE",
       });
 
@@ -71,13 +71,13 @@ export default function ShoppingListPage() {
       console.error("Error deleting list:", error);
       alert("Failed to delete shopping list");
     } finally {
-      setDeleting((prev) => ({ ...prev, [listId]: false }));
+      setDeleting((prev) => ({ ...prev, [id]: false }));
     }
   };
 
-  const markAsPurchased = async (listId, itemIndex) => {
+  const markAsPurchased = async (id, itemIndex) => {
     try {
-      const list = lists.find((l) => l._id === listId);
+      const list = lists.find((l) => l._id === id);
       if (!list) return;
 
       const updatedItems = [...list.items];
@@ -86,7 +86,7 @@ export default function ShoppingListPage() {
         purchased: !updatedItems[itemIndex].purchased,
       };
 
-      const response = await fetch(`/api/shopping-list/${listId}`, {
+      const response = await fetch(`/api/shopping-list/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -146,9 +146,17 @@ export default function ShoppingListPage() {
                   className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <div className="flex justify-between items-center mb-3">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      Created: {new Date(list.createdAt).toLocaleDateString()}
-                    </span>
+                    <div className="space-y-1">
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {list.name ||
+                          `Shopping List ${new Date(
+                            list.createdAt
+                          ).toLocaleDateString()}`}
+                      </h2>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        Created: {new Date(list.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
                     <button
                       onClick={() => deleteList(list._id)}
                       disabled={deleting[list._id]}
@@ -196,12 +204,12 @@ export default function ShoppingListPage() {
                         <button
                           onClick={() => removeItem(list._id, index)}
                           disabled={
-                            removingItem.listId === list._id &&
+                            removingItem.id === list._id &&
                             removingItem.index === index
                           }
                           className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
                         >
-                          {removingItem.listId === list._id &&
+                          {removingItem.id === list._id &&
                           removingItem.index === index ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
                           ) : (
