@@ -21,6 +21,7 @@ export default function ShoppingList({ ingredients }) {
   const [addingToList, setAddingToList] = useState(null);
   const [selectedListId, setSelectedListId] = useState(null);
   const [isVisible, setIsVisible] = useState(true); // State to control visibility
+  const [listName, setListName] = useState("");
 
   useEffect(() => {
     if (session) {
@@ -44,6 +45,11 @@ export default function ShoppingList({ ingredients }) {
       return;
     }
 
+    if (!listName.trim()) {
+      toast.error("Please enter a name for your shopping list");
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await fetch("/api/shopping-list", {
@@ -51,7 +57,7 @@ export default function ShoppingList({ ingredients }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ items: selectedItems }),
+        body: JSON.stringify({ items: selectedItems, name: listName.trim() }),
       });
 
       if (!response.ok) {
@@ -59,6 +65,7 @@ export default function ShoppingList({ ingredients }) {
       }
 
       setSelectedItems([]);
+      setListName("");
       toast.success("Shopping list created successfully!");
       fetchLists();
     } catch (error) {
@@ -69,15 +76,15 @@ export default function ShoppingList({ ingredients }) {
     }
   };
 
-  const addItemsToList = async (listId) => {
+  const addItemsToList = async (id) => {
     if (!selectedItems.length) {
       toast.error("Please select items to add");
       return;
     }
 
     try {
-      setAddingToList(listId);
-      const response = await fetch(`/api/shopping-list/${listId}/items`, {
+      setAddingToList(id);
+      const response = await fetch(`/api/shopping-list/${id}/items`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -170,6 +177,17 @@ export default function ShoppingList({ ingredients }) {
           {/* Action Buttons */}
           {selectedItems.length > 0 && (
             <div className="mt-6 space-y-4">
+              {/* List Name Input */}
+              <div className="mb-4">
+                <input
+                  type="text"
+                  value={listName}
+                  onChange={(e) => setListName(e.target.value)}
+                  placeholder="Enter list name"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                />
+              </div>
+
               <button
                 onClick={createShoppingList}
                 disabled={loading}
@@ -218,6 +236,12 @@ export default function ShoppingList({ ingredients }) {
                             disabled={addingToList === list._id}
                             className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex justify-between items-center"
                           >
+                            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {list.name ||
+                                `Shopping List ${new Date(
+                                  list.createdAt
+                                ).toLocaleDateString()}`}
+                            </h2>
                             <span className="text-sm text-gray-700 dark:text-gray-300">
                               List from{" "}
                               {new Date(list.createdAt).toLocaleDateString()}

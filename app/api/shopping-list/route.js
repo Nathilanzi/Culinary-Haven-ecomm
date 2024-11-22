@@ -33,12 +33,13 @@ export async function POST(request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { items } = await request.json();
+    const { items, name } = await request.json();
     const client = await clientPromise;
     const db = client.db("devdb");
 
     const shoppingList = {
       userId: session.user.id,
+      name: name || `Shopping List ${new Date().toLocaleDateString()}`, // Use provided name or default
       items: items.map((item) => ({
         ...item,
         purchased: false,
@@ -116,7 +117,7 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { listId } = params;
+    const { id } = params;
     const { items } = await request.json();
 
     const client = await clientPromise;
@@ -124,7 +125,7 @@ export async function PATCH(request, { params }) {
 
     // Verify list ownership
     const list = await db.collection("shopping_lists").findOne({
-      _id: new ObjectId(listId),
+      _id: new ObjectId(id),
       userId: session.user.id,
     });
 
@@ -134,7 +135,7 @@ export async function PATCH(request, { params }) {
 
     // Update the list
     const result = await db.collection("shopping_lists").updateOne(
-      { _id: new ObjectId(listId) },
+      { _id: new ObjectId(id) },
       {
         $set: {
           items,
