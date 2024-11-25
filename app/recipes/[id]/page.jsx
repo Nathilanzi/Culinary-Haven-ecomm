@@ -244,7 +244,7 @@ export default async function RecipeDetail({ params }) {
   const nutritionData = formatNutritionData(recipe.nutrition);
 
   return (
-    <div className="font-sans pt-16 bg-gray-50 min-h-screen dark:bg-gray-900">
+    <div className="font-sans pt-16 min-h-screen dark:bg-gray-900">
       {/* Fixed position back button */}
       <div className="fixed top-4 -left-20 z-50">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />

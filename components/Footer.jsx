@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="bg-[#0C3B2E] text-gray-100 dark:bg-[#0A2A21]">
+    <footer className="bg-teal-700 text-gray-100 dark:bg-[#0A2A21]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
         <div className="py-8 grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
