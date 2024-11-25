@@ -126,7 +126,6 @@ export default async function RootLayout({ children }) {
           <ThemeProvider>
             <Header />
             <OnlineStatus /> 
-            {children}
             <main className="pt-16">{children}</main>
             <Footer />
           </ThemeProvider>
