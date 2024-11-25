@@ -106,7 +106,7 @@ const Gallery = ({ images }) => {
               alt={`Product image ${index + 1}`}
               width={400}
               height={300}
-              className="w-full h-full object-cover object-center" // Updated to ensure all images fit uniformly
+              className="w-full h-full object-cover max-h-56 object-center" // Updated to ensure all images fit uniformly
             />
           </div>
         ))}
