@@ -178,7 +178,7 @@ export default function SignIn() {
           </div>
           {/* Welcome text */}
           <h2 className="text-2xl font-semibold text-gray-900">
-            Welcome back to Calinary Haven
+            Welcome back to Culinary Haven
           </h2>
           <p className="mt-2 text-gray-600">
             Please enter your details to sign in

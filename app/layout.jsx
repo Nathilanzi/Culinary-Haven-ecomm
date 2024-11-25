@@ -1,6 +1,7 @@
 import "./globals.css";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import OnlineStatus from "@/components/OnlineStatus"; // Import the OnlineStatus component
 import { ThemeProvider } from "@/ThemeContext";
 import SessionProvider from "@/components/SessionProvider";
 import { getServerSession } from "next-auth/next";
@@ -124,6 +125,7 @@ export default async function RootLayout({ children }) {
         <SessionProvider session={session}>
           <ThemeProvider>
             <Header />
+            <OnlineStatus /> 
             <main className="pt-16">{children}</main>
             <Footer />
           </ThemeProvider>

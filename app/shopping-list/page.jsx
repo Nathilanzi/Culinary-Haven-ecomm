@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { ShoppingCart, Trash2, Check, Loader2, X, Share2, PlusCircle } from "lucide-react";
 import BackButton from "@/components/BackButton";
+import { signIn } from "next-auth/react";
 
 export default function ShoppingListPage() {
   const { data: session } = useSession();
@@ -177,17 +178,15 @@ export default function ShoppingListPage() {
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <p className="text-gray-600 dark:text-gray-300 mb-4">
-            Please sign in to view your shopping lists
-          </p>
+        <div className="text-center text-[1.5rem]">
+          <p>Please <button onClick={() => signIn()} className="text-blue-600 hover:underline dark:text-blue-400">sign in</button> to view your shopping lists.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       {/* Fixed position back button */}
       <div className="fixed top-4 -left-20 z-50">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
