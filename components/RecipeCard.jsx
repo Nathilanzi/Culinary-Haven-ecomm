@@ -69,7 +69,7 @@ export default function RecipeCard({
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Image Section with Gallery and Favorites */}
-        <div className="relative overflow-hidden object-contain">
+        <div className="relative overflow-hidden max-h-56">
           <Gallery images={images} />
 
           {/* Favorites Button */}
@@ -160,7 +160,6 @@ export default function RecipeCard({
               C470.505,220.719,462.337,238.927,449.023,252.265z"
                 />
               </svg>
-
               <span className="mt-2 font-semibold text-sm">Prep:</span>
               <span>{recipe.prep} mins</span>
             </div>

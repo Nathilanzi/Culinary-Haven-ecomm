@@ -149,7 +149,7 @@ export default function FilterSection({
       {/* Trigger Button - Fixed on the left side */}
       <motion.button
         onClick={() => setIsPanelOpen(true)}
-        className="fixed left-0 -translate-y-1/2 bg-teal-600 dark:bg-teal-700 text-white p-3 rounded-r-lg shadow-lg hover:bg-teal-700 dark:hover:bg-teal-600 transition-colors z-40 group"
+        className="fixed left-0 -translate-y-[3rem] bg-teal-600 dark:bg-teal-700 text-white p-3 rounded-r-lg shadow-lg hover:bg-teal-700 dark:hover:bg-teal-600 transition-colors z-40 group"
       >
         <Filter className="w-5 h-5" />
         <span className="absolute left-full top-1/2 -translate-y-1/2 bg-teal-600 dark:bg-teal-700 text-white px-2 py-1 rounded-r-md text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap ml-0.5">

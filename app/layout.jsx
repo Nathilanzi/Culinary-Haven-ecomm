@@ -27,6 +27,15 @@ export const metadata = {
     "cooking instructions",
   ],
   authors: [{ name: "Culinary Haven Team" }],
+  manifest: "/site.webmanifest",
+  themeColor: "#daf1de",
+  viewport:
+    "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Culinary Haven",
+  },
   openGraph: {
     title: "Culinary Haven - Discover Delicious Recipes",
     description:
@@ -106,6 +115,10 @@ export default async function RootLayout({ children }) {
           href="/favicon-16x16.png"
         />
         <link rel="manifest" href="/site.webmanifest" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="bg-[#daf1de] dark:bg-[#1B1F1D]">
         <SessionProvider session={session}>
