@@ -242,7 +242,9 @@ const Header = () => {
       <div className="relative mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div
-            className={`flex items-center ${isSearchVisible ? "hidden sm:flex" : "flex"}`}
+            className={`flex items-center ${
+              isSearchVisible ? "hidden sm:flex" : "flex"
+            }`}
           >
             <Link href="/" className="flex items-center space-x-3">
               <div className="bg-gray-100 rounded-lg">
@@ -262,7 +264,9 @@ const Header = () => {
 
           <div className="flex flex-grow space-x-10 items-center justify-end">
             <div
-              className={`flex-grow max-w-md ${isSearchVisible ? "w-full" : "w-auto"}`}
+              className={`flex-grow max-w-md ${
+                isSearchVisible ? "w-full" : "w-auto"
+              }`}
             >
               <Suspense>
                 <SearchBar
@@ -280,20 +284,20 @@ const Header = () => {
                 <BookOpen className="mr-2 h-4 w-4" />
                 Recipes
               </Link>
-              <div className="flex justify-center">
-                <Link
-                  href="/favorites"
-                  className={"relative flex items-center text-white"}
-                >
-                  <Heart className="mr-2 h-4 w-4" />
-                  Favorites
-                  {favoritesCount > 0 && (
-                    <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {favoritesCount}
-                    </span>
-                  )}
-                </Link>
-              </div>
+
+              <Link
+                href="/favorites"
+                className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
+              >
+                <Heart className="mr-2 h-4 w-4" />
+                Favorites
+                {favoritesCount > 0 && (
+                  <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {favoritesCount}
+                  </span>
+                )}
+              </Link>
+
               <div className="flex justify-center">
                 <Link
                   href="/shopping-list"
