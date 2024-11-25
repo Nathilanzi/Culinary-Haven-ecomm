@@ -43,7 +43,6 @@ const styles = {
     alignItems: "center",
     height: "100vh", 
     width: "100vw", 
-    backgroundColor: "#f3f3f3", 
     position: "relative",
   },
   /**

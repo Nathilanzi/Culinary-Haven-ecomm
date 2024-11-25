@@ -85,7 +85,7 @@ export const ErrorLayout = ({ title, message, code, buttons }) => {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center p-4">
+    <div className="relative min-h-screen flex items-center justify-center p-4">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute w-64 h-64 rounded-full bg-[#0C3B2E]/5 -top-32 -left-32 animate-pulse" />
