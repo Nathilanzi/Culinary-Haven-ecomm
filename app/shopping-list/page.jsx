@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { ShoppingCart, Trash2, Check, Loader2, X, Share2, PlusCircle } from "lucide-react";
+import { ShoppingCart, Trash2, Check, Loader2, X, Share2 } from "lucide-react";
 import BackButton from "@/components/BackButton";
-import { signIn } from "next-auth/react";
+import LoadingPage from "../loading";
 
 export default function ShoppingListPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState({});
   const [removingItem, setRemovingItem] = useState({});
   const [updatingQuantity, setUpdatingQuantity] = useState({});
@@ -18,25 +20,32 @@ export default function ShoppingListPage() {
   const [newAmount, setNewAmount] = useState(""); // New amount input
 
   const fetchLists = async () => {
-    if (!session) return;
-
     try {
-      setLoading(true);
-      const response = await fetch("/api/shopping-list");
+      const response = await fetch("/api/shopping-list", {
+        headers: {
+          "user-id": session.user.id,
+        },
+      });
+
       if (!response.ok) throw new Error("Failed to fetch shopping lists");
 
       const data = await response.json();
       setLists(data);
     } catch (error) {
-      console.error("Error fetching shopping lists:", error);
+      setError("Error fetching shopping lists: " + error.message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    if (!session) {
+      router.push("/auth/signin");
+      return;
+    }
+
     fetchLists();
-  }, [session]);
+  }, [session, router]);
 
   const removeItem = async (id, index) => {
     try {
@@ -45,6 +54,7 @@ export default function ShoppingListPage() {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          "user-id": session.user.id,
         },
         body: JSON.stringify({ index }),
       });
@@ -52,10 +62,8 @@ export default function ShoppingListPage() {
       if (!response.ok) throw new Error("Failed to remove item");
 
       fetchLists();
-      alert("Item removed successfully!");
     } catch (error) {
-      console.error("Error removing item:", error);
-      alert("Failed to remove item");
+      setError("Error removing item: " + error.message);
     } finally {
       setRemovingItem({ id: null, index: null });
     }
@@ -67,14 +75,16 @@ export default function ShoppingListPage() {
 
       const response = await fetch(`/api/shopping-list/${id}`, {
         method: "DELETE",
+        headers: {
+          "user-id": session.user.id,
+        },
       });
 
       if (!response.ok) throw new Error("Failed to delete shopping list");
 
       fetchLists();
     } catch (error) {
-      console.error("Error deleting list:", error);
-      alert("Failed to delete shopping list");
+      setError("Error deleting list: " + error.message);
     } finally {
       setDeleting((prev) => ({ ...prev, [id]: false }));
     }
@@ -95,6 +105,7 @@ export default function ShoppingListPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          "user-id": session.user.id,
         },
         body: JSON.stringify({ items: updatedItems }),
       });
@@ -102,7 +113,7 @@ export default function ShoppingListPage() {
       if (!response.ok) throw new Error("Failed to update item");
       fetchLists();
     } catch (error) {
-      console.error("Error updating item:", error);
+      setError("Error updating item: " + error.message);
     }
   };
 
@@ -122,6 +133,7 @@ export default function ShoppingListPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          "user-id": session.user.id,
         },
         body: JSON.stringify({ items: updatedItems }),
       });
@@ -129,64 +141,39 @@ export default function ShoppingListPage() {
       if (!response.ok) throw new Error("Failed to update quantity");
       fetchLists();
     } catch (error) {
-      console.error("Error updating quantity:", error);
+      setError("Error updating quantity: " + error.message);
     } finally {
       setUpdatingQuantity({ id: null, index: null });
     }
   };
 
-  // Function to add a new item to an existing shopping list
-  const addItemToList = async (listId) => {
-    if (!newIngredient || !newAmount) return; // Ensure ingredient and amount are provided
-
-    try {
-      setAddingItem({ id: listId });
-      const list = lists.find((l) => l._id === listId);
-      if (!list) return;
-
-      const updatedItems = [...list.items, { ingredient: newIngredient, amount: newAmount, purchased: false }];
-
-      const response = await fetch(`/api/shopping-list/${listId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ items: updatedItems }),
-      });
-
-      if (!response.ok) throw new Error("Failed to add new item");
-
-      setNewIngredient(""); // Reset the input field
-      setNewAmount(""); // Reset the input field
-      fetchLists();
-    } catch (error) {
-      console.error("Error adding item:", error);
-    } finally {
-      setAddingItem({ id: null });
-    }
-  };
-
+  // Function to generate the WhatsApp sharing link
   const generateWhatsAppLink = (list) => {
     const listText = list.items
-      .map((item) => `${item.amount} ${item.ingredient}${item.purchased ? ' (Purchased)' : ''}`)
+      .map(
+        (item) =>
+          `${item.amount} ${item.ingredient}${
+            item.purchased ? " (Purchased)" : ""
+          }`
+      )
       .join("\n");
 
     const message = encodeURIComponent(`Shopping List: \n${listText}`);
     return `https://wa.me/?text=${message}`;
   };
 
-  if (!session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center text-[1.5rem]">
-          <p>Please <button onClick={() => signIn()} className="text-blue-600 hover:underline dark:text-blue-400">sign in</button> to view your shopping lists.</p>
-        </div>
-      </div>
-    );
-  }
+  // Loading state
+  if (loading) return <LoadingPage />;
+
+  // Error state
+  if (error)
+    return <div className="text-center mt-8 text-red-500">{error}</div>;
+
+  // Ensure session exists (redundant with useEffect, but added for type safety)
+  if (!session) return null;
 
   return (
-    <div className="min-h-screen dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="container mx-auto px-4 py-8">
       {/* Fixed position back button */}
       <div className="fixed top-4 -left-20 z-50">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
@@ -234,14 +221,14 @@ export default function ShoppingListPage() {
                         href={generateWhatsAppLink(list)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300"
+                        className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
                       >
                         <Share2 className="w-5 h-5" />
                       </a>
                       <button
                         onClick={() => deleteList(list._id)}
                         disabled={deleting[list._id]}
-                        className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                        className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
                       >
                         {deleting[list._id] ? (
                           <Loader2 className="w-5 h-5 animate-spin" />
@@ -251,88 +238,63 @@ export default function ShoppingListPage() {
                       </button>
                     </div>
                   </div>
-
-                  {/* List items */}
-                  <div className="space-y-2">
+                  <ul className="space-y-2">
                     {list.items.map((item, index) => (
-                      <div key={index} className="flex justify-between items-center">
+                      <li
+                        key={index}
+                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                      >
                         <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => markAsPurchased(list._id, index)}
-                            className={`${
-                              item.purchased ? "text-teal-600" : "text-gray-600"
-                            }`}
-                          >
-                            <Check className="w-5 h-5" />
-                          </button>
+                          <input
+                            type="checkbox"
+                            checked={item.purchased}
+                            onChange={() => markAsPurchased(list._id, index)}
+                            className="h-4 w-4 text-teal-600 dark:text-teal-400"
+                          />
                           <span
                             className={`${
                               item.purchased ? "line-through text-gray-500" : ""
-                            }`}
+                            } text-sm font-medium text-gray-900 dark:text-gray-100`}
                           >
                             {item.amount} {item.ingredient}
                           </span>
                         </div>
-                        <div className="flex space-x-2">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="number"
+                            value={item.amount}
+                            onChange={(e) =>
+                              updateQuantity(
+                                list._id,
+                                index,
+                                parseInt(e.target.value, 10)
+                              )
+                            }
+                            disabled={updatingQuantity.id === list._id && updatingQuantity.index === index}
+                            className="w-16 text-center text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none"
+                          />
                           <button
                             onClick={() => removeItem(list._id, index)}
                             disabled={removingItem.id === list._id && removingItem.index === index}
-                            className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            className="ml-3 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
                           >
-                            {removingItem.id === list._id && removingItem.index === index ? (
+                            {removingItem.id === list._id &&
+                            removingItem.index === index ? (
                               <Loader2 className="w-5 h-5 animate-spin" />
                             ) : (
                               <X className="w-5 h-5" />
                             )}
                           </button>
-                          <input
-                            type="number"
-                            value={item.amount}
-                            onChange={(e) =>
-                              updateQuantity(list._id, index, e.target.value)
-                            }
-                            className="w-16 px-2 py-1 border rounded-md text-sm text-gray-800 dark:text-gray-100 dark:bg-gray-700"
-                          />
                         </div>
-                      </div>
+                      </li>
                     ))}
-                  </div>
-
-                  {/* Add new item */}
-                  <div className="mt-4">
-                    <input
-                      type="text"
-                      placeholder="Ingredient name"
-                      value={newIngredient}
-                      onChange={(e) => setNewIngredient(e.target.value)}
-                      className="w-full px-4 py-2 border rounded-md text-sm dark:bg-gray-700 dark:text-gray-100"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Amount"
-                      value={newAmount}
-                      onChange={(e) => setNewAmount(e.target.value)}
-                      className="w-full px-4 py-2 border rounded-md text-sm mt-2 dark:bg-gray-700 dark:text-gray-100"
-                    />
-                    <button
-                      onClick={() => addItemToList(list._id)}
-                      disabled={addingItem.id === list._id}
-                      className="mt-2 w-full bg-teal-600 text-white py-2 rounded-md hover:bg-teal-700"
-                    >
-                      {addingItem.id === list._id ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <PlusCircle className="w-5 h-5 mr-2" />
-                      )}
-                      Add Item
-                    </button>
-                  </div>
+                  </ul>
                 </div>
               ))}
             </div>
-          )}
+          ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }
