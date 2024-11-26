@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import Link from "next/link";
-import { Suspense } from "react";
-import { User, Heart, Settings, LogOut } from "lucide-react";
-import Image from "next/image";
-import ThemeToggle from "./ThemeToggle";
-import { useSession, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Alert from "./Alert";
 import { getRecipeSuggestions } from "@/lib/api";
 
 /**
@@ -82,13 +75,6 @@ const SearchBar = ({ isVisible, onToggle }) => {
     }
   };
 
-  // Focus input when search bar becomes visible
-  useEffect(() => {
-    if (isVisible && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [isVisible]);
-
   /**
    * Updates the URL with current search parameters
    *
@@ -147,7 +133,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
    * @param {React.ChangeEvent<HTMLInputElement>} e - Input change event
    * @description Updates search state, fetches suggestions, and updates URL
    */
-  const handleInputChange = (e) => {
+  const handleSearch = (e) => {
     const value = e.target.value;
     setSearch(value);
     setHighlightedIndex(-1);
@@ -188,6 +174,23 @@ const SearchBar = ({ isVisible, onToggle }) => {
     router.push(`/?${params.toString()}`);
   };
 
+  const resetSearch = () => {
+    setSearch("");
+    setSuggestions([]);
+    setShowSuggestions(false);
+    setHighlightedIndex(-1);
+    onToggle();
+
+    if (urlUpdateTimeoutRef.current) {
+      clearTimeout(urlUpdateTimeoutRef.current);
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    params.delete("page");
+    router.push(`/?${params.toString()}`);
+  };
+
   /**
    * Handles keyboard navigation in suggestions
    *
@@ -223,35 +226,13 @@ const SearchBar = ({ isVisible, onToggle }) => {
     }
   };
 
-  /**
-   * Resets the search input and URL
-   * @description Resets the search input and URL to their initial state
-   * @description Clears search state, suggestions, and resets URL
-   */
-  const resetSearch = () => {
-    setSearch("");
-    setSuggestions([]);
-    setShowSuggestions(false);
-    setHighlightedIndex(-1);
-    onToggle();
-
-    if (urlUpdateTimeoutRef.current) {
-      clearTimeout(urlUpdateTimeoutRef.current);
-    }
-
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("search");
-    params.delete("page");
-    router.push(`/?${params.toString()}`);
-  };
-
-  // Handle clicks outside of suggestions
   useEffect(() => {
-    /**
-     * Closes suggestions when clicking outside
-     *
-     * @param {MouseEvent} event - Click event
-     */
+    if (isVisible && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isVisible]);
+
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         suggestionsRef.current &&
@@ -266,27 +247,15 @@ const SearchBar = ({ isVisible, onToggle }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-      if (urlUpdateTimeoutRef.current)
-        clearTimeout(urlUpdateTimeoutRef.current);
-    };
-  }, []);
-
   return (
-    <form
-      onSubmit={(e) => e.preventDefault()}
-      className="relative flex items-center w-full justify-end h-10"
-    >
-      <div className="relative flex items-center">
+    <form onSubmit={(e) => e.preventDefault()} className="relative w-full">
+      <div className="flex items-center justify-end">
         <div
-          className={`absolute right-10 overflow-visible transition-all duration-300 ease-in-out ${
-            isVisible
-              ? "opacity-100 visible w-56 lg:w-[25rem] sm:w-64 md:w-64 translate-x-0"
-              : "opacity-0 invisible w-10 translate-x-full"
-          }`}
+          className={`
+            relative overflow-hidden
+            transition-all duration-300 ease-in-out
+            ${isVisible ? "w-full" : "w-10"}
+          `}
         >
           <input
             ref={searchInputRef}
@@ -294,100 +263,111 @@ const SearchBar = ({ isVisible, onToggle }) => {
             type="text"
             placeholder="Search recipes..."
             value={search}
-            onChange={handleInputChange}
+            onChange={handleSearch}
             onKeyDown={handleKeyDown}
-            className="w-full h-10 px-4 py-2 text-sm text-gray-800 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-full focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-none shadow-sm"
+            className={`
+              w-full px-3 py-2 pr-10 rounded-3xl text-sm text-gray-800 bg-white
+              border border-gray-300
+              focus:ring-2 focus:outline-none
+              transition-all duration-300 ease-in-out
+              ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"}
+            `}
           />
-
-          {search && (
-            <button
-              type="button"
-              onClick={resetSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-150"
+          <button
+            type="button"
+            onClick={onToggle}
+            className={`
+              absolute right-0 top-0
+              flex items-center justify-center w-10 h-full
+              text-teal-700 bg-gray-50 hover:bg-gray-100
+              focus:outline-none focus:ring-2
+              transition-all duration-300 ease-in-out
+              ${isVisible ? "rounded-r-full border border-l-0 border-gray-300" : "rounded-full"}
+            `}
+          >
+            <svg
+              className={`w-5 h-5 transition-transform duration-300 ${isVisible ? "rotate-90" : ""}`}
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <path
+                fillRule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className="sr-only">Toggle search</span>
+          </button>
+        </div>
+      </div>
+
+      {search && isVisible && (
+        <button
+          type="button"
+          onClick={resetSearch}
+          className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+          <span className="sr-only">Clear search</span>
+        </button>
+      )}
+
+      {showSuggestions && search.length >= 3 && (
+        <div
+          ref={suggestionsRef}
+          className="absolute right-0 z-50 w-full mt-2 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg max-h-80 overflow-y-auto border border-gray-100 divide-y divide-gray-50 custom-scrollbar"
+        >
+          {loading ? (
+            <div className="flex items-center justify-center p-4">
+              <div className="w-4 h-4 border-2 border-teal-600 rounded-full animate-spin border-t-transparent"></div>
+            </div>
+          ) : suggestions.length > 0 ? (
+            suggestions.map((suggestion, index) => (
+              <div
+                key={suggestion.id}
+                onClick={() => handleSuggestionClick(suggestion)}
+                onMouseEnter={() => setHighlightedIndex(index)}
+                className={`px-4 py-3 cursor-pointer text-sm transition-colors duration-150 ease-in-out first:rounded-t-1xl last:rounded-b-2xl ${
+                  index === highlightedIndex
+                    ? "bg-teal-50 text-teal-900"
+                    : "text-gray-700 hover:bg-teal-50/50"
+                }`}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-              <span className="sr-only">Clear search</span>
-            </button>
-          )}
-
-          {showSuggestions && search.length >= 3 && (
-            <div
-              ref={suggestionsRef}
-              className="absolute right-0 z-50 w-full mt-2 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg max-h-80 overflow-y-auto border border-gray-100 divide-y divide-gray-50"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center p-4">
-                  <div className="w-4 h-4 border-2 border-teal-600 rounded-full animate-spin border-t-transparent"></div>
-                </div>
-              ) : suggestions.length > 0 ? (
-                suggestions.map((suggestion, index) => (
-                  <div
-                    key={suggestion.id}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    onMouseEnter={() => setHighlightedIndex(index)}
-                    className={`px-4 py-3 cursor-pointer text-sm transition-colors duration-150 ease-in-out first:rounded-t-2xl last:rounded-b-2xl ${
-                      index === highlightedIndex
-                        ? "bg-teal-50 text-teal-900"
-                        : "text-gray-700 hover:bg-teal-50/50"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="font-medium">
-                          {highlightMatch(suggestion.title, search)}
-                        </div>
-                        {suggestion.category && (
-                          <div className="text-xs text-gray-500">
-                            in {highlightMatch(suggestion.category, search)}
-                          </div>
-                        )}
-                      </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="font-medium">
+                      {highlightMatch(suggestion.title, search)}
                     </div>
+                    {suggestion.category && (
+                      <div className="text-xs text-gray-500">
+                        in {highlightMatch(suggestion.category, search)}
+                      </div>
+                    )}
                   </div>
-                ))
-              ) : (
-                <div className="px-4 py-3 text-sm text-gray-500">
-                  No matching suggestions found
                 </div>
-              )}
+              </div>
+            ))
+          ) : (
+            <div className="px-4 py-3 text-sm text-gray-500">
+              No matching suggestions found
             </div>
           )}
         </div>
-
-        <button
-          type="button"
-          onClick={onToggle}
-          className="flex items-center justify-center w-10 h-10 bg-white/90 text-teal-700 hover:text-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/20 rounded-full transition-colors duration-150"
-          aria-label="Toggle search"
-        >
-          <svg
-            className={`w-5 h-5 transition-transform duration-300 ${
-              isVisible ? "rotate-90" : ""
-            }`}
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-      </div>
+      )}
     </form>
   );
 };

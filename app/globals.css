@@ -70,3 +70,21 @@ body {
     color: var(--text-color);
   }
 }
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 1rem;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 1rem;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(13, 148, 136, 0.4);
+  border-radius: 3rem;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(13, 148, 136, 0.6);
+}
