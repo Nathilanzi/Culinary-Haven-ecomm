@@ -48,32 +48,46 @@ const NumberOfStepsFilter = ({ searchParams, updateUrl }) => {
   };
 
   return (
-    <div className="relative w-full">
+    <div className="w-full max-w-sm">
       {/* Label for accessibility and clarity */}
       <label
         htmlFor="numberOfSteps"
-        className="block text-sm font-semibold text-gray-700 dark:text-gray-100 mb-2 select-none"
+        className="block mb-2 text-sm font-medium text-teal-700 dark:text-teal-300"
       >
         Number of Steps
       </label>
-
-      {/* Number of Steps Input Field */}
-      <input
-        type="text"
-        id="numberOfSteps"
-        // Controlled input with value from state
-        value={numberOfSteps}
-        // Change handler for input validation and URL update
-        onChange={handleNumberOfStepsChange}
-        placeholder="Enter steps"
-        className="flex items-center gap-3 px-14 py-2.5 
-        w-full max-w-[300px]
-        bg-white border border-gray-200 rounded-xl 
-        hover:bg-gray-50 hover:shadow-md 
-        transition-all duration-300 ease-in-out
-        focus:outline-none focus:ring-2 focus:ring-teal-500/50
-        text-gray-800 font-medium"
-      />
+      <div className="relative">
+        {/* Number of Steps Input Field */}
+        <input
+          type="text"
+          id="numberOfSteps"
+          // Controlled input with value from state
+          value={numberOfSteps}
+          // Change handler for input validation and URL update
+          onChange={handleNumberOfStepsChange}
+          placeholder="Enter recipe steps"
+          className="w-full px-4 py-2.5 
+            rounded-xl border 
+            border-teal-300 
+            bg-white 
+            text-teal-900 
+            placeholder-teal-600 
+            focus:outline-none 
+            focus:ring-2 
+            focus:ring-teal-500 
+            focus:border-transparent 
+            transition-all 
+            duration-300 
+            ease-in-out 
+            hover:shadow-md 
+            hover:border-teal-500"
+        />
+        {numberOfSteps && (
+          <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-teal-600">
+            steps
+          </span>
+        )}
+      </div>
     </div>
   );
 };
