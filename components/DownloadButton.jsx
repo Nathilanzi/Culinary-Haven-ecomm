@@ -55,10 +55,9 @@ export default function DownloadButton({ recipe }) {
   return (
     <button
       onClick={handleDownload}
-      className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:ring-2 focus:ring-green-300 transition-colors duration-300"
+      className= " absolute top-6 right-8"
     >
-      <DownloadIcon className="w-5 h-5" />
-      Save Recipe
+      <DownloadIcon className="w-[40%] px-4 ml-[119px] block text-center bg-[#DB8C28] text-white font-semibold py-2 rounded-full shadow hover:bg-[#0C3B2E] transition-colors mt-[62px] dark:bg-teal-700" />
     </button>
   );
 }
