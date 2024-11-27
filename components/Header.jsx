@@ -10,6 +10,7 @@ import {
   LogOut,
   ShoppingCart,
   BookOpen,
+  Download,
 } from "lucide-react";
 import SearchBar from "./SearchBar";
 import Image from "next/image";
@@ -307,6 +308,15 @@ const Header = () => {
                   Shopping List
                 </Link>
               </div>
+
+              <Link
+            href="/downloads"
+            className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Downloads
+          </Link>
+          
               <UserMenu />
             </div>
           </div>

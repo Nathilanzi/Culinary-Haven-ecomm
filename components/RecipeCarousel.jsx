@@ -15,6 +15,7 @@
  * @component
  * @returns {React.ReactElement} Rendered recipe carousel
  */
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -23,21 +24,11 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
-/**
- * Responsive Recipe Carousel Component
- * Displays a dynamic, animated carousel of recommended recipes
- * with responsive design and navigation controls.
- *
- * @component
- * @returns {React.ReactElement} Rendered recipe carousel.
- */
 const ResponsiveRecipeCarousel = () => {
   const [recipes, setRecipes] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [visibleRecipes, setVisibleRecipes] = useState([]);
-  const [direction, setDirection] = useState(0);
-  const [loading, setLoading] = useState(true); // Loading state
-  const [skeletonCount, setSkeletonCount] = useState(5); // Responsive skeleton count
+  const [visibleCount, setVisibleCount] = useState(5); // Number of visible recipes based on screen size
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   /**
@@ -49,44 +40,17 @@ const ResponsiveRecipeCarousel = () => {
         const response = await fetch("/api/recommended");
         const data = await response.json();
         setRecipes(data.recipes);
-        setLoading(false); // Stop loading after fetching recipes
       } catch (error) {
         console.error("Failed to fetch recipes:", error);
-        setLoading(false); // Stop loading even if there's an error
+      } finally {
+        setLoading(false);
       }
     };
     fetchRecipes();
   }, []);
 
   /**
-   * Navigate to the details page for a specific recipe.
-   *
-   * @param {string} recipeId - The ID of the recipe to navigate to.
-   */
-  const navigateToRecipeDetails = (recipeId) => {
-    router.push(`/recipes/${recipeId}`);
-  };
-
-  /**
-   * Handle navigating to the next slide in the carousel.
-   */
-  const nextSlide = () => {
-    setDirection(1);
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % recipes.length);
-  };
-
-  /**
-   * Handle navigating to the previous slide in the carousel.
-   */
-  const prevSlide = () => {
-    setDirection(-1);
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? recipes.length - 1 : prevIndex - 1
-    );
-  };
-
-  /**
-   * Update the number of skeletons and visible recipes based on screen size.
+   * Update the number of visible recipes based on screen size.
    */
   useEffect(() => {
     const handleResize = () => {
@@ -103,28 +67,48 @@ const ResponsiveRecipeCarousel = () => {
         visibleCount = 4;
       }
 
-      setSkeletonCount(visibleCount); // Update skeleton count for loading state
-      setVisibleRecipes([
-        ...recipes.slice(currentIndex, currentIndex + visibleCount),
-        ...recipes.slice(
-          0,
-          Math.max(0, currentIndex + visibleCount - recipes.length)
-        ),
-      ]);
+      setVisibleCount(visibleCount);
     };
 
     window.addEventListener("resize", handleResize);
     handleResize();
     return () => window.removeEventListener("resize", handleResize);
-  }, [recipes, currentIndex]);
+  }, []);
 
   /**
-   * Render skeleton cards for loading state, responsive to device screen size.
+   * Navigate to the details page for a specific recipe.
+   *
+   * @param {string} recipeId - The ID of the recipe to navigate to.
+   */
+  const navigateToRecipeDetails = (recipeId) => {
+    router.push(`/recipes/${recipeId}`);
+  };
+
+  /**
+   * Handle navigating to the next slide in the carousel.
+   */
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + visibleCount) % recipes.length);
+  };
+
+  /**
+   * Handle navigating to the previous slide in the carousel.
+   */
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex - visibleCount < 0
+        ? recipes.length - visibleCount
+        : prevIndex - visibleCount
+    );
+  };
+
+  /**
+   * Render skeleton cards for loading state.
    *
    * @returns {JSX.Element[]} Array of skeleton card elements.
    */
   const renderSkeletonCards = () => {
-    return Array.from({ length: skeletonCount }).map((_, index) => (
+    return Array.from({ length: visibleCount }).map((_, index) => (
       <div
         key={index}
         className="flex-1 max-w-[220px] w-full bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse"
@@ -142,43 +126,34 @@ const ResponsiveRecipeCarousel = () => {
   };
 
   const cardVariants = {
-    initial: (direction) => ({
+    initial: {
       scale: 0.8,
       opacity: 0,
-      x: direction > 0 ? 100 : -100,
-    }),
+    },
     animate: {
       scale: 1,
       opacity: 1,
-      x: 0,
       transition: {
         type: "spring",
         stiffness: 300,
         damping: 20,
       },
     },
-    exit: (direction) => ({
+    exit: {
       scale: 0.8,
       opacity: 0,
-      x: direction > 0 ? -100 : 100,
       transition: {
         type: "spring",
         stiffness: 300,
         damping: 20,
       },
-    }),
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.3,
-        staggerChildren: 0.2,
-      },
     },
   };
+
+  const visibleRecipes = recipes.slice(
+    currentIndex,
+    currentIndex + visibleCount
+  );
 
   return (
     <motion.div
@@ -202,29 +177,17 @@ const ResponsiveRecipeCarousel = () => {
             {renderSkeletonCards()}
           </div>
         ) : (
-          <AnimatePresence initial={false} custom={direction}>
+          <AnimatePresence>
             <motion.div
-              variants={containerVariants}
+              className="flex justify-center space-x-6"
               initial="hidden"
               animate="visible"
-              className="flex justify-center space-x-6"
             >
-              {visibleRecipes.map((recipe, index) => (
+              {visibleRecipes.map((recipe) => (
                 <motion.div
-                  key={recipe._id || index}
-                  custom={direction}
+                  key={recipe._id}
                   variants={cardVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
                   className="flex-1 max-w-[220px] w-full"
-                  whileHover={{
-                    scale: 1.05,
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                  }}
                 >
                   <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl overflow-hidden transform transition-all duration-300 hover:scale-105">
                     <div className="relative h-48 w-full overflow-hidden">
@@ -263,7 +226,7 @@ const ResponsiveRecipeCarousel = () => {
           </AnimatePresence>
         )}
 
-        {recipes.length > visibleRecipes.length && !loading && (
+        {recipes.length > visibleCount && !loading && (
           <>
             <motion.button
               whileHover={{ scale: 1.1 }}
