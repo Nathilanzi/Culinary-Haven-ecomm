@@ -4,56 +4,35 @@ import React, { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-/**
- * RecipeEdit component allows a user to edit the description of a recipe.
- * It displays the current recipe description, and if the user is logged in,
- * they can edit it and save the changes.
- *
- * @param {Object} props - The properties passed to the component.
- * @param {Object} props.recipe - The recipe object containing the current recipe data.
- * @param {string} props.recipe._id - The unique identifier for the recipe.
- * @param {string} props.recipe.description - The current description of the recipe.
- * @param {Object} [props.recipe.userVersions] - The version history of the recipe description.
- * @returns {JSX.Element} The rendered component.
- */
 const RecipeEdit = ({ recipe }) => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [description, setDescription] = useState(recipe?.description || "");
+  const [localRecipe, setLocalRecipe] = useState(recipe);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Updates description state when recipe prop changes
+  // Update local state when recipe prop changes
   useEffect(() => {
-    if (recipe?.description) {
-      setDescription(recipe.description);
-    }
+    setDescription(recipe?.description || "");
+    setLocalRecipe(recipe);
   }, [recipe]);
 
-  /**
-   * Handles the form submission when updating the recipe description.
-   * Validates the input and performs the update request to the API.
-   *
-   * @param {React.FormEvent} event - The submit event triggered by the form.
-   */
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Check if the user is logged in
     if (!session?.user) {
       signIn();
       return;
     }
 
-    // Check if the recipe ID exists
     if (!recipe?._id) {
       setError("Recipe ID is missing.");
       return;
     }
 
-    // Validate the description input
     if (description.trim().length < 10) {
       setError("Description must be at least 10 characters long.");
       return;
@@ -64,7 +43,21 @@ const RecipeEdit = ({ recipe }) => {
     setSuccessMessage(null);
 
     try {
-      // Send the request to update the recipe description
+      // Optimistically update local state
+      const optimisticUpdate = {
+        ...localRecipe,
+        description: description.trim(),
+        userVersions: {
+          ...localRecipe.userVersions,
+          [Date.now()]: {
+            userName: session.user.name || session.user.email,
+            lastModified: new Date().toISOString(),
+          }
+        }
+      };
+      setLocalRecipe(optimisticUpdate);
+
+      // Send update request
       const response = await fetch(`/api/recipes/${recipe._id}`, {
         method: "PATCH",
         headers: {
@@ -86,41 +79,27 @@ const RecipeEdit = ({ recipe }) => {
 
       setSuccessMessage("Description updated successfully!");
       setIsEditing(false);
-
-      // Update the local state with the new data
-      if (updatedRecipe) {
-        setDescription(updatedRecipe.description);
-      }
-
-      router.refresh(); // Refresh the server component
+      setLocalRecipe(updatedRecipe);
     } catch (error) {
+      // Revert to original state on error
+      setLocalRecipe(recipe);
       setError(error.message || "An error occurred while updating.");
     } finally {
       setLoading(false);
     }
   };
 
-  /**
-   * Resets the form to its initial state, canceling any unsaved changes.
-   */
   const handleReset = () => {
-    setDescription(recipe?.description || "");
+    setDescription(localRecipe?.description || "");
     setError(null);
     setSuccessMessage(null);
     setIsEditing(false);
   };
 
-  // If no recipe is provided, return null
-  if (!recipe) {
+  if (!localRecipe) {
     return null;
   }
 
-  /**
-   * Formats a date string into a human-readable format.
-   *
-   * @param {string} dateString - The date string to format.
-   * @returns {string} The formatted date string.
-   */
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -132,15 +111,10 @@ const RecipeEdit = ({ recipe }) => {
     });
   };
 
-  /**
-   * Renders the edit history of the recipe, showing who last edited it and when.
-   *
-   * @returns {JSX.Element|null} The JSX element displaying the edit history or null if no edit history exists.
-   */
   const renderEditHistory = () => {
-    if (!recipe.userVersions) return null;
+    if (!localRecipe.userVersions) return null;
 
-    const latestVersion = Object.values(recipe.userVersions).sort(
+    const latestVersion = Object.values(localRecipe.userVersions).sort(
       (a, b) => new Date(b.lastModified) - new Date(a.lastModified)
     )[0];
 
@@ -171,7 +145,7 @@ const RecipeEdit = ({ recipe }) => {
               </button>
             )}
           </div>
-          <p className="text-gray-700 dark:text-gray-300">{description}</p>
+          <p className="text-gray-700 dark:text-gray-300">{localRecipe.description}</p>
           {renderEditHistory()}
         </div>
       ) : (
@@ -224,7 +198,6 @@ const RecipeEdit = ({ recipe }) => {
         </div>
       )}
 
-      {/* Sign in button */}
       {!session && (
         <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded dark:bg-yellow-900/50 dark:border-yellow-800">
           <p className="dark:text-gray-300">
