@@ -113,7 +113,7 @@ const ResponsiveRecipeCarousel = () => {
         key={index}
         className="flex-1 max-w-[220px] w-full bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse"
       >
-        <div className="h-48 w-full bg-gray-300 dark:bg-gray-600"></div>
+        <div className="h-48 w-full bg-gray-300 dark:bg-gray-700"></div>
         <div className="p-4">
           <div className="h-6 bg-gray-300 dark:bg-gray-600 mb-4"></div>
           <div className="flex items-center justify-between">
@@ -166,7 +166,7 @@ const ResponsiveRecipeCarousel = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-4xl font-bold mb-10 dark:text-white text-center tracking-tight text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500"
+        className="text-4xl font-bold mb-10 dark:text-white text-center tracking-tight text-gray-700 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500"
       >
         Discover Culinary Inspirations
       </motion.h2>
@@ -189,7 +189,7 @@ const ResponsiveRecipeCarousel = () => {
                   variants={cardVariants}
                   className="flex-1 max-w-[220px] w-full"
                 >
-                  <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl overflow-hidden transform transition-all duration-300 hover:scale-105">
+                  <div className="bg-white dark:bg-gray-700 rounded-2xl overflow-hidden transform transition-all duration-300 hover:scale-105">
                     <div className="relative h-48 w-full overflow-hidden">
                       <Image
                         src={recipe.images[0]}
@@ -198,8 +198,8 @@ const ResponsiveRecipeCarousel = () => {
                         className="absolute inset-0 w-full h-full object-cover"
                       />
                     </div>
-                    <div className="p-4 bg-white dark:bg-[#1E1E1E]">
-                      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100 line-clamp-2 h-12">
+                    <div className="p-4 bg-white dark:bg-gray-700">
+                      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-slate-300 line-clamp-2 h-12">
                         {recipe.title}
                       </h3>
                       <div className="flex items-center justify-between">

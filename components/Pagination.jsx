@@ -103,10 +103,10 @@ export default function Pagination({
         ${
   page === 1
     ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
-    : "bg-white hover:bg-gray-50 text-gray-700 hover:text-emerald-600"
+    : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-700"
 } 
         ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
-        rounded-lg border border-gray-200 hover:border-emerald-300 hover:shadow-md`}
+        rounded-lg border border-gray-200 dark:border-gray-800 hover:border-emerald-300 hover:shadow-md`}
         aria-label="Go to first page"
       >
         1
@@ -138,10 +138,10 @@ export default function Pagination({
           ${
   page === i
     ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
-    : "bg-white hover:bg-gray-50 text-gray-700 hover:text-emerald-600"
+    : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-700"
 } 
           ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
-          rounded-lg border border-gray-200 hover:border-emerald-300 hover:shadow-md`}
+          rounded-lg border border-gray-200 dark:border-gray-800 hover:border-emerald-300 hover:shadow-md`}
           aria-label={`Go to page ${i}`}
         >
           {i}
@@ -169,10 +169,10 @@ export default function Pagination({
           ${
   page === totalPages
     ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
-    : "bg-white hover:bg-gray-50 text-gray-700 hover:text-emerald-600"
+    : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-700"
 } 
           ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
-          rounded-lg border border-gray-200 hover:border-emerald-300 hover:shadow-md`}
+          rounded-lg border border-gray-200 dark:border-gray-800 hover:border-emerald-300 hover:shadow-md`}
           aria-label="Go to last page"
         >
           {totalPages}
@@ -198,9 +198,9 @@ export default function Pagination({
           ${
     page === 1 || isLoading
       ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-      : "bg-white hover:bg-gray-50 text-gray-700 hover:text-emerald-600"
+      : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-500"
     } 
-          rounded-lg border border-gray-200 hover:border-emerald-300 hover:shadow-md`}
+          rounded-lg border border-gray-200 dark:border-gray-800 hover:border-emerald-300 hover:shadow-md`}
           aria-label="Go to previous page"
         >
           <svg
@@ -229,9 +229,9 @@ export default function Pagination({
           ${
     page === totalPages || isLoading
       ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-      : "bg-white hover:bg-gray-50 text-gray-700 hover:text-emerald-600"
+      : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-500"
     } 
-          rounded-lg border border-gray-200 hover:border-emerald-300 hover:shadow-md`}
+          rounded-lg border border-gray-200 dark:border-gray-800 hover:border-emerald-300 hover:shadow-md`}
           aria-label="Go to next page"
         >
           <svg
