@@ -5,7 +5,24 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 export default function DownloadButton({ recipe }) {
-  const handleDownload = () => {
+  const [isDownloaded, setIsDownloaded] = useState(false);
+
+  useEffect(() => {
+    // Check if the recipe is already downloaded when component mounts
+    if (recipe) {
+      const downloadedRecipes = 
+        JSON.parse(localStorage.getItem("downloadedRecipes") || "[]")
+          .map(r => typeof r === 'string' ? JSON.parse(r) : r);
+      
+      const existingRecipe = downloadedRecipes.find(
+        (savedRecipe) => savedRecipe.id === recipe.id
+      );
+
+      setIsDownloaded(!!existingRecipe);
+    }
+  }, [recipe]);
+
+  const handleDownload = async () => {
     // Add early validation
     if (!recipe) {
       toast.error("No recipe data available");
