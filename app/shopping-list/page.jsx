@@ -16,12 +16,10 @@ export default function ShoppingListPage() {
   const [deleting, setDeleting] = useState({});
   const [removingItem, setRemovingItem] = useState({});
   const [updatingQuantity, setUpdatingQuantity] = useState({});
-  const [addingItem, setAddingItem] = useState({}); // State for adding new item
-  const [newIngredient, setNewIngredient] = useState(""); // New ingredient input
-  const [newAmount, setNewAmount] = useState(""); // New amount input
 
   const fetchLists = async () => {
     try {
+      setLoading(true);
       const response = await fetch("/api/shopping-list", {
         headers: {
           "user-id": session.user.id,
@@ -63,8 +61,10 @@ export default function ShoppingListPage() {
       if (!response.ok) throw new Error("Failed to remove item");
 
       fetchLists();
+      alert("Item removed successfully!");
     } catch (error) {
       setError("Error removing item: " + error.message);
+      alert("Failed to remove item");
     } finally {
       setRemovingItem({ id: null, index: null });
     }
@@ -86,6 +86,7 @@ export default function ShoppingListPage() {
       fetchLists();
     } catch (error) {
       setError("Error deleting list: " + error.message);
+      alert("Failed to delete shopping list");
     } finally {
       setDeleting((prev) => ({ ...prev, [id]: false }));
     }
@@ -245,17 +246,28 @@ export default function ShoppingListPage() {
                         key={index}
                         className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
                       >
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            checked={item.purchased}
-                            onChange={() => markAsPurchased(list._id, index)}
-                            className="h-4 w-4 text-teal-600 dark:text-teal-400"
-                          />
+                        <div className="flex items-center space-x-3">
+                          <button
+                            onClick={() => markAsPurchased(list._id, index)}
+                            className={`
+                              w-5 h-5 rounded-full border-2 flex items-center justify-center
+                              ${
+                                item.purchased
+                                  ? "bg-teal-500 border-teal-500"
+                                  : "border-gray-300 dark:border-gray-600"
+                              }
+                            `}
+                          >
+                            {item.purchased && (
+                              <Check className="w-4 h-4 text-white" />
+                            )}
+                          </button>
                           <span
                             className={`${
-                              item.purchased ? "line-through text-gray-500" : ""
-                            } text-sm font-medium text-gray-900 dark:text-gray-100`}
+                              item.purchased
+                                ? "line-through text-gray-500 dark:text-gray-400"
+                                : "text-gray-800 dark:text-gray-200"
+                            }`}
                           >
                             {item.amount} {item.ingredient}
                           </span>
@@ -283,7 +295,7 @@ export default function ShoppingListPage() {
                               removingItem.id === list._id &&
                               removingItem.index === index
                             }
-                            className="ml-3 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+                            className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
                           >
                             {removingItem.id === list._id &&
                             removingItem.index === index ? (
