@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { ShoppingCart, Trash2, Check, Loader2, X, Share2 } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import LoadingPage from "../loading";
@@ -270,12 +271,18 @@ export default function ShoppingListPage() {
                                 parseInt(e.target.value, 10)
                               )
                             }
-                            disabled={updatingQuantity.id === list._id && updatingQuantity.index === index}
+                            disabled={
+                              updatingQuantity.id === list._id &&
+                              updatingQuantity.index === index
+                            }
                             className="w-16 text-center text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none"
                           />
                           <button
                             onClick={() => removeItem(list._id, index)}
-                            disabled={removingItem.id === list._id && removingItem.index === index}
+                            disabled={
+                              removingItem.id === list._id &&
+                              removingItem.index === index
+                            }
                             className="ml-3 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
                           >
                             {removingItem.id === list._id &&
@@ -292,9 +299,9 @@ export default function ShoppingListPage() {
                 </div>
               ))}
             </div>
-          ))}
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
