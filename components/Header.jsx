@@ -310,7 +310,7 @@ const Header = () => {
               </div>
 
               <Link
-            href="/downloads"
+            href="/downloaded-recipes"
             className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
           >
             <Download className="mr-2 h-4 w-4" />
