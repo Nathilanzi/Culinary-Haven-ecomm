@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 /**
  * RecipeEdit component allows a user to edit the description of a recipe.
- * It displays the current recipe description, and if the user is logged in, 
+ * It displays the current recipe description, and if the user is logged in,
  * they can edit it and save the changes.
  *
  * @param {Object} props - The properties passed to the component.
@@ -35,7 +35,7 @@ const RecipeEdit = ({ recipe }) => {
   /**
    * Handles the form submission when updating the recipe description.
    * Validates the input and performs the update request to the API.
-   * 
+   *
    * @param {React.FormEvent} event - The submit event triggered by the form.
    */
   const handleSubmit = async (event) => {
@@ -117,7 +117,7 @@ const RecipeEdit = ({ recipe }) => {
 
   /**
    * Formats a date string into a human-readable format.
-   * 
+   *
    * @param {string} dateString - The date string to format.
    * @returns {string} The formatted date string.
    */
@@ -134,7 +134,7 @@ const RecipeEdit = ({ recipe }) => {
 
   /**
    * Renders the edit history of the recipe, showing who last edited it and when.
-   * 
+   *
    * @returns {JSX.Element|null} The JSX element displaying the edit history or null if no edit history exists.
    */
   const renderEditHistory = () => {
@@ -165,33 +165,62 @@ const RecipeEdit = ({ recipe }) => {
             {session && (
               <button
                 onClick={() => setIsEditing(true)}
-                className="flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
+                className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300"
               >
                 Edit Description
               </button>
             )}
           </div>
-          {/* ... rest of the content */}
+          <p className="text-gray-700 dark:text-gray-300">{description}</p>
+          {renderEditHistory()}
         </div>
       ) : (
         <div>
-          {/* Form buttons */}
-          <div className="mt-4 flex gap-4">
-            <button
-              type="submit"
-              className="flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
-              disabled={loading || description.trim().length < 10 || !session}
-            >
-              {loading ? "Saving..." : "Save Changes"}
-            </button>
-            <button
-              type="button"
-              onClick={handleReset}
-              className="flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
-            >
-              Cancel
-            </button>
-          </div>
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            Edit Description
+          </h2>
+
+          {successMessage && (
+            <div className="mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded relative">
+              <span className="block sm:inline">{successMessage}</span>
+            </div>
+          )}
+
+          {error && (
+            <div className="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded relative">
+              <span className="block sm:inline">{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <textarea
+              name="description"
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-black dark:bg-gray-800 dark:text-white dark:border-gray-600"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={5}
+              placeholder="Edit the description here..."
+              minLength={10}
+              required
+            />
+
+            <div className="mt-4 flex gap-4">
+              <button
+                type="submit"
+                className="bg-teal-600 text-white rounded-lg px-4 py-2 hover:bg-teal-500 transition-colors disabled:opacity-50"
+                disabled={loading || description.trim().length < 10 || !session}
+              >
+                {loading ? "Saving..." : "Save Changes"}
+              </button>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="bg-gray-300 text-gray-700 rounded-lg px-4 py-2 hover:bg-gray-400 transition-colors dark:bg-gray-600 dark:text-gray-200"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
