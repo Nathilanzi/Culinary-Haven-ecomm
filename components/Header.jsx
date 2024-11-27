@@ -10,6 +10,7 @@ import {
   LogOut,
   ShoppingCart,
   BookOpen,
+  Download,
 } from "lucide-react";
 import SearchBar from "./SearchBar";
 import Image from "next/image";
@@ -147,12 +148,12 @@ const Header = () => {
           </svg>
         </button>
         {isUserMenuOpen && (
-          <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 py-2 z-50 overflow-hidden">
-            <div className="px-4 py-3 bg-teal-50 border-b border-teal-100">
-              <p className="text-sm text-teal-800 font-medium truncate">
+            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 py-2 z-50 overflow-hidden">
+            <div className="px-4 py-3 bg-teal-50 dark:bg-teal-900 border-b border-teal-100 dark:border-teal-800">
+              <p className="text-sm text-teal-800 dark:text-teal-200 font-medium truncate">
                 {session?.user?.name || "Guest"}
               </p>
-              <p className="text-xs text-teal-600 truncate">
+              <p className="text-xs text-teal-600 dark:text-teal-300 truncate">
                 {session?.user?.email || "Not signed in"}
               </p>
             </div>
@@ -227,9 +228,9 @@ const Header = () => {
 
   return (
     <nav
-      className="bg-teal-700 dark:bg-teal-900 dark:text-teal-100 shadow-md fixed z-50 w-full"
-      ref={navbarRef}
-    >
+    className="bg-teal-800 dark:bg-teal-900 text-white dark:text-teal-100 shadow-md fixed z-50 w-full"
+    ref={navbarRef}
+  >
       <Alert
         isVisible={navAlertConfig.isVisible}
         message={navAlertConfig.message}
@@ -307,6 +308,15 @@ const Header = () => {
                   Shopping List
                 </Link>
               </div>
+
+              <Link
+            href="/downloads"
+            className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Downloads
+          </Link>
+          
               <UserMenu />
             </div>
           </div>
