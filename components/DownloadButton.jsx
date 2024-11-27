@@ -33,24 +33,34 @@ export default function DownloadButton({ recipe }) {
       // Ensure the recipe has a unique identifier
       const recipeToSave = { 
         ...recipe, 
-        id: recipe.id || Date.now().toString() 
+        id: recipe.id || Date.now().toString(),
+        downloadedAt: new Date().toISOString(),
+        version: recipe.version || '1.0'
       };
 
       // Get existing recipes from localStorage or initialize an empty array
       const downloadedRecipes = 
-        JSON.parse(localStorage.getItem("downloadedRecipes") || "[]");
+        JSON.parse(localStorage.getItem("downloadedRecipes") || "[]")
+          .map(r => typeof r === 'string' ? JSON.parse(r) : r);
 
       // Check if the recipe is already downloaded
-      const isAlreadyDownloaded = downloadedRecipes.some(
-        (savedRecipe) => {
-          const parsedRecipe = JSON.parse(savedRecipe);
-          return parsedRecipe.id === recipeToSave.id;
-        }
+      const existingRecipeIndex = downloadedRecipes.findIndex(
+        (savedRecipe) => savedRecipe.id === recipeToSave.id
       );
 
-      if (isAlreadyDownloaded) {
+      if (existingRecipeIndex !== -1) {
+        // Update existing recipe if versions differ
+        if (downloadedRecipes[existingRecipeIndex].version !== recipeToSave.version) {
+          downloadedRecipes[existingRecipeIndex] = recipeToSave;
+          toast.info("Recipe updated to latest version");
+        } else {
         toast.warning("Recipe already saved!");
         return;
+        }
+      } else {
+        // Add the new recipe to the list
+        downloadedRecipes.push(recipeToSave);
+        toast.success("Recipe saved successfully!");
       }
 
       // Add the new recipe to the list
