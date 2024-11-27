@@ -61,12 +61,10 @@ const ElegantVoiceAssistant = ({
         <button
           onClick={handleStart}
           disabled={isLoading}
-          className="group flex items-center gap-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-xl hover:from-teal-600 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-3 px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
         >
-          {/* Volume icon with hover effect */}
-          <Volume2 className="w-6 h-6 group-hover:scale-110 transition-transform" />
+          <Volume2 className="w-6 h-6" />
           <span className="font-medium">
-            {/* Dynamic button text based on loading state */}
             {isLoading ? "Initializing..." : "Start Voice Instructions"}
           </span>
         </button>
@@ -77,7 +75,6 @@ const ElegantVoiceAssistant = ({
             <div
               className="absolute top-0 left-0 h-full bg-gradient-to-r from-teal-400 to-teal-500 transition-all duration-500 ease-in-out"
               style={{
-                // Calculate progress width dynamically
                 width: `${((currentStep + 1) / instructions.length) * 100}%`,
               }}
             />
@@ -91,7 +88,6 @@ const ElegantVoiceAssistant = ({
                 of {instructions.length}
               </span>
             </h3>
-            {/* Display current instruction text */}
             <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
               {instructions[currentStep]}
             </p>
@@ -106,18 +102,17 @@ const ElegantVoiceAssistant = ({
                 <button
                   onClick={() => handleSpeedChange(false)}
                   disabled={speechRate <= 0.5}
-                  className="p-2 text-gray-500 hover:text-teal-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
                 >
                   <Volume1 className="w-5 h-5" />
                 </button>
-                {/* Display current speech rate */}
                 <span className="font-medium text-gray-600 dark:text-gray-300 min-w-[4ch] text-center">
                   {speechRate.toFixed(1)}x
                 </span>
                 <button
                   onClick={() => handleSpeedChange(true)}
                   disabled={speechRate >= 2}
-                  className="p-2 text-gray-500 hover:text-teal-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
                 >
                   <Volume2 className="w-5 h-5" />
                 </button>
@@ -143,26 +138,26 @@ const ElegantVoiceAssistant = ({
                 <button
                   onClick={handlePrevious}
                   disabled={currentStep === 0}
-                  className="p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
                 >
                   <Rewind className="w-6 h-6" />
                 </button>
                 {/* Play/Pause button */}
                 <button
                   onClick={isPaused ? handleResume : handlePause}
-                  className="p-3 rounded-full bg-teal-50 dark:bg-gray-700 hover:bg-teal-100 dark:hover:bg-gray-600 transition-colors"
+                  className="flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
                 >
                   {isPaused ? (
-                    <Play className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                    <Play className="w-6 h-6" />
                   ) : (
-                    <Pause className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                    <Pause className="w-6 h-6" />
                   )}
                 </button>
                 {/* Next step button */}
                 <button
                   onClick={handleNext}
                   disabled={currentStep === instructions.length - 1}
-                  className="p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
                 >
                   <FastForward className="w-6 h-6" />
                 </button>
@@ -170,53 +165,11 @@ const ElegantVoiceAssistant = ({
               {/* Stop button */}
               <button
                 onClick={handleStop}
-                className="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                className="flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
               >
-                <VolumeX className="w-5 h-5" />
+                <VolumeX className="w-5 h-5 mr-2" />
                 <span className="font-medium">Stop</span>
               </button>
-            </div>
-          </div>
-
-          {/* Voice commands guide section */}
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-5">
-            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
-              Voice Commands
-            </h4>
-            <div className="grid grid-cols-2 gap-6">
-              {/* Voice command lists */}
-              <div className="space-y-2">
-                {[
-                  '"Next step" / "Continue"',
-                  '"Previous step" / "Back"',
-                  '"Repeat" / "Again"',
-                  '"Pause" / "Hold"',
-                ].map((command, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300"
-                  >
-                    <span className="w-1 h-1 bg-teal-400 rounded-full" />
-                    {command}
-                  </div>
-                ))}
-              </div>
-              <div className="space-y-2">
-                {[
-                  '"Resume" / "Play"',
-                  '"Stop" / "Exit"',
-                  '"Faster" / "Slower"',
-                  '"Go to step [number]"',
-                ].map((command, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300"
-                  >
-                    <span className="w-1 h-1 bg-teal-400 rounded-full" />
-                    {command}
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
 
@@ -226,68 +179,64 @@ const ElegantVoiceAssistant = ({
               <button
                 key={index}
                 onClick={() => handleJumpToStep(index)}
-                className={`p-2 rounded-lg transition-all duration-300 ${
+                className={`flex items-center justify-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700 ${
                   currentStep === index
-                    ? "bg-teal-500 text-white shadow-md"
-                    : "bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                    ? "bg-teal-700 dark:bg-teal-800"
+                    : ""
                 }`}
               >
                 {index + 1}
               </button>
             ))}
           </div>
-        </div>
-      )}
 
-      {/* Error toast notification */}
-      {error && (
-        <div className="fixed bottom-4 right-4 max-w-sm animate-slide-up">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border-l-4 border-red-500 p-4">
-            <div className="flex items-center justify-between">
-              {/* Error message and close button */}
-              <div className="flex items-center gap-3">
-                <div className="text-red-500">
-                  {/* Error icon */}
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+          {/* Existing error handling section remains the same */}
+          {error && (
+            <div className="fixed bottom-4 right-4 max-w-sm animate-slide-up">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border-l-4 border-red-500 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="text-red-500">
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      {error}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setError(null)}
+                    className="flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
                 </div>
-                {/* Error message text */}
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  {error}
-                </p>
               </div>
-              {/* Close error button */}
-              <button
-                onClick={() => setError(null)}
-                className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
