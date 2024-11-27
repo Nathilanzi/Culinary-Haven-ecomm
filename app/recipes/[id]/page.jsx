@@ -20,7 +20,6 @@ import {
 import TextToSpeech from "@/components/TextToSpeech";
 import ShoppingList from "@/components/ShoppingList";
 import AddRecipeToListButton from "@/components/AddRecipeToListButton";
-import DownloadButton from "@/components/DownloadButton";
 
 /**
  * Generates metadata for the recipe detail page, including SEO attributes and OpenGraph tags.
@@ -467,11 +466,6 @@ export default async function RecipeDetail({ params }) {
       <div className="fixed top-4 -left-20 z-50">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
       </div>
-
-      <div className="flex gap-4">
-        <DownloadButton/>
-      </div>
-
       <div className="px-4 py-8 lg:py-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 relative">
           {/* Image Gallery Section */}
