@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { ShoppingCart, Trash2, Check, Loader2, X, Share2 } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import LoadingPage from "../loading";
@@ -15,12 +16,12 @@ export default function ShoppingListPage() {
   const [deleting, setDeleting] = useState({});
   const [removingItem, setRemovingItem] = useState({});
   const [updatingQuantity, setUpdatingQuantity] = useState({});
-  const [addingItem, setAddingItem] = useState({}); // State for adding new item
-  const [newIngredient, setNewIngredient] = useState(""); // New ingredient input
-  const [newAmount, setNewAmount] = useState(""); // New amount input
+  const [newListName, setNewListName] = useState("");
+  const [creatingList, setCreatingList] = useState(false);
 
   const fetchLists = async () => {
     try {
+      setLoading(true);
       const response = await fetch("/api/shopping-list", {
         headers: {
           "user-id": session.user.id,
@@ -62,8 +63,10 @@ export default function ShoppingListPage() {
       if (!response.ok) throw new Error("Failed to remove item");
 
       fetchLists();
+      alert("Item removed successfully!");
     } catch (error) {
       setError("Error removing item: " + error.message);
+      alert("Failed to remove item");
     } finally {
       setRemovingItem({ id: null, index: null });
     }
@@ -85,6 +88,7 @@ export default function ShoppingListPage() {
       fetchLists();
     } catch (error) {
       setError("Error deleting list: " + error.message);
+      alert("Failed to delete shopping list");
     } finally {
       setDeleting((prev) => ({ ...prev, [id]: false }));
     }
@@ -162,6 +166,49 @@ export default function ShoppingListPage() {
     return `https://wa.me/?text=${message}`;
   };
 
+  const createShoppingList = async () => {
+    if (!session) {
+      alert("Please sign in to create a shopping list");
+      return;
+    }
+    if (!newListName.trim()) {
+      alert("Please enter a name for your shopping list");
+      return;
+    }
+
+    try {
+      setCreatingList(true);
+      const response = await fetch("/api/shopping-list", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "user-id": session.user.id,
+        },
+        body: JSON.stringify({ name: newListName.trim(), items: [] }),
+      });
+
+      if (!response.ok) throw new Error("Failed to create shopping list");
+
+      setNewListName("");
+      fetchLists();
+      alert("Shopping list created successfully!");
+    } catch (error) {
+      console.error("Error creating shopping list:", error);
+      alert("Failed to create shopping list");
+    } finally {
+      setCreatingList(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!session) {
+      router.push("/auth/signin");
+      return;
+    }
+
+    fetchLists();
+  }, [session, router]);
+
   // Loading state
   if (loading) return <LoadingPage />;
 
@@ -180,18 +227,32 @@ export default function ShoppingListPage() {
       </div>
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl overflow-hidden">
-          <div className="px-6 py-4 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 flex items-center">
-            <ShoppingCart className="w-6 h-6 mr-3 text-teal-600 dark:text-teal-400" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              My Shopping Lists
-            </h1>
-          </div>
-
-          {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-teal-600 dark:text-teal-400" />
+          <div className="px-6 py-4 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 flex items-center justify-between">
+            <div className="flex items-center">
+              <ShoppingCart className="w-6 h-6 mr-3 text-teal-600 dark:text-teal-400" />
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                My Shopping Lists
+              </h1>
             </div>
-          ) : lists.length === 0 ? (
+            <div className="flex items-center space-x-3">
+              <input
+                type="text"
+                value={newListName}
+                onChange={(e) => setNewListName(e.target.value)}
+                placeholder="New list name"
+                className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none"
+              />
+              <button
+                onClick={createShoppingList}
+                disabled={creatingList}
+                className="px-4 py-2 text-white bg-teal-600 hover:bg-teal-700 rounded-md disabled:opacity-50"
+              >
+                {creatingList ? "Creating..." : "Create List"}
+              </button>
+            </div>
+          </div>
+          {/* Render shopping lists */}
+          {lists.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 dark:text-gray-400">
                 You haven't created any shopping lists yet.
@@ -244,17 +305,28 @@ export default function ShoppingListPage() {
                         key={index}
                         className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
                       >
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            checked={item.purchased}
-                            onChange={() => markAsPurchased(list._id, index)}
-                            className="h-4 w-4 text-teal-600 dark:text-teal-400"
-                          />
+                        <div className="flex items-center space-x-3">
+                          <button
+                            onClick={() => markAsPurchased(list._id, index)}
+                            className={`
+                              w-5 h-5 rounded-full border-2 flex items-center justify-center
+                              ${
+                                item.purchased
+                                  ? "bg-teal-500 border-teal-500"
+                                  : "border-gray-300 dark:border-gray-600"
+                              }
+                            `}
+                          >
+                            {item.purchased && (
+                              <Check className="w-4 h-4 text-white" />
+                            )}
+                          </button>
                           <span
                             className={`${
-                              item.purchased ? "line-through text-gray-500" : ""
-                            } text-sm font-medium text-gray-900 dark:text-gray-100`}
+                              item.purchased
+                                ? "line-through text-gray-500 dark:text-gray-400"
+                                : "text-gray-800 dark:text-gray-200"
+                            }`}
                           >
                             {item.amount} {item.ingredient}
                           </span>
@@ -270,13 +342,19 @@ export default function ShoppingListPage() {
                                 parseInt(e.target.value, 10)
                               )
                             }
-                            disabled={updatingQuantity.id === list._id && updatingQuantity.index === index}
+                            disabled={
+                              updatingQuantity.id === list._id &&
+                              updatingQuantity.index === index
+                            }
                             className="w-16 text-center text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none"
                           />
                           <button
                             onClick={() => removeItem(list._id, index)}
-                            disabled={removingItem.id === list._id && removingItem.index === index}
-                            className="ml-3 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+                            disabled={
+                              removingItem.id === list._id &&
+                              removingItem.index === index
+                            }
+                            className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
                           >
                             {removingItem.id === list._id &&
                             removingItem.index === index ? (
@@ -292,9 +370,9 @@ export default function ShoppingListPage() {
                 </div>
               ))}
             </div>
-          ))}
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

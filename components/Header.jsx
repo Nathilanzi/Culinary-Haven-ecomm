@@ -310,7 +310,7 @@ const Header = () => {
               </div>
 
               <Link
-            href="/downloads"
+            href="/downloaded-recipes"
             className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
           >
             <Download className="mr-2 h-4 w-4" />
@@ -386,6 +386,13 @@ const Header = () => {
                 >
                   My Profile
                 </Link>
+                <Link
+            href="/downloaded-recipes"
+            className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
+          >
+    
+            Downloads
+          </Link>
                 <Link
                   href="/settings"
                   className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"

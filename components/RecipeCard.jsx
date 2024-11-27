@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import Gallery from "./Gallery";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FavoritesButton from "./FavoritesButton";
+import DownloadButton from "./DownloadButton";
 import Alert from "./Alert";
+import { DownloadIcon } from "lucide-react";
 
 /**
  * Highlights search query text within a given text string
@@ -41,14 +43,39 @@ export default function RecipeCard({
   isFavorited: initialIsFavorited,
   toggleFavorite,
 }) {
-  // State for hover and alert functionality
+  // State for hover, alert, and download functionality
   const [isHovered, setIsHovered] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success");
+  const [isDownloaded, setIsDownloaded] = useState(false);
 
   // Ensure images is an array, defaulting to empty array if undefined
   const images = Array.isArray(recipe?.images) ? recipe.images : [];
+
+  // Check if recipe is downloaded
+  useEffect(() => {
+    const checkDownloadStatus = () => {
+      const downloadedRecipes = JSON.parse(
+        localStorage.getItem("downloadedRecipes") || "[]"
+      ).map((r) => (typeof r === "string" ? JSON.parse(r) : r));
+
+      const downloaded = downloadedRecipes.some(
+        (savedRecipe) => savedRecipe.id === recipe._id
+      );
+
+      setIsDownloaded(downloaded);
+    };
+
+    checkDownloadStatus();
+
+    // Listen for download events
+    window.addEventListener("recipesDownloaded", checkDownloadStatus);
+
+    return () => {
+      window.removeEventListener("recipesDownloaded", checkDownloadStatus);
+    };
+  }, [recipe]);
 
   /**
    * Handles the favorite toggle action and shows appropriate alert
@@ -68,17 +95,32 @@ export default function RecipeCard({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Image Section with Gallery and Favorites */}
+        {/* Downloaded Indicator */}
+        {isDownloaded && (
+          <div className="absolute top-2 left-2 z-10 bg-green-500 text-white px-2 py-1 rounded-full text-xs flex items-center">
+            <DownloadIcon className="w-3 h-3 mr-1" />
+            Offline
+          </div>
+        )}
+
+        {/* Image Section with Gallery and Buttons */}
         <div className="relative overflow-hidden max-h-56">
           <Gallery images={images} />
 
-          {/* Favorites Button */}
-          <div className="absolute top-2 right-2 z-10">
-            <FavoritesButton
-              recipeId={recipe._id}
-              isFavorited={initialIsFavorited}
-              onFavoriteToggle={handleFavoriteToggle}
-            />
+          {/* Favorites and Download Buttons */}
+          <div className="absolute  top-2 right-2 z-10 flex space-x-2">
+            <div>
+              <FavoritesButton
+                recipeId={recipe._id}
+                isFavorited={initialIsFavorited}
+                onFavoriteToggle={handleFavoriteToggle}
+              />
+            </div>
+            <div>
+            <DownloadButton recipe={recipe} />
+            </div>
+
+            
           </div>
 
           {/* Hoverable Description Overlay */}
