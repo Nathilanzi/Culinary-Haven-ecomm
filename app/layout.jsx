@@ -95,7 +95,7 @@ export default async function RootLayout({ children }) {
   const session = await getServerSession();
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="canonical" href="https://your-domain.com" />
         <link
@@ -121,7 +121,7 @@ export default async function RootLayout({ children }) {
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="bg-[#daf1de] dark:bg-[#1B1F1D]">
+      <body className="bg-[#f1f5f9] dark:bg-[#0f172a]">
         <SessionProvider session={session}>
           <ThemeProvider>
             <Header />
