@@ -387,6 +387,13 @@ const Header = () => {
                   My Profile
                 </Link>
                 <Link
+            href="/downloaded-recipes"
+            className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
+          >
+    
+            Downloads
+          </Link>
+                <Link
                   href="/settings"
                   className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
                 >
