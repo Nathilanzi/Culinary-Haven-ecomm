@@ -56,25 +56,58 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: "List not found" }, { status: 404 });
     }
 
-    // Format new items
-    const newItems = items.map((item) => ({
-      ...item,
-      purchased: false,
-      addedAt: new Date(),
-    }));
+    // Merge or add new items
+    const updatedItems = [...(list.items || [])];
 
-    // Add new items to the list
+    items.forEach((newItem) => {
+      // Find existing item case-insensitively
+      const existingItemIndex = updatedItems.findIndex(
+        (existingItem) =>
+          existingItem.ingredient.toLowerCase() ===
+          newItem.ingredient.toLowerCase()
+      );
+
+      if (existingItemIndex !== -1) {
+        // Carefully parse and add quantities
+        const existingAmount = parseFloat(
+          updatedItems[existingItemIndex].amount
+        );
+        const newAmount = parseFloat(newItem.amount);
+
+        // Use toFixed to handle floating point precision
+        const combinedAmount = parseFloat(
+          (existingAmount + newAmount).toFixed(2)
+        );
+
+        updatedItems[existingItemIndex] = {
+          ...updatedItems[existingItemIndex],
+          amount: combinedAmount.toString(),
+          updatedAt: new Date(),
+        };
+      } else {
+        // Add new item if not existing
+        updatedItems.push({
+          ...newItem,
+          purchased: false,
+          addedAt: new Date(),
+        });
+      }
+    });
+
+    // Update the document with the merged items array
     const result = await db.collection("shopping_lists").updateOne(
       { _id: new ObjectId(id) },
       {
-        $push: { items: { $each: newItems } },
-        $set: { updatedAt: new Date() },
+        $set: {
+          items: updatedItems,
+          updatedAt: new Date(),
+        },
       }
     );
 
     if (result.modifiedCount === 0) {
       return NextResponse.json(
-        { error: "Failed to add items" },
+        { error: "Failed to update items" },
         { status: 400 }
       );
     }
