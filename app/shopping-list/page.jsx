@@ -16,6 +16,8 @@ export default function ShoppingListPage() {
   const [deleting, setDeleting] = useState({});
   const [removingItem, setRemovingItem] = useState({});
   const [updatingQuantity, setUpdatingQuantity] = useState({});
+  const [newListName, setNewListName] = useState("");
+  const [creatingList, setCreatingList] = useState(false);
 
   const fetchLists = async () => {
     try {
@@ -164,6 +166,49 @@ export default function ShoppingListPage() {
     return `https://wa.me/?text=${message}`;
   };
 
+  const createShoppingList = async () => {
+    if (!session) {
+      alert("Please sign in to create a shopping list");
+      return;
+    }
+    if (!newListName.trim()) {
+      alert("Please enter a name for your shopping list");
+      return;
+    }
+
+    try {
+      setCreatingList(true);
+      const response = await fetch("/api/shopping-list", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "user-id": session.user.id,
+        },
+        body: JSON.stringify({ name: newListName.trim(), items: [] }),
+      });
+
+      if (!response.ok) throw new Error("Failed to create shopping list");
+
+      setNewListName("");
+      fetchLists();
+      alert("Shopping list created successfully!");
+    } catch (error) {
+      console.error("Error creating shopping list:", error);
+      alert("Failed to create shopping list");
+    } finally {
+      setCreatingList(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!session) {
+      router.push("/auth/signin");
+      return;
+    }
+
+    fetchLists();
+  }, [session, router]);
+
   // Loading state
   if (loading) return <LoadingPage />;
 
@@ -182,18 +227,32 @@ export default function ShoppingListPage() {
       </div>
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl overflow-hidden">
-          <div className="px-6 py-4 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 flex items-center">
-            <ShoppingCart className="w-6 h-6 mr-3 text-teal-600 dark:text-teal-400" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              My Shopping Lists
-            </h1>
-          </div>
-
-          {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-teal-600 dark:text-teal-400" />
+          <div className="px-6 py-4 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 flex items-center justify-between">
+            <div className="flex items-center">
+              <ShoppingCart className="w-6 h-6 mr-3 text-teal-600 dark:text-teal-400" />
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                My Shopping Lists
+              </h1>
             </div>
-          ) : lists.length === 0 ? (
+            <div className="flex items-center space-x-3">
+              <input
+                type="text"
+                value={newListName}
+                onChange={(e) => setNewListName(e.target.value)}
+                placeholder="New list name"
+                className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none"
+              />
+              <button
+                onClick={createShoppingList}
+                disabled={creatingList}
+                className="px-4 py-2 text-white bg-teal-600 hover:bg-teal-700 rounded-md disabled:opacity-50"
+              >
+                {creatingList ? "Creating..." : "Create List"}
+              </button>
+            </div>
+          </div>
+          {/* Render shopping lists */}
+          {lists.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 dark:text-gray-400">
                 You haven't created any shopping lists yet.
