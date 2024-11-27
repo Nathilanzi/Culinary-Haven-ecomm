@@ -1,7 +1,7 @@
 "use client";
 
-import { DownloadIcon } from "lucide-react";
-import { useState } from "react";
+import { DownloadIcon, CheckIcon } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 export default function DownloadButton({ recipe }) {
@@ -30,7 +30,7 @@ export default function DownloadButton({ recipe }) {
     }
 
     try {
-      // Ensure the recipe has a unique identifier
+      // Ensure the recipe has a unique identifier and timestamp for version tracking
       const recipeToSave = { 
         ...recipe, 
         id: recipe.id || Date.now().toString(),
@@ -54,8 +54,8 @@ export default function DownloadButton({ recipe }) {
           downloadedRecipes[existingRecipeIndex] = recipeToSave;
           toast.info("Recipe updated to latest version");
         } else {
-        toast.warning("Recipe already saved!");
-        return;
+          toast.warning("Recipe already saved!");
+          return;
         }
       } else {
         // Add the new recipe to the list
@@ -63,14 +63,14 @@ export default function DownloadButton({ recipe }) {
         toast.success("Recipe saved successfully!");
       }
 
-      // Add the new recipe to the list
-      downloadedRecipes.push(JSON.stringify(recipeToSave));
-
       // Save the updated list back to localStorage
       localStorage.setItem("downloadedRecipes", JSON.stringify(downloadedRecipes));
 
-      // Show success notification
-      toast.success("Recipe saved successfully!");
+      // Update downloaded state
+      setIsDownloaded(true);
+
+      // Dispatch event for other components to update
+      window.dispatchEvent(new Event('recipesDownloaded'));
 
     } catch (error) {
       // Handle any potential errors
@@ -82,9 +82,14 @@ export default function DownloadButton({ recipe }) {
   return (
     <button
       onClick={handleDownload}
-      className= " absolute top-6 right-8"
+      className="absolute top-6 right-8"
+      title={isDownloaded ? "Recipe Downloaded" : "Download Recipe"}
     >
-      <DownloadIcon className="w-[40%] px-4 ml-[119px] block text-center bg-[#DB8C28] text-white font-semibold py-2 rounded-full shadow hover:bg-[#0C3B2E] transition-colors mt-[62px] dark:bg-teal-700" />
+      {isDownloaded ? (
+        <CheckIcon className="w-[40%] px-4 ml-[119px] block text-center bg-green-500 text-white font-semibold py-2 rounded-full shadow hover:bg-green-600 transition-colors mt-[62px]" />
+      ) : (
+        <DownloadIcon className="w-[40%] px-4 ml-[119px] block text-center bg-[#DB8C28] text-white font-semibold py-2 rounded-full shadow hover:bg-[#0C3B2E] transition-colors mt-[62px] dark:bg-teal-700" />
+      )}
     </button>
   );
 }
