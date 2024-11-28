@@ -6,12 +6,12 @@ import { useRouter } from "next/navigation";
 
 /**
  * A button component that allows users to add or remove recipes from their favorites.
- * 
+ *
  * @param {Object} props - The component props.
  * @param {string} props.recipeId - The unique ID of the recipe.
  * @param {boolean} props.isFavorited - Initial state of whether the recipe is favorited.
  * @param {Function} props.onFavoriteToggle - Callback function triggered when the favorite status changes.
- * 
+ *
  * @returns {JSX.Element} The rendered component.
  */
 const FavoritesButton = ({
@@ -104,7 +104,9 @@ const FavoritesButton = ({
         aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
       >
         <svg
-          className={`w-6 h-6 ${isFavorited ? "text-red-500" : "text-gray-400"}`}
+          className={`w-6 h-6 ${
+            isFavorited ? "text-red-500" : "text-gray-400"
+          }`}
           fill={isFavorited ? "currentColor" : "none"}
           viewBox="0 0 24 24"
           stroke="currentColor"

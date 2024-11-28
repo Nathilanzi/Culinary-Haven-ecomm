@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 /**
  * Pagination component for managing and displaying paginated results
- * 
+ *
  * @component
  * @param {Object} props - The component props
  * @param {number} props.currentPage - The current active page number
@@ -13,24 +13,24 @@ import { useRouter, useSearchParams } from "next/navigation";
  * @param {number} props.totalResults - Total number of results across all pages
  * @param {number} props.resultsPerPage - Number of results displayed per page
  * @param {boolean} [props.isLoading=false] - Indicates if results are currently loading
- * 
+ *
  * @returns {JSX.Element|null} Pagination navigation component or null if only one page exists
- * 
+ *
  * @example
- * <Pagination 
- *   currentPage={1} 
- *   totalPages={5} 
- *   totalResults={50} 
- *   resultsPerPage={10} 
- *   isLoading={false} 
+ * <Pagination
+ *   currentPage={1}
+ *   totalPages={5}
+ *   totalResults={50}
+ *   resultsPerPage={10}
+ *   isLoading={false}
  * />
  */
-export default function Pagination({ 
-  currentPage, 
-  totalPages, 
-  totalResults, 
+export default function Pagination({
+  currentPage,
+  totalPages,
+  totalResults,
   resultsPerPage,
-  isLoading = false 
+  isLoading = false,
 }) {
   const [page, setPage] = useState(currentPage);
   const [isMobile, setIsMobile] = useState(false);
@@ -57,7 +57,7 @@ export default function Pagination({
 
   /**
    * Create a query string with updated page number
-   * 
+   *
    * @param {number} newPage - The new page number to set in the URL
    * @returns {string} Serialized query string with updated page parameter
    */
@@ -69,7 +69,7 @@ export default function Pagination({
 
   /**
    * Handle page change navigation
-   * 
+   *
    * @param {number} newPage - The page number to navigate to
    */
   const onPageChange = (newPage) => {
@@ -81,12 +81,15 @@ export default function Pagination({
   };
 
   // Calculate pagination ranges
-  const startResult = Math.min((currentPage - 1) * resultsPerPage + 1, totalResults);
+  const startResult = Math.min(
+    (currentPage - 1) * resultsPerPage + 1,
+    totalResults
+  );
   const endResult = Math.min(currentPage * resultsPerPage, totalResults);
 
   /**
    * Render page number buttons with dynamic display logic
-   * 
+   *
    * @returns {Array<JSX.Element>} Array of page number buttons
    */
   const renderPageNumbers = () => {
@@ -101,10 +104,10 @@ export default function Pagination({
         disabled={isLoading}
         className={`relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 text-xs sm:text-sm font-medium transition-all duration-200 
         ${
-  page === 1
-    ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
-    : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-700"
-} 
+          page === 1
+            ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
+            : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-700"
+        } 
         ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
         rounded-lg border border-gray-200 dark:border-gray-800 hover:border-emerald-300 hover:shadow-md`}
         aria-label="Go to first page"
@@ -116,7 +119,11 @@ export default function Pagination({
     // Show ellipsis if needed
     if (page > maxPagesToShow) {
       pageNumbers.push(
-        <span key="dots-start" className="px-1 sm:px-2 text-gray-500" aria-hidden="true">
+        <span
+          key="dots-start"
+          className="px-1 sm:px-2 text-gray-500"
+          aria-hidden="true"
+        >
           •••
         </span>
       );
@@ -136,10 +143,10 @@ export default function Pagination({
           disabled={isLoading}
           className={`relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 text-xs sm:text-sm font-medium transition-all duration-200 
           ${
-  page === i
-    ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
-    : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-700"
-} 
+            page === i
+              ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
+              : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-700"
+          } 
           ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
           rounded-lg border border-gray-200 dark:border-gray-800 hover:border-emerald-300 hover:shadow-md`}
           aria-label={`Go to page ${i}`}
@@ -152,7 +159,11 @@ export default function Pagination({
     // Show ending ellipsis if needed
     if (page < totalPages - maxPagesToShow) {
       pageNumbers.push(
-        <span key="dots-end" className="px-1 sm:px-2 text-gray-500" aria-hidden="true">
+        <span
+          key="dots-end"
+          className="px-1 sm:px-2 text-gray-500"
+          aria-hidden="true"
+        >
           •••
         </span>
       );
@@ -167,10 +178,10 @@ export default function Pagination({
           disabled={isLoading}
           className={`relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 text-xs sm:text-sm font-medium transition-all duration-200 
           ${
-  page === totalPages
-    ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
-    : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-700"
-} 
+            page === totalPages
+              ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
+              : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-700"
+          } 
           ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
           rounded-lg border border-gray-200 dark:border-gray-800 hover:border-emerald-300 hover:shadow-md`}
           aria-label="Go to last page"
@@ -196,10 +207,10 @@ export default function Pagination({
           onClick={() => onPageChange(page - 1)}
           className={`relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 text-xs sm:text-sm transition-all duration-200 
           ${
-    page === 1 || isLoading
-      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-      : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-500"
-    } 
+            page === 1 || isLoading
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-500"
+          } 
           rounded-lg border border-gray-200 dark:border-gray-800 hover:border-emerald-300 hover:shadow-md`}
           aria-label="Go to previous page"
         >
@@ -227,10 +238,10 @@ export default function Pagination({
           onClick={() => onPageChange(page + 1)}
           className={`relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 text-xs sm:text-sm transition-all duration-200 
           ${
-    page === totalPages || isLoading
-      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-      : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-500"
-    } 
+            page === totalPages || isLoading
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-500"
+          } 
           rounded-lg border border-gray-200 dark:border-gray-800 hover:border-emerald-300 hover:shadow-md`}
           aria-label="Go to next page"
         >
@@ -254,9 +265,11 @@ export default function Pagination({
           "Loading results..."
         ) : (
           <>
-            Showing {startResult.toLocaleString()} - {endResult.toLocaleString()} of{" "}
-            {totalResults.toLocaleString()} results
-            {totalPages > 1 && ` (Page ${currentPage.toLocaleString()} of ${totalPages.toLocaleString()})`}
+            Showing {startResult.toLocaleString()} -{" "}
+            {endResult.toLocaleString()} of {totalResults.toLocaleString()}{" "}
+            results
+            {totalPages > 1 &&
+              ` (Page ${currentPage.toLocaleString()} of ${totalPages.toLocaleString()})`}
           </>
         )}
       </div>

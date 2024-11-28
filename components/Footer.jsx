@@ -91,14 +91,14 @@ export default function Footer() {
 
 /**
  * Footer component that displays the footer section of the website.
- * 
+ *
  * The footer includes:
  * - Navigation links for "About Us", "Contact", and "Terms of Service"
  * - Social media icons with links to Facebook, Twitter, and Instagram
  * - Copyright information with the current year
  * - A decorative border with a tagline "Crafted with passion for food lovers everywhere"
- * 
+ *
  * The component uses Tailwind CSS for styling and is responsive, displaying a grid layout on larger screens and a single-column layout on smaller screens.
- * 
+ *
  * @returns {JSX.Element} The rendered footer component.
  */

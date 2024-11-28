@@ -270,7 +270,11 @@ const SearchBar = ({ isVisible, onToggle }) => {
               border border-gray-300
               focus:ring-2 focus:outline-none
               transition-all duration-300 ease-in-out
-              ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"}
+              ${
+                isVisible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 translate-x-full"
+              }
             `}
           />
           <button
@@ -282,11 +286,17 @@ const SearchBar = ({ isVisible, onToggle }) => {
               text-teal-700 bg-gray-50 hover:bg-gray-100
               focus:outline-none focus:ring-2
               transition-all duration-300 ease-in-out
-              ${isVisible ? "rounded-r-full border border-l-0 border-gray-300" : "rounded-full"}
+              ${
+                isVisible
+                  ? "rounded-r-full border border-l-0 border-gray-300"
+                  : "rounded-full"
+              }
             `}
           >
             <svg
-              className={`w-5 h-5 transition-transform duration-300 ${isVisible ? "rotate-90" : ""}`}
+              className={`w-5 h-5 transition-transform duration-300 ${
+                isVisible ? "rotate-90" : ""
+              }`}
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
               fill="currentColor"

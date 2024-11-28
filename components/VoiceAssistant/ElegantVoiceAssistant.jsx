@@ -180,9 +180,7 @@ const ElegantVoiceAssistant = ({
                 key={index}
                 onClick={() => handleJumpToStep(index)}
                 className={`flex items-center justify-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700 ${
-                  currentStep === index
-                    ? "bg-teal-700 dark:bg-teal-800"
-                    : ""
+                  currentStep === index ? "bg-teal-700 dark:bg-teal-800" : ""
                 }`}
               >
                 {index + 1}
