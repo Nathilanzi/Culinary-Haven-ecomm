@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
-import Alert from "./Alert"; 
+import Alert from "./Alert";
 
 export default function OnlineStatus() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -16,14 +16,14 @@ export default function OnlineStatus() {
       const onlineStatus = navigator.onLine;
       setIsOnline(onlineStatus);
 
-
       setAlert({
-        message: onlineStatus ? "You are online" : "You are offline. No Internet. Try:",
-        type: onlineStatus ? "success" : "error", 
+        message: onlineStatus
+          ? "You are online"
+          : "You are offline. No Internet. Try:",
+        type: onlineStatus ? "success" : "error",
         show: true,
       });
 
-     
       setTimeout(() => {
         setAlert((prevAlert) => ({ ...prevAlert, show: false }));
       }, 5000);
@@ -32,7 +32,6 @@ export default function OnlineStatus() {
     window.addEventListener("online", updateOnlineStatus);
     window.addEventListener("offline", updateOnlineStatus);
 
-    
     const initialTimeout = setTimeout(() => {
       setAlert((prevAlert) => ({ ...prevAlert, show: false }));
     }, 5000);
@@ -40,7 +39,7 @@ export default function OnlineStatus() {
     return () => {
       window.removeEventListener("online", updateOnlineStatus);
       window.removeEventListener("offline", updateOnlineStatus);
-      clearTimeout(initialTimeout); 
+      clearTimeout(initialTimeout);
     };
   }, []);
 

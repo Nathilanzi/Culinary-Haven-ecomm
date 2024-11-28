@@ -13,9 +13,9 @@ import { AlertCircle, CheckCircle2, X } from "lucide-react";
  * @param {number} [props.duration=5000] - The duration (in milliseconds) for which the alert is visible. A value of `0` disables auto-dismiss.
  * @param {Function} [props.onClose] - Callback function executed when the alert is dismissed.
  * @param {boolean} [props.isVisible=false] - Determines whether the alert is initially visible.
- * 
+ *
  * @returns {JSX.Element} The rendered alert component.
- * 
+ *
  * @example
  * // Example usage of the Alert component
  * <Alert

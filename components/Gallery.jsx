@@ -10,7 +10,7 @@ import ArrowButtons from "./ArrowButtons";
  *
  * @param {Object} props - The component props.
  * @param {string[]} props.images - An array of image URLs to display in the gallery.
- * 
+ *
  * @returns {JSX.Element} The rendered gallery component.
  */
 const Gallery = ({ images }) => {

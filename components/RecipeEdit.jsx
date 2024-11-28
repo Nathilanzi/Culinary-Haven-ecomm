@@ -52,8 +52,8 @@ const RecipeEdit = ({ recipe }) => {
           [Date.now()]: {
             userName: session.user.name || session.user.email,
             lastModified: new Date().toISOString(),
-          }
-        }
+          },
+        },
       };
       setLocalRecipe(optimisticUpdate);
 
@@ -145,7 +145,9 @@ const RecipeEdit = ({ recipe }) => {
               </button>
             )}
           </div>
-          <p className="text-gray-700 dark:text-gray-300">{localRecipe.description}</p>
+          <p className="text-gray-700 dark:text-gray-300">
+            {localRecipe.description}
+          </p>
           {renderEditHistory()}
         </div>
       ) : (

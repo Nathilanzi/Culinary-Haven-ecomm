@@ -33,7 +33,7 @@ export const useVoiceAssistant = (instructions) => {
         try {
           // Initialize speech synthesis
           speechSynthesisRef.current = window.speechSynthesis;
-          
+
           // Create utterances for each instruction
           utterancesRef.current = instructions.map((instruction, index) => {
             const utterance = new SpeechSynthesisUtterance(
@@ -211,10 +211,13 @@ export const useVoiceAssistant = (instructions) => {
    * Jump to a specific instruction step
    * @param {number} stepIndex - Index of the step to jump to
    */
-  const handleJumpToStep = useCallback((stepIndex) => {
-    setCurrentStep(stepIndex);
-    readStep(stepIndex);
-  }, [readStep]);
+  const handleJumpToStep = useCallback(
+    (stepIndex) => {
+      setCurrentStep(stepIndex);
+      readStep(stepIndex);
+    },
+    [readStep]
+  );
 
   /**
    * Start reading instructions
@@ -277,7 +280,9 @@ export const useVoiceAssistant = (instructions) => {
    */
   const adjustSpeed = useCallback((faster) => {
     setSpeechRate((prev) => {
-      const newRate = faster ? Math.min(prev + 0.25, 2) : Math.max(prev - 0.25, 0.5);
+      const newRate = faster
+        ? Math.min(prev + 0.25, 2)
+        : Math.max(prev - 0.25, 0.5);
       if (utteranceRef.current) {
         utteranceRef.current.rate = newRate;
       }

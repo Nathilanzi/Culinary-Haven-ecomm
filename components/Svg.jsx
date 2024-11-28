@@ -40,43 +40,34 @@ export const TimeIcon = () => (
  * @type {React.FC<React.SVGProps<SVGSVGElement>>}
  */
 export const TotalTime = () => (
-  <svg 
-    viewBox="0 0 24 24" 
-    fill="none" 
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className="w-6 h-6 text-[#0C3B2E] dark:text-[#A3C9A7]"
   >
-    <g 
-      id="SVGRepo_bgCarrier" 
-      strokeWidth="1.5"
-    >
-    </g>
-    <g 
-      id="SVGRepo_tracerCarrier" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
-    </g>
-    <g 
-      id="SVGRepo_iconCarrier"
-    > 
-    <path 
-      d="M12 8V12L15 15" 
-      stroke="currentColor"
-      strokeWidth="2" 
+    <g id="SVGRepo_bgCarrier" strokeWidth="1.5"></g>
+    <g
+      id="SVGRepo_tracerCarrier"
       strokeLinecap="round"
-    >
-    </path> 
-    <circle 
-      cx="12" 
-      cy="12" 
-      r="9" 
-      stroke="currentColor" 
-      strokeWidth="2"
-    >
-    </circle> 
+      strokeLinejoin="round"
+    ></g>
+    <g id="SVGRepo_iconCarrier">
+      <path
+        d="M12 8V12L15 15"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      ></path>
+      <circle
+        cx="12"
+        cy="12"
+        r="9"
+        stroke="currentColor"
+        strokeWidth="2"
+      ></circle>
     </g>
-    </svg>
+  </svg>
 );
 
 /**

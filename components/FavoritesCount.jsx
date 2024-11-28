@@ -5,10 +5,10 @@ import { useSession } from "next-auth/react";
 
 /**
  * A component that displays the count of a user's favorite recipes.
- * 
+ *
  * This component fetches the favorite count from the server and updates the displayed count whenever the favorites are modified.
  * It also listens for updates to the favorites count and re-fetches the data accordingly.
- * 
+ *
  * @returns {JSX.Element|null} The rendered component displaying the favorites count, or null if the user is not logged in.
  */
 const FavoritesCount = () => {

@@ -10,10 +10,10 @@ export default function DownloadButton({ recipe }) {
   useEffect(() => {
     // Check if the recipe is already downloaded when component mounts
     if (recipe) {
-      const downloadedRecipes = 
-        JSON.parse(localStorage.getItem("downloadedRecipes") || "[]")
-          .map(r => typeof r === 'string' ? JSON.parse(r) : r);
-      
+      const downloadedRecipes = JSON.parse(
+        localStorage.getItem("downloadedRecipes") || "[]"
+      ).map((r) => (typeof r === "string" ? JSON.parse(r) : r));
+
       const existingRecipe = downloadedRecipes.find(
         (savedRecipe) => savedRecipe.id === recipe.id
       );
@@ -31,17 +31,17 @@ export default function DownloadButton({ recipe }) {
 
     try {
       // Ensure the recipe has a unique identifier and timestamp for version tracking
-      const recipeToSave = { 
-        ...recipe, 
+      const recipeToSave = {
+        ...recipe,
         id: recipe.id || Date.now().toString(),
         downloadedAt: new Date().toISOString(),
-        version: recipe.version || '1.0'
+        version: recipe.version || "1.0",
       };
 
       // Get existing recipes from localStorage or initialize an empty array
-      const downloadedRecipes = 
-        JSON.parse(localStorage.getItem("downloadedRecipes") || "[]")
-          .map(r => typeof r === 'string' ? JSON.parse(r) : r);
+      const downloadedRecipes = JSON.parse(
+        localStorage.getItem("downloadedRecipes") || "[]"
+      ).map((r) => (typeof r === "string" ? JSON.parse(r) : r));
 
       // Check if the recipe is already downloaded
       const existingRecipeIndex = downloadedRecipes.findIndex(
@@ -50,7 +50,10 @@ export default function DownloadButton({ recipe }) {
 
       if (existingRecipeIndex !== -1) {
         // Update existing recipe if versions differ
-        if (downloadedRecipes[existingRecipeIndex].version !== recipeToSave.version) {
+        if (
+          downloadedRecipes[existingRecipeIndex].version !==
+          recipeToSave.version
+        ) {
           downloadedRecipes[existingRecipeIndex] = recipeToSave;
           toast.info("Recipe updated to latest version");
         } else {
@@ -64,14 +67,16 @@ export default function DownloadButton({ recipe }) {
       }
 
       // Save the updated list back to localStorage
-      localStorage.setItem("downloadedRecipes", JSON.stringify(downloadedRecipes));
+      localStorage.setItem(
+        "downloadedRecipes",
+        JSON.stringify(downloadedRecipes)
+      );
 
       // Update downloaded state
       setIsDownloaded(true);
 
       // Dispatch event for other components to update
-      window.dispatchEvent(new Event('recipesDownloaded'));
-
+      window.dispatchEvent(new Event("recipesDownloaded"));
     } catch (error) {
       // Handle any potential errors
       console.error("Error saving recipe:", error);
