@@ -5,7 +5,7 @@ A culinary companion for all your recipe needs!
 The Recipe App is a cutting-edge platform designed to revolutionize how users discover, manage, and utilize recipes. Whether you're a home cook, a professional chef, or someone seeking inspiration, our app offers features to simplify and elevate your cooking experience.
 
 🌟 Key Feature
-🔍 Search Recipes      Find recipes using keywords, cuisine, or ingredients.
+🔍 Search Recipes Find recipes using keywords, cuisine, or ingredients.
 📥 Offline Access: Download recipes for viewing when you’re offline.
 🔔 Push Notifications: Receive updates on new recipes, personalized suggestions, and more.
 🤝 User-Centric Design: Navigate an intuitive and sleek interface, making cooking easy and fun.
@@ -28,51 +28,49 @@ We’re here to help!
 Our app is powered by robust APIs designed to integrate seamlessly with modern applications. Below are some example endpoints:
 
 1. Search Recipes
-GET /api/recipes/search
-Description: Fetch recipes based on search queries.
-Request Example:
+   GET /api/recipes/search
+   Description: Fetch recipes based on search queries.
+   Request Example:
 
 json
 {
-  "query": "pasta",
-  "cuisine": "Italian"
+"query": "pasta",
+"cuisine": "Italian"
 }
 Response Example:
 
 json
 [
-  {
-    "id": 101,
-    "name": "Spaghetti Carbonara",
-    "ingredients": ["spaghetti", "eggs", "parmesan"],
-    "steps": ["Step 1", "Step 2"]
-  }
-]
-2. Download Recipe
+{
+"id": 101,
+"name": "Spaghetti Carbonara",
+"ingredients": ["spaghetti", "eggs", "parmesan"],
+"steps": ["Step 1", "Step 2"]
+}
+] 2. Download Recipe
 POST /api/recipes/download
 Description: Save recipes for offline access.
 Request Example:
 
 json
 {
-  "recipeId": 101
+"recipeId": 101
 }
 Response Example:
 
 json
 {
-  "status": "success",
-  "message": "Recipe downloaded successfully"
-}
-3. User Authentication
+"status": "success",
+"message": "Recipe downloaded successfully"
+} 3. User Authentication
 POST /api/auth/signup & POST /api/auth/login
 Description: Handles user registration and login.
 Request Example:
 
 json
 {
-  "email": "user@example.com",
-  "password": "password123"
+"email": "user@example.com",
+"password": "password123"
 }
 ⚙️ Setting Up Environment Variables
 To ensure the app runs smoothly, configure the environment variables by creating a .env file in the root directory:
