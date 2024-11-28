@@ -4,9 +4,37 @@ import { DownloadIcon, CheckIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
+/**
+ * Represents a recipe object with download and version information.
+ * @typedef {Object} Recipe
+ * @property {string} id - Unique identifier for the recipe
+ * @property {string} [version] - Version of the recipe
+ * @property {string} [downloadedAt] - Timestamp of download
+ */
+
+/**
+ * A button component for downloading and saving recipes to local storage
+ * @component
+ * @param {Object} props - Component properties
+ * @param {Recipe} props.recipe - The recipe to be downloaded
+ * @returns {JSX.Element|null} Download button or null if no recipe is provided
+ */
 export default function DownloadButton({ recipe }) {
+  /**
+   * Tracks whether the recipe has been downloaded
+   * @type {[boolean, function]}
+   */
   const [isDownloaded, setIsDownloaded] = useState(false);
 
+  /**
+   * Tracks the syncing state during download process
+   * @type {[boolean, function]}
+   */
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  /**
+   * Check for existing downloaded recipes on component mount
+   */
   useEffect(() => {
     // Check if the recipe is already downloaded when component mounts
     if (recipe) {
@@ -22,15 +50,24 @@ export default function DownloadButton({ recipe }) {
     }
   }, [recipe]);
 
+  /**
+   * Handles the recipe download process
+   * - Validates recipe data
+   * - Manages local storage of downloaded recipes
+   * - Provides user feedback via toast notifications
+   * @async
+   */
   const handleDownload = async () => {
-    // Add early validation
+    // Early validation check
     if (!recipe) {
       toast.error("No recipe data available");
       return;
     }
 
+    setIsSyncing(true);
+
     try {
-      // Ensure the recipe has a unique identifier and timestamp for version tracking
+      // Prepare recipe for saving with additional metadata
       const recipeToSave = {
         ...recipe,
         id: recipe.id || Date.now().toString(),
@@ -38,12 +75,12 @@ export default function DownloadButton({ recipe }) {
         version: recipe.version || "1.0",
       };
 
-      // Get existing recipes from localStorage or initialize an empty array
+      // Retrieve existing downloaded recipes
       const downloadedRecipes = JSON.parse(
         localStorage.getItem("downloadedRecipes") || "[]"
       ).map((r) => (typeof r === "string" ? JSON.parse(r) : r));
 
-      // Check if the recipe is already downloaded
+      // Find existing recipe index
       const existingRecipeIndex = downloadedRecipes.findIndex(
         (savedRecipe) => savedRecipe.id === recipeToSave.id
       );
@@ -58,15 +95,16 @@ export default function DownloadButton({ recipe }) {
           toast.info("Recipe updated to latest version");
         } else {
           toast.warning("Recipe already saved!");
+          setIsSyncing(false);
           return;
         }
       } else {
-        // Add the new recipe to the list
+        // Add new recipe
         downloadedRecipes.push(recipeToSave);
         toast.success("Recipe saved successfully!");
       }
 
-      // Save the updated list back to localStorage
+      // Save updated recipes to local storage
       localStorage.setItem(
         "downloadedRecipes",
         JSON.stringify(downloadedRecipes)
@@ -75,25 +113,33 @@ export default function DownloadButton({ recipe }) {
       // Update downloaded state
       setIsDownloaded(true);
 
-      // Dispatch event for other components to update
+      // Simulate sync delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Dispatch event for other components
       window.dispatchEvent(new Event("recipesDownloaded"));
     } catch (error) {
-      // Handle any potential errors
       console.error("Error saving recipe:", error);
       toast.error("Failed to save recipe. Please try again.");
+    } finally {
+      setIsSyncing(false);
     }
   };
+
+  // Don't render if no recipe is provided
+  if (!recipe) return null;
 
   return (
     <button
       onClick={handleDownload}
-      className="absolute top-6 right-8"
+      className="relative"
+      disabled={isSyncing}
       title={isDownloaded ? "Recipe Downloaded" : "Download Recipe"}
     >
-      {isDownloaded ? (
-        <CheckIcon className="w-[40%] px-4 ml-[119px] block text-center bg-green-500 text-white font-semibold py-2 rounded-full shadow hover:bg-green-600 transition-colors mt-[62px]" />
+      {isSyncing ? (
+        <CheckIcon className="w-6 h-6 text-teal-500" />
       ) : (
-        <DownloadIcon className="w-[40%] px-4 ml-[119px] block text-center bg-[#DB8C28] text-white font-semibold py-2 rounded-full shadow hover:bg-[#0C3B2E] transition-colors mt-[62px] dark:bg-teal-700" />
+        <DownloadIcon className="w-6 h-6 text-[#DB8C28] dark:text-teal-700 hover:text-[#0C3B2E] dark:hover:text-teal-500 transition-colors" />
       )}
     </button>
   );
