@@ -132,14 +132,17 @@ export default function DownloadButton({ recipe }) {
   return (
     <button
       onClick={handleDownload}
-      className="relative"
+      className="relative bg-[#f5f5dcb2] hover:bg-[#F5F5DC] rounded-full p-2 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out group"
       disabled={isSyncing}
       title={isDownloaded ? "Recipe Downloaded" : "Download Recipe"}
     >
       {isSyncing ? (
-        <CheckIcon className="w-6 h-6 text-teal-500" />
+        <CheckIcon className="w-6 h-6 text-teal-600 animate-pulse" />
       ) : (
-        <DownloadIcon className="w-6 h-6 text-[#DB8C28] dark:text-teal-700 hover:text-[#0C3B2E] dark:hover:text-teal-500 transition-colors" />
+        <DownloadIcon className="w-6 h-6 text-[#DB8C28] group-hover:text-[#0C3B2E] dark:text-teal-700 dark:group-hover:text-teal-500 transition-colors" />
+      )}
+      {isDownloaded && (
+        <span className="absolute -top-1 -right-1 w-3 h-3 bg-teal-800 rounded-full animate-ping"></span>
       )}
     </button>
   );

@@ -108,17 +108,13 @@ export default function RecipeCard({
           <Gallery images={images} />
 
           {/* Favorites and Download Buttons */}
-          <div className="absolute  top-2 right-2 z-10 flex space-x-2">
-            <div>
-              <FavoritesButton
-                recipeId={recipe._id}
-                isFavorited={initialIsFavorited}
-                onFavoriteToggle={handleFavoriteToggle}
-              />
-            </div>
-            <div>
-              <DownloadButton recipe={recipe} />
-            </div>
+          <div className="absolute top-2 right-1 left-1 z-10 flex justify-between">
+            <DownloadButton recipe={recipe} />
+            <FavoritesButton
+              recipeId={recipe._id}
+              isFavorited={initialIsFavorited}
+              onFavoriteToggle={handleFavoriteToggle}
+            />
           </div>
 
           {/* Hoverable Description Overlay */}
