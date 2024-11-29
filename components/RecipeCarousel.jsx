@@ -251,7 +251,7 @@ const ResponsiveRecipeCarousel = () => {
                       />
                     </div>
                     <div className="p-4 bg-white dark:bg-gray-700">
-                      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-slate-300 line-clamp-2 h-12">
+                      <h3 className="text-lg font-semibold mb-4 text-[#6D9773] dark:text-slate-300 line-clamp-2 h-12">
                         {recipe.title}
                       </h3>
                       <div className="flex items-center justify-between">

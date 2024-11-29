@@ -3,6 +3,10 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+import BackButton from "@/components/BackButton";
+import LoadingPage from "../loading";
+import { Edit, LogOut } from "lucide-react";
 
 /**
  * Profile Component
@@ -102,104 +106,146 @@ export default function Profile() {
     await signOut({ callbackUrl: "/" });
   };
 
-  // Display loading or error state if applicable
-  if (loading) return <div className="text-center p-4">Loading...</div>;
+  if (loading)
+    return (
+      <>
+        <LoadingPage />
+      </>
+    );
+
   if (error) return <div className="text-red-500 text-center p-4">{error}</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Profile</h2>
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      {/* Fixed position back button */}
+      <div className="fixed top-4 -left-20 z-50">
+        <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
+      </div>
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 rounded-3xl p-8">
+        {/* Left Container */}
+        <div className="col-span-1 bg-white rounded-2xl shadow-md p-6 flex flex-col items-center">
+          <Image
+            src={userData?.image || "/default-avatar.png"}
+            alt="Profile"
+            className="h-48 w-48 rounded-full shadow-lg"
+            width={128}
+            height={128}
+          />
+          <h3 className="mt-6 text-xl font-bold text-gray-800">
+            {userData?.name || "Your Name"}
+          </h3>
+          <p className="mt-2 text-gray-500">
+            {userData?.email || "your.email@example.com"}
+          </p>
+          <div className="mt-6">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="w-32 px-4 py-2 text-sm text-teal-600 hover:text-teal-900 flex items-center transition-colors"
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Profile
+            </button>
             <button
               onClick={handleLogout}
-              className="text-sm text-red-600 hover:text-red-500"
+              className="w-32 px-4 py-2 text-sm text-red-600 hover:text-red-800 flex items-center transition-colors"
             >
-              Log out
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
             </button>
           </div>
+        </div>
 
-          {isEditing ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Profile Image URL
-                </label>
-                <input
-                  type="text"
-                  name="image"
-                  value={formData.image}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-              </div>
-
-              <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  {loading ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Name</h3>
-                <p className="mt-1 text-sm text-gray-900">{userData?.name}</p>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                <p className="mt-1 text-sm text-gray-900">{userData?.email}</p>
-              </div>
-
-              {userData?.image && (
+        {/* Right Section */}
+        <div className="col-span-2 grid grid-rows-2 gap-6">
+          {/* Right Top Container */}
+          <div className="bg-white rounded-2xl shadow-md p-6">
+            {isEditing ? (
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">
-                    Profile Image
-                  </h3>
-                  <Image
-                    src={userData.image}
-                    alt="Profile"
-                    className="mt-1 h-20 w-20 rounded-full"
-                    width={300}
-                    height={300}
+                  <label className="block text-2xl text-gray-700">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
-              )}
+                <div>
+                  <label className="block text-2xl text-gray-700">
+                    Profile Image URL
+                  </label>
+                  <input
+                    type="text"
+                    name="image"
+                    value={formData.image}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+                <div className="flex justify-end space-x-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-400"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-400"
+                  >
+                    {loading ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div>
+                <h3 className="text-lg font-bold text-gray-800">
+                  Profile Details
+                </h3>
+                <p className="mt-4 text-sm text-gray-600">
+                  Name: {userData?.name}
+                </p>
+                <p className="mt-2 text-sm text-gray-600">
+                  Email: {userData?.email}
+                </p>
+              </div>
+            )}
+          </div>
 
-              <button
-                onClick={() => setIsEditing(true)}
-                className="mt-4 px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Edit Profile
-              </button>
-            </div>
-          )}
+          {/* Right Bottom Container */}
+          <div className="bg-white rounded-2xl shadow-md p-6">
+            <h3 className="text-lg font-bold text-gray-800">My Pages</h3>
+            <ul className="mt-4 space-y-4">
+              <li>
+                <Link
+                  href="/favorites"
+                  className="text-teal-600 hover:underline hover:text-teal-800"
+                >
+                  Favourites Page
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/shopping-list"
+                  className="text-teal-600 hover:underline hover:text-teal-800"
+                >
+                  Shopping list
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/downloaded-recipes"
+                  className="text-teal-600 hover:underline hover:text-teal-800"
+                >
+                  Downloads Page
+                </Link>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
