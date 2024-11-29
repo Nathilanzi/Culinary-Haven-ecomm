@@ -1,28 +1,40 @@
 "use client";
-import swal from "sweetalert";
-import Swal from "sweetalert2";
-import { useState, useEffect } from "react";
-import { Star } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { signIn } from "next-auth/react";
 
+import swal from "sweetalert"; // Import SweetAlert for simple alert popups.
+import Swal from "sweetalert2"; // Import SweetAlert2 for advanced confirmation modals.
+import { useState, useEffect } from "react"; // Import React hooks.
+import { Star } from "lucide-react"; // Import the Star icon from Lucide for ratings.
+import { useSession } from "next-auth/react"; // Import `useSession` to handle user authentication.
+import { signIn } from "next-auth/react"; // Import `signIn` to prompt user login.
+
+/**
+ * ReviewSection Component
+ * - Displays and manages user reviews for a specific recipe.
+ * - Features include adding, editing, deleting, and sorting reviews.
+ * - Allows only authenticated users to interact with the review system.
+ *
+ * @param {Object} props - Component props.
+ * @param {string} props.recipeId - The ID of the recipe for which reviews are managed.
+ */
 function ReviewSection({ recipeId }) {
+  // Session management using NextAuth.
   const { data: session, status } = useSession();
-  const [reviews, setReviews] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [reviewsVisible, setReviewsVisible] = useState(false);
-  const [newReview, setNewReview] = useState({
-    rating: 0,
-    comment: "",
-  });
-  const [submittingReview, setSubmittingReview] = useState(false);
-  const [error, setError] = useState(null);
-  const [hover, setHover] = useState(0);
-  const [editingReviewId, setEditingReviewId] = useState(null);
-  const [sortBy, setSortBy] = useState("date");
-  const [sortOrder, setSortOrder] = useState("desc");
 
-  // Fetch reviews
+  // State variables for reviews, form inputs, and UI behavior.
+  const [reviews, setReviews] = useState([]); // Stores the list of reviews.
+  const [currentUser, setCurrentUser] = useState(null); // Tracks the current logged-in user.
+  const [reviewsVisible, setReviewsVisible] = useState(false); // Toggles review visibility.
+  const [newReview, setNewReview] = useState({ rating: 0, comment: "" }); // Stores new or updated review data.
+  const [submittingReview, setSubmittingReview] = useState(false); // Tracks if a review is being submitted.
+  const [error, setError] = useState(null); // Tracks error messages.
+  const [hover, setHover] = useState(0); // Tracks hover state for rating stars.
+  const [editingReviewId, setEditingReviewId] = useState(null); // Tracks ID of the review being edited.
+  const [sortBy, setSortBy] = useState("date"); // Current sorting field.
+  const [sortOrder, setSortOrder] = useState("desc"); // Current sorting order.
+
+  /**
+   * Fetches reviews from the API when the reviews section becomes visible or user session changes.
+   */
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -32,7 +44,7 @@ function ReviewSection({ recipeId }) {
         }
         const data = await response.json();
         setReviews(data.reviews || []);
-        setCurrentUser(data.currentUser);
+        setCurrentUser(data.currentUser); // Identify the current user for ownership checks.
       } catch (error) {
         console.error("Error fetching reviews:", error);
         setError("Failed to load reviews");
@@ -44,7 +56,11 @@ function ReviewSection({ recipeId }) {
     }
   }, [recipeId, reviewsVisible, session]);
 
-  // Handle sorting
+  /**
+   * Handles sorting reviews by a specific field (date or rating) and order (ascending or descending).
+   * @param {string} field - Field to sort by ("date" or "rating").
+   * @param {string} order - Sort order ("asc" or "desc").
+   */
   const handleSortChange = (field, order) => {
     setSortBy(field);
     setSortOrder(order);
@@ -63,7 +79,9 @@ function ReviewSection({ recipeId }) {
     });
   };
 
-  // Add or update review
+  /**
+   * Adds or updates a review by sending data to the API.
+   */
   const handleAddOrUpdateReview = async () => {
     if (!session) {
       swal(
@@ -83,19 +101,17 @@ function ReviewSection({ recipeId }) {
         throw new Error("Please select a rating");
       }
 
-      const method = editingReviewId ? "PUT" : "POST";
-      const endpoint = `/api/recipes/${recipeId}/reviews`;
+      const method = editingReviewId ? "PUT" : "POST"; // Determine HTTP method.
+      const endpoint = `/api/recipes/${recipeId}/reviews`; // API endpoint.
       const body = {
         rating: newReview.rating,
         comment: newReview.comment,
-        ...(editingReviewId && { reviewId: editingReviewId }),
+        ...(editingReviewId && { reviewId: editingReviewId }), // Include review ID for updates.
       };
 
       const response = await fetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -104,12 +120,12 @@ function ReviewSection({ recipeId }) {
         throw new Error(errorData.error || "Failed to submit review");
       }
 
-      // Refresh reviews after submission
+      // Refresh reviews after submission.
       const refreshResponse = await fetch(`/api/recipes/${recipeId}/reviews`);
       const refreshData = await refreshResponse.json();
       setReviews(refreshData.reviews || []);
 
-      // Reset form
+      // Reset form.
       setNewReview({ rating: 0, comment: "" });
       setEditingReviewId(null);
       swal(
@@ -130,7 +146,10 @@ function ReviewSection({ recipeId }) {
     }
   };
 
-  // Delete review
+  /**
+   * Deletes a review by its ID.
+   * @param {string} reviewId - ID of the review to delete.
+   */
   const handleDeleteReview = async (reviewId) => {
     if (!session) {
       swal(
@@ -154,19 +173,16 @@ function ReviewSection({ recipeId }) {
 
     if (result.isConfirmed) {
       try {
-        const response = await fetch(
-          `/api/recipes/${recipeId}/reviews?reviewId=${reviewId}`,
-          {
-            method: "DELETE",
-          }
-        );
+        const response = await fetch(`/api/recipes/${recipeId}/reviews?reviewId=${reviewId}`, {
+          method: "DELETE",
+        });
 
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || "Failed to delete review");
         }
 
-        // Refresh reviews after deletion
+        // Refresh reviews after deletion.
         const refreshResponse = await fetch(`/api/recipes/${recipeId}/reviews`);
         const refreshData = await refreshResponse.json();
         setReviews(refreshData.reviews || []);
@@ -187,15 +203,18 @@ function ReviewSection({ recipeId }) {
     }
   };
 
-  // Check if the current user can add a review
-  const canAddReview =
-    session &&
-    !reviews.some(
-      (review) =>
-        review.userId === session.user.id ||
-        review.username === session.user.name
-    );
+  /**
+   * Determines whether the current user can add a review.
+   * Users can only add one review per recipe.
+   */
+  const canAddReview = session && !reviews.some(review => 
+    review.userId === session.user.id || review.username === session.user.name
+  );
 
+  /**
+   * Loads a review into the form for editing.
+   * @param {Object} review - Review object to edit.
+   */
   const loadReviewForEditing = (review) => {
     setNewReview({
       rating: review.rating,

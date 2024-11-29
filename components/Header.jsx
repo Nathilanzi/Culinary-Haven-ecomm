@@ -19,6 +19,16 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Alert from "./Alert";
 
+/**
+ * Renders the Header component.
+ *
+ * The Header includes a logo, navigation links, a search bar, user account controls, and
+ * responsive design elements. It also manages user session state and displays notifications.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered Header component.
+ */
+
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -35,7 +45,17 @@ const Header = () => {
     type: "success",
   });
 
+
+  /**
+   * Toggles the visibility of the navigation menu.
+   */
+
   const toggleMenu = () => setIsOpen(!isOpen);
+
+  /**
+   * Toggles the visibility of the search bar.
+   */
+
   const toggleSearch = () => setIsSearchVisible(!isSearchVisible);
 
   /**

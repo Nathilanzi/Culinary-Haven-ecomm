@@ -1,20 +1,39 @@
-"use client";
-
 import { useEffect, useState } from "react";
 
+/**
+ * A component that toggles between light and dark themes for the application.
+ * The user's preference is saved to localStorage and synced with the browser's
+ * `prefers-color-scheme` setting.
+ *
+ * @component
+ */
 export default function ThemeToggle() {
+  // State to track if dark mode is enabled
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // Load the saved theme preference from localStorage (if any)
+  /**
+   * useEffect hook to load the user's theme preference on component mount.
+   * - Checks for saved theme preference in localStorage.
+   * - Defaults to the system's color scheme preference if no saved theme exists.
+   */
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     const darkModePreferred =
+     
       savedTheme === "dark" ||
       (!savedTheme &&
         window.matchMedia("(prefers-color-scheme: dark)").matches);
+
     setIsDarkMode(darkModePreferred);
     document.documentElement.classList.toggle("dark", darkModePreferred);
   }, []);
+
+  /**
+   * Toggles between light and dark themes.
+   * - Updates the `isDarkMode` state.
+   * - Adds or removes the `dark` class on the root HTML element.
+   * - Saves the user's preference in localStorage.
+   */
 
   // Toggle theme and save preference
   const toggleTheme = () => {
