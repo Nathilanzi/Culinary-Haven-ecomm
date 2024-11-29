@@ -12,22 +12,39 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-export default function ShoppingList({ ingredients }) {
-  const { data: session } = useSession();
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [lists, setLists] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [fetchingLists, setFetchingLists] = useState(true);
-  const [addingToList, setAddingToList] = useState(null);
-  const [selectedId, setSelectedId] = useState(null);
-  const [listName, setListName] = useState("");
-  const [isVisible, setIsVisible] = useState(true); // Visibility toggle
+/**
+ * ShoppingList Component
+ * @param {Object} props - Props passed to the component.
+ * @param {Object} props.ingredients - Ingredients data, where keys are ingredient names and values are quantities.
+ *
+ * This component allows users to manage shopping lists, add/remove items, create new lists, and add items to existing lists.
+ * Users must be authenticated to use shopping list features.
+ */
 
+export default function ShoppingList({ ingredients }) {
+  const { data: session } = useSession(); // Access the user's session data from NextAuth
+  const [selectedItems, setSelectedItems] = useState([]); // Track selected ingredients
+  const [lists, setLists] = useState([]); // Stores fetched shopping lists
+  const [loading, setLoading] = useState(false); // Loading state for creating a list
+  const [fetchingLists, setFetchingLists] = useState(true); // Loading state for fetching shopping lists
+  const [addingToList, setAddingToList] = useState(null); // ID of the list currently being added to
+  const [selectedId, setSelectedId] = useState(null); // ID of the currently selected list
+  const [listName, setListName] = useState(""); // Name of the new shopping list
+  const [isVisible, setIsVisible] = useState(true); // Controls visibility of the shopping list section
+
+  /**
+   * Fetch shopping lists when the session changes.
+   * Only runs if the user is authenticated.
+   */
   useEffect(() => {
     if (session) {
       fetchLists();
     }
   }, [session]);
+
+  /**
+   * Fetches the user's shopping lists from the API.
+   */
 
   const fetchLists = async () => {
     try {
@@ -43,6 +60,13 @@ export default function ShoppingList({ ingredients }) {
       setFetchingLists(false);
     }
   };
+  
+  /**
+   * Toggles the selection of an ingredient.
+   * Adds or removes the ingredient from the selectedItems array.
+   * @param {string} ingredient - The name of the ingredient.
+   * @param {number} amount - The quantity of the ingredient.
+   */
 
   const toggleItem = (ingredient, amount) => {
     setSelectedItems((prev) => {
@@ -54,6 +78,13 @@ export default function ShoppingList({ ingredients }) {
     });
   };
 
+  
+  /**
+   * Updates the quantity of a selected ingredient.
+   * @param {string} ingredient - The name of the ingredient.
+   * @param {number} newAmount - The updated quantity.
+   */
+
   const handleQuantityChange = (ingredient, newAmount) => {
     setSelectedItems((prev) =>
       prev.map((item) =>
@@ -61,6 +92,11 @@ export default function ShoppingList({ ingredients }) {
       )
     );
   };
+
+   /**
+   * Creates a new shopping list with the selected items.
+   * Requires user authentication.
+   */
 
   const createShoppingList = async () => {
     if (!session) {
