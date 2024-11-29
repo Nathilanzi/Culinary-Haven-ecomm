@@ -1,55 +1,47 @@
-"use client";
+"use client"; // Indicates this is a client-side component in Next.js
 
-/**
- * @fileoverview SignIn component that handles user authentication through email/password and Google OAuth
- * @requires react
- * @requires next-auth/react
- * @requires next/navigation
- * @requires lucide-react
- * @requires next/link
- * @requires next/image
- * @requires @/components/Alert
- */
-
-import { useState, useEffect } from "react";
-import { signIn, useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
-import Alert from "@/components/Alert";
+// Importing necessary React and Next.js hooks and components
+import { useState, useEffect } from "react"; // React state and side effect hooks
+import { signIn, useSession } from "next-auth/react"; // Authentication hooks from NextAuth
+import { useRouter, useSearchParams } from "next/navigation"; // Next.js routing and search params hooks
+import { Eye, EyeOff } from "lucide-react"; // Icons for password visibility toggle
+import Link from "next/link"; // Next.js link component for client-side navigation
+import Image from "next/image"; // Next.js optimized image component
+import Alert from "@/components/Alert"; // Custom Alert component
 
 /**
  * SignIn component for user authentication
- * @returns {JSX.Element} The SignIn form component
+ * Provides email/password and Google sign-in methods
+ *
+ * @component
+ * @returns {React.ReactElement} Rendered sign-in page
  */
 export default function SignIn() {
-  // Initialize hooks for routing and session management
-  const router = useRouter();
-  const { data: session, status } = useSession();
-  const searchParams = useSearchParams();
+  // Initialize routing and session management hooks
+  const router = useRouter(); // Next.js router for navigation
+  const { data: session, status } = useSession(); // Current authentication session
+  const searchParams = useSearchParams(); // URL search parameters
 
-  // Get callback URL from search params or default to home
+  // Get callback URL or default to root
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
-  // Initialize state variables
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  // State management for form and authentication
+  const [loading, setLoading] = useState(false); // Loading state during sign-in
+  const [error, setError] = useState(""); // Error message state
+  const [showPassword, setShowPassword] = useState(false); // Password visibility toggle
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: "", // Email input state
+    password: "", // Password input state
   });
   const [alert, setAlert] = useState({
-    show: false,
-    message: "",
-    type: "success",
+    show: false, // Alert visibility
+    message: "", // Alert message
+    type: "success", // Alert type (success/error)
   });
 
-  /**
-   * Check for redirect message from signup page
-   */
+  // Effect to show signup success alert
   useEffect(() => {
+    // Check if signup was successful via URL parameter
     const signupSuccess = searchParams.get("signupSuccess");
     if (signupSuccess === "true") {
       setAlert({
@@ -60,35 +52,29 @@ export default function SignIn() {
     }
   }, [searchParams]);
 
-  /**
-   * Redirect authenticated users
-   */
+  // Effect to redirect authenticated users
   useEffect(() => {
+    // Automatically redirect if user is already authenticated
     if (status === "authenticated" && session) {
       router.push(callbackUrl);
     }
   }, [session, status, router, callbackUrl]);
 
-  /**
-   * Handle form input changes
-   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event
-   */
+  // Handle form input changes
   const handleChange = (e) => {
+    // Update form data dynamically based on input
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  /**
-   * Handle form submission for credentials login
-   * @param {React.FormEvent<HTMLFormElement>} e - The form submission event
-   */
+  // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    setAlert({ show: false, message: "", type: "success" });
+    e.preventDefault(); // Prevent default form submission
+    setLoading(true); // Set loading state
+    setError(""); // Reset error state
+    setAlert({ show: false, message: "", type: "success" }); // Reset alert
 
     try {
-      // Attempt to sign in with credentials
+      // Attempt sign-in with credentials
       const result = await signIn("credentials", {
         redirect: false,
         email: formData.email,
@@ -96,7 +82,7 @@ export default function SignIn() {
       });
 
       if (result?.error) {
-        // Handle authentication error
+        // Handle sign-in error
         setError(result.error);
         setAlert({
           show: true,
@@ -104,14 +90,14 @@ export default function SignIn() {
           type: "error",
         });
       } else {
-        // Handle successful login
+        // Successful sign-in
         setAlert({
           show: true,
           message: "Successfully logged in! Redirecting...",
           type: "success",
         });
 
-        // Delay redirect to show success message
+        // Redirect after a short delay
         setTimeout(() => {
           router.push(callbackUrl);
           router.refresh();
@@ -126,35 +112,34 @@ export default function SignIn() {
         type: "error",
       });
     } finally {
-      setLoading(false);
+      setLoading(false); // Reset loading state
     }
   };
 
-  /**
-   * Handle Google OAuth sign-in
-   */
+  // Handle Google sign-in
   const handleGoogleSignIn = () => {
-    setLoading(true);
-    signIn("google", { callbackUrl, redirect: true });
+    setLoading(true); // Set loading state
+    signIn("google", { callbackUrl, redirect: true }); // Initiate Google OAuth
   };
 
-  // Show loading spinner while checking authentication status
+  // Loading state render
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      <div className="min-h-screen flex items-center justify-center dark:bg-slate-800">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-200"></div>
       </div>
     );
   }
 
-  // Return null if user is authenticated
+  // Authenticated state render (return null)
   if (status === "authenticated") {
     return null;
   }
 
-  // Render sign-in form
+  // Main sign-in page render
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-10">
+    // Main container with responsive dark mode support
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-800 p-10">
       {/* Alert component for displaying messages */}
       <Alert
         message={alert.message}
@@ -163,11 +148,12 @@ export default function SignIn() {
         onClose={() => setAlert({ ...alert, show: false })}
       />
 
-      <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-lg">
-        {/* Header section with logo and welcome message */}
+      {/* Sign-in form card */}
+      <div className="w-full max-w-md p-8 bg-white dark:bg-slate-700 rounded-3xl shadow-lg">
+        {/* Logo and welcome header */}
         <div className="text-center mb-8">
           {/* Logo */}
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4">
+          <div className="inline-flex dark:bg-slate-50 items-center justify-center w-12 h-12 rounded-full mb-4">
             <Image
               src="/logo.png"
               width={100}
@@ -176,23 +162,21 @@ export default function SignIn() {
               className="h-10 w-12"
             />
           </div>
-          {/* Welcome text */}
-          <h2 className="text-2xl font-semibold text-gray-900">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
             Welcome back to Culinary Haven
           </h2>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
             Please enter your details to sign in
           </p>
         </div>
 
-        {/* Google Sign-in button */}
+        {/* Google Sign-In Button */}
         <div className="flex items-center justify-center">
-          {/* Google OAuth button */}
           <button
             onClick={handleGoogleSignIn}
-            className="flex items-center px-16 justify-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="flex items-center px-16 justify-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500"
           >
-            {/* Google icon SVG */}
+            {/* Google SVG Logo */}
             <svg viewBox="0 0 24 24" className="w-6 h-6">
               <path
                 d="M12,5c1.6167603,0,3.1012573,0.5535278,4.2863159,1.4740601l3.637146-3.4699707 C17.8087769,1.1399536,15.0406494,0,12,0C7.392395,0,3.3966675,2.5999146,1.3858032,6.4098511l4.0444336,3.1929321 C6.4099731,6.9193726,8.977478,5,12,5z"
@@ -211,46 +195,52 @@ export default function SignIn() {
                 fill="#34A853"
               />
             </svg>
-            <p className="ml-2">Sign in with Google</p>
+            <p className="ml-2 text-gray-800 dark:text-white">
+              Sign in with Google
+            </p>
           </button>
         </div>
 
         {/* Divider */}
         <div className="relative my-3">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
+            <div className="w-full border-t border-gray-300 dark:border-slate-600"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">or</span>
+            <span className="px-2 bg-white dark:bg-slate-700 text-gray-500 dark:text-gray-300">
+              or
+            </span>
           </div>
         </div>
 
-        {/* Credentials sign-in form */}
+        {/* Email/Password Sign-In Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Error message display */}
           {error && (
-            <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg">
+            <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 dark:text-red-300 rounded-lg">
               {error}
             </div>
           )}
 
+          {/* Email input */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Email address
             </label>
             <input
               name="email"
               type="email"
               required
-              className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-teal-950 focus:border-teal-950"
+              className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-teal-950 focus:border-teal-950 dark:bg-slate-600 dark:text-white dark:border-slate-500 dark:placeholder-gray-300 dark:focus:ring-teal-600 dark:focus:border-teal-600"
               placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
             />
           </div>
 
+          {/* Password input with visibility toggle */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Password
             </label>
             <div className="relative">
@@ -258,40 +248,42 @@ export default function SignIn() {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 required
-                className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-teal-950 focus:border-teal-950"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-teal-950 focus:border-teal-950 dark:bg-slate-600 dark:text-white dark:border-slate-500 dark:placeholder-gray-300 dark:focus:ring-teal-600 dark:focus:border-teal-600"
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={handleChange}
               />
+              {/* Password visibility toggle button */}
               <button
                 type="button"
                 className="absolute inset-y-0 right-0 flex items-center pr-3"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400" />
+                  <EyeOff className="h-5 w-5 text-gray-400 dark:text-gray-200" />
                 ) : (
-                  <Eye className="h-5 w-5 text-gray-400" />
+                  <Eye className="h-5 w-5 text-gray-400 dark:text-gray-200" />
                 )}
               </button>
             </div>
           </div>
 
+          {/* Submit button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-950 hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-950"
+            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-950 hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-950 dark:bg-teal-700 dark:hover:bg-teal-600 dark:focus:ring-teal-600"
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
         {/* Sign-up link */}
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-300">
           Don&apos;t have an account?
           <Link
             href="/auth/signup"
-            className="font-medium ml-1 text-green-900 hover:text-green-800"
+            className="font-medium ml-1 text-green-900 hover:text-green-800 dark:text-green-300 dark:hover:text-green-200"
           >
             Create account
           </Link>
