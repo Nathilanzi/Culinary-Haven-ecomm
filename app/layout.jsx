@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/ThemeContext";
 import SessionProvider from "@/components/SessionProvider";
 import { getServerSession } from "next-auth/next";
 import PushNotificationManager from "@/components/PushNotificationManager";
+import PWAInstallPrompt from "@/components/PWAInstallation";
 
 /**
  * Metadata for the application, including SEO and social sharing configuration.
@@ -98,11 +99,10 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="canonical" href="https://your-domain.com" />
         <link
           rel="apple-touch-icon"
-          sizes="180x180"
-          href="/apple-touch-icon.png"
+          sizes="72x72"
+          href="/apple-touch-icon-72x72.png"
         />
         <link
           rel="icon"
@@ -115,6 +115,18 @@ export default async function RootLayout({ children }) {
           type="image/png"
           sizes="16x16"
           href="/favicon-16x16.png"
+        />
+         <link
+          rel="icon"
+          type="image/png"
+          sizes="192x192"
+          href="/android-chrome-192x192.png"
+        />
+         <link
+          rel="icon"
+          type="image/png"
+          sizes="512x512"
+          href="/android-chrome-512x512.png"
         />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -130,6 +142,7 @@ export default async function RootLayout({ children }) {
             <PushNotificationManager />
             <main className="pt-16">{children}</main>
             <Footer />
+            <PWAInstallPrompt />
           </ThemeProvider>
         </SessionProvider>
       </body>
