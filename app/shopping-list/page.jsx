@@ -280,76 +280,77 @@ export default function ShoppingListPage() {
       <div className="fixed top-4 -left-20 z-50">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
       </div>
-
       <h1 className="text-4xl font-bold mb-10 dark:text-white text-center tracking-tight text-gray-700 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
         My Shopping Lists
       </h1>
 
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl overflow-hidden">
-          <div className="px-6 py-4 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 flex items-center justify-between">
-            <div className="flex items-center">
-              <ShoppingCart className="w-6 h-6 mr-3 text-teal-600 dark:text-teal-400" />
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                My Shopping Lists
-              </h1>
-            </div>
-            <div className="flex items-center space-x-3">
+      <div className="mx-auto space-y-8 max-w-7xl">
+        {/* List Creation Section */}
+        <div className="bg-white dark:bg-gray-750 shadow-xl rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
+          <div className="p-6 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex space-x-4 items-center">
               <input
                 type="text"
                 value={newListName}
                 onChange={(e) => setNewListName(e.target.value)}
-                placeholder="New list name"
-                className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none"
+                placeholder="Create a new shopping list"
+                className="flex-grow px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
               />
               <button
                 onClick={createShoppingList}
                 disabled={creatingList}
-                className="px-4 py-2 text-white bg-teal-600 hover:bg-teal-700 rounded-md disabled:opacity-50"
+                className="px-6 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-300 disabled:opacity-50 flex items-center space-x-2"
               >
-                {creatingList ? "Creating..." : "Create List"}
+                {creatingList && <Loader2 className="w-5 h-5 animate-spin" />}
+                <span>{creatingList ? "Creating..." : "Create List"}</span>
               </button>
             </div>
           </div>
-          {/* Render shopping lists */}
-          {lists.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400">
-                You haven't created any shopping lists yet.
-              </p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {lists.map((list) => (
-                <div
-                  key={list._id}
-                  className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="space-y-1">
-                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+        </div>
+
+        {/* Shopping Lists Grid */}
+        {lists.length === 0 ? (
+          <div className="text-center py-12 px-6">
+            <ShoppingCart className="mx-auto w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
+            <p className="text-gray-500 dark:text-gray-400">
+              You haven't created any shopping lists yet. Start by creating one!
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {lists.map((list) => (
+              <div
+                key={list._id}
+                className="bg-white dark:bg-gray-750 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl"
+              >
+                <div className="p-6 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
                         {list.name ||
-                          `Shopping List ${new Date(
+                          `Shopping List - ${new Date(
                             list.createdAt
                           ).toLocaleDateString()}`}
                       </h2>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        Created: {new Date(list.createdAt).toLocaleDateString()}
-                      </span>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Created on{" "}
+                        {new Date(list.createdAt).toLocaleDateString()}
+                      </p>
                     </div>
-                    <div className="flex items-center space-x-2">
+
+                    <div className="flex items-center space-x-3">
                       <a
                         href={generateWhatsAppLink(list)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                        className="text-green-500 hover:text-green-600 dark:text-green-400 dark:hover:text-green-300 transition-colors"
                       >
                         <Share2 className="w-5 h-5" />
                       </a>
                       <button
                         onClick={() => deleteList(list._id)}
                         disabled={deleting[list._id]}
-                        className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
+                        className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50 transition-colors"
                       >
                         {deleting[list._id] ? (
                           <Loader2 className="w-5 h-5 animate-spin" />
@@ -357,51 +358,57 @@ export default function ShoppingListPage() {
                           <Trash2 className="w-5 h-5" />
                         )}
                       </button>
-                      {/* Manual Item Addition Section */}
-                      <input
-                        type="number"
-                        value={newItemAmount}
-                        onChange={(e) =>
-                          setNewItemAmount(parseInt(e.target.value, 10) || 1)
-                        }
-                        min="1"
-                        className="w-16 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md"
-                      />
-                      <input
-                        type="text"
-                        value={newItemIngredient}
-                        onChange={(e) => setNewItemIngredient(e.target.value)}
-                        placeholder="Add custom item"
-                        className="flex-grow px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md"
-                      />
-                      <button
-                        onClick={() => addManualItem(list._id)}
-                        disabled={addingManualItem === list._id}
-                        className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 disabled:opacity-50"
-                      >
-                        {addingManualItem === list._id ? (
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                          <PlusCircle className="w-5 h-5" />
-                        )}
-                      </button>
                     </div>
                   </div>
-                  <ul className="space-y-2">
+
+                  {/* Manual Item Addition */}
+                  <div className="flex space-x-2 mb-4">
+                    <input
+                      type="number"
+                      value={newItemAmount}
+                      onChange={(e) =>
+                        setNewItemAmount(parseInt(e.target.value, 10) || 1)
+                      }
+                      min="1"
+                      className="w-20 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-emerald-500"
+                    />
+                    <input
+                      type="text"
+                      value={newItemIngredient}
+                      onChange={(e) => setNewItemIngredient(e.target.value)}
+                      placeholder="Add custom item"
+                      className="flex-grow px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-emerald-500"
+                    />
+                    <button
+                      onClick={() => addManualItem(list._id)}
+                      disabled={addingManualItem === list._id}
+                      className="text-emerald-500 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-300 disabled:opacity-50 transition-colors"
+                    >
+                      {addingManualItem === list._id ? (
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                      ) : (
+                        <PlusCircle className="w-6 h-6" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Items List */}
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
                     {list.items.map((item, index) => (
-                      <li
+                      <div
                         key={index}
-                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                        className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
                       >
                         <div className="flex items-center space-x-3">
                           <button
                             onClick={() => markAsPurchased(list._id, index)}
                             className={`
                               w-5 h-5 rounded-full border-2 flex items-center justify-center
+                              transition-all duration-300
                               ${
                                 item.purchased
-                                  ? "bg-teal-500 border-teal-500"
-                                  : "border-gray-300 dark:border-gray-600"
+                                  ? "bg-emerald-500 border-emerald-500"
+                                  : "border-gray-300 dark:border-gray-600 hover:border-emerald-500"
                               }
                             `}
                           >
@@ -410,15 +417,19 @@ export default function ShoppingListPage() {
                             )}
                           </button>
                           <span
-                            className={`${
-                              item.purchased
-                                ? "line-through text-gray-500 dark:text-gray-400"
-                                : "text-gray-800 dark:text-gray-200"
-                            }`}
+                            className={`
+                              ${
+                                item.purchased
+                                  ? "line-through text-gray-500 dark:text-gray-400"
+                                  : "text-gray-800 dark:text-gray-200"
+                              }
+                              transition-colors duration-300
+                            `}
                           >
                             {item.amount} {item.ingredient}
                           </span>
                         </div>
+
                         <div className="flex items-center space-x-2">
                           <input
                             type="number"
@@ -434,7 +445,7 @@ export default function ShoppingListPage() {
                               updatingQuantity.id === list._id &&
                               updatingQuantity.index === index
                             }
-                            className="w-16 text-center text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none"
+                            className="w-20 text-center text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
                           />
                           <button
                             onClick={() => removeItem(list._id, index)}
@@ -442,7 +453,7 @@ export default function ShoppingListPage() {
                               removingItem.id === list._id &&
                               removingItem.index === index
                             }
-                            className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
+                            className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50 transition-colors"
                           >
                             {removingItem.id === list._id &&
                             removingItem.index === index ? (
@@ -452,14 +463,14 @@ export default function ShoppingListPage() {
                             )}
                           </button>
                         </div>
-                      </li>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
