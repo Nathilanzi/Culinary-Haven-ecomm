@@ -185,28 +185,28 @@ const Header = () => {
                   </div>
                   <Link
                     href="/profile"
-                    className="flex items-center px-4 py-2 text-sm text-teal-800 hover:bg-teal-50 transition-colors"
+                    className="flex items-center px-4 py-2 text-sm dark:text-teal-200 dark:hover:bg-teal-700 text-teal-800 hover:bg-teal-50 transition-colors"
                   >
                     <User className="mr-2 h-4 w-4" />
                     My Profile
                   </Link>
                   <Link
                     href="/saved-recipes"
-                    className="flex items-center px-4 py-2 text-sm text-teal-800 hover:bg-teal-50 transition-colors"
+                    className="flex items-center px-4 py-2 text-sm dark:text-teal-200 dark:hover:bg-teal-700 text-teal-800 hover:bg-teal-50 transition-colors"
                   >
                     <Heart className="mr-2 h-4 w-4" />
                     Saved Recipes
                   </Link>
                   <Link
                     href="/settings"
-                    className="flex items-center px-4 py-2 text-sm text-teal-800 hover:bg-teal-50 transition-colors"
+                    className="flex items-center px-4 py-2 text-sm dark:text-teal-200 dark:hover:bg-teal-700 text-teal-800 hover:bg-teal-50 transition-colors"
                   >
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center transition-colors"
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 flex items-center transition-colors"
                   >
                     <LogOut className="mr-2 h-4 w-4" /> Logout
                   </button>
@@ -218,21 +218,21 @@ const Header = () => {
                   </div>
                   <Link
                     href="/profile"
-                    className="flex items-center px-4 py-2 text-sm text-teal-800 hover:bg-teal-50 transition-colors"
+                    className="flex items-center px-4 py-2 text-sm text-teal-800 dark:text-teal-200 dark:hover:bg-teal-700 hover:bg-teal-50 transition-colors"
                   >
                     <User className="mr-2 h-4 w-4" />
                     My Profile
                   </Link>
                   <Link
                     href="/auth/signin"
-                    className="flex items-center px-4 py-2 text-sm text-teal-800 hover:bg-teal-50 transition-colors"
+                    className="flex items-center px-4 py-2 text-sm text-teal-800 dark:text-teal-200 dark:hover:bg-teal-700 hover:bg-teal-50 transition-colors"
                   >
                     <User className="mr-2 h-4 w-4" />
                     Sign In
                   </Link>
                   <Link
                     href="/auth/signup"
-                    className="flex items-center px-4 py-2 text-sm text-teal-800 hover:bg-teal-50 transition-colors"
+                    className="flex items-center px-4 py-2 text-sm text-teal-800 dark:text-teal-200 dark:hover:bg-teal-700 hover:bg-teal-50 transition-colors"
                   >
                     <User className="mr-2 h-4 w-4" />
                     Sign Up
