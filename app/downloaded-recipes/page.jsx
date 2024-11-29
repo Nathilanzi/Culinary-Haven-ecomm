@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import RecipeCard from "@/components/RecipeCard";
 import Pagination from "@/components/Pagination";
 import { toast } from "sonner";
+import BackButton from "@/components/BackButton";
 
 const DownloadedRecipesPage = () => {
   const [recipes, setRecipes] = useState([]);
@@ -17,17 +18,23 @@ const DownloadedRecipesPage = () => {
     try {
       setLoading(true);
       // Parse recipes, ensuring we're working with parsed JSON
-      const storedRecipes = JSON.parse(localStorage.getItem("downloadedRecipes") || "[]")
-        .map(recipe => typeof recipe === 'string' ? JSON.parse(recipe) : recipe);
+      const storedRecipes = JSON.parse(
+        localStorage.getItem("downloadedRecipes") || "[]"
+      ).map((recipe) =>
+        typeof recipe === "string" ? JSON.parse(recipe) : recipe
+      );
 
       const recipesPerPage = 6; // Number of recipes to show per page
       const startIndex = (currentPage - 1) * recipesPerPage;
-      const paginatedRecipes = storedRecipes.slice(startIndex, startIndex + recipesPerPage);
+      const paginatedRecipes = storedRecipes.slice(
+        startIndex,
+        startIndex + recipesPerPage
+      );
       const totalPageCount = Math.ceil(storedRecipes.length / recipesPerPage);
 
       setRecipes(paginatedRecipes);
       setTotalPages(totalPageCount);
-      
+
       // If no recipes, set an informative message
       if (storedRecipes.length === 0) {
         setError("No downloaded recipes found.");
@@ -50,15 +57,20 @@ const DownloadedRecipesPage = () => {
   const handleDelete = (recipeId) => {
     try {
       // Retrieve and parse stored recipes
-      const storedRecipes = JSON.parse(localStorage.getItem("downloadedRecipes") || "[]")
-        .map(recipe => typeof recipe === 'string' ? JSON.parse(recipe) : recipe);
+      const storedRecipes = JSON.parse(
+        localStorage.getItem("downloadedRecipes") || "[]"
+      ).map((recipe) =>
+        typeof recipe === "string" ? JSON.parse(recipe) : recipe
+      );
 
       // Filter out the recipe to delete
-      const updatedRecipes = storedRecipes.filter((recipe) => recipe.id !== recipeId);
+      const updatedRecipes = storedRecipes.filter(
+        (recipe) => recipe.id !== recipeId
+      );
 
       // Save updated recipes back to localStorage
       localStorage.setItem("downloadedRecipes", JSON.stringify(updatedRecipes));
-      
+
       // Reload recipes and show toast
       loadRecipes();
       toast.success("Recipe deleted successfully");
@@ -74,21 +86,31 @@ const DownloadedRecipesPage = () => {
   };
 
   return (
-    <div className="p-4 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Downloaded Recipes</h1>
-      
+    <div className="max-w-6xl mx-auto container px-4 py-8 h-screen">
+      {/* Fixed position back button */}
+      <div className="fixed top-4 -left-20 z-50">
+        <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
+      </div>
+      <h1 className="text-4xl font-bold mb-10 dark:text-white text-center tracking-tight text-gray-700 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
+        My Downloaded Recipes
+      </h1>
+      {/* <h1 className="text-2xl font-bold mb-4">Downloaded Recipes</h1> */}
+
       {loading && (
         <div className="flex justify-center items-center h-64">
           <p className="text-gray-500">Loading recipes...</p>
         </div>
       )}
-      
+
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <div
+          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
           {error}
         </div>
       )}
-      
+
       {!loading && !error && (
         <>
           {recipes.length === 0 ? (
@@ -111,7 +133,7 @@ const DownloadedRecipesPage = () => {
               ))}
             </div>
           )}
-          
+
           {recipes.length > 0 && (
             <div className="mt-6">
               <Pagination
