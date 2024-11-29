@@ -157,13 +157,14 @@ export default function TextToSpeech({ instructions }) {
       case /skip\s*this\s*step/.test(transcript):
         goToNextStep();
         break;
-      case /go\s*to\s*step\s*(\d+)/.test(transcript):
+      case /go\s*to\s*step\s*(\d+)/.test(transcript): {
         const match = transcript.match(/go\s*to\s*step\s*(\d+)/);
         if (match) {
           const stepNumber = parseInt(match[1], 10);
           jumpToStep(stepNumber - 1);
         }
         break;
+      }
     }
   };
 
@@ -425,7 +426,6 @@ export default function TextToSpeech({ instructions }) {
                       />
                     </svg>
                   </button>
-                  
                 </div>
               </div>
             </div>
