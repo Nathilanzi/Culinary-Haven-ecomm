@@ -5,6 +5,7 @@ import OnlineStatus from "@/components/OnlineStatus"; // Import the OnlineStatus
 import { ThemeProvider } from "@/ThemeContext";
 import SessionProvider from "@/components/SessionProvider";
 import { getServerSession } from "next-auth/next";
+import PushNotificationManager from "@/components/PushNotificationManager";
 
 /**
  * Metadata for the application, including SEO and social sharing configuration.
@@ -126,6 +127,7 @@ export default async function RootLayout({ children }) {
           <ThemeProvider>
             <Header />
             <OnlineStatus /> 
+            <PushNotificationManager />
             <main className="pt-16">{children}</main>
             <Footer />
           </ThemeProvider>

@@ -108,19 +108,13 @@ export default function RecipeCard({
           <Gallery images={images} />
 
           {/* Favorites and Download Buttons */}
-          <div className="absolute  top-2 right-2 z-10 flex space-x-2">
-            <div>
-              <FavoritesButton
-                recipeId={recipe._id}
-                isFavorited={initialIsFavorited}
-                onFavoriteToggle={handleFavoriteToggle}
-              />
-            </div>
-            <div>
+          <div className="absolute top-2 right-1 left-1 z-10 flex justify-between">
             <DownloadButton recipe={recipe} />
-            </div>
-
-            
+            <FavoritesButton
+              recipeId={recipe._id}
+              isFavorited={initialIsFavorited}
+              onFavoriteToggle={handleFavoriteToggle}
+            />
           </div>
 
           {/* Hoverable Description Overlay */}
@@ -202,7 +196,9 @@ export default function RecipeCard({
               C470.505,220.719,462.337,238.927,449.023,252.265z"
                 />
               </svg>
-              <span className="mt-2 font-semibold text-sm dark:text-slate-300">Prep:</span>
+              <span className="mt-2 font-semibold text-sm dark:text-slate-300">
+                Prep:
+              </span>
               <span className="dark:text-slate-400">{recipe.prep} mins</span>
             </div>
 
@@ -218,7 +214,9 @@ export default function RecipeCard({
               >
                 <path d="M76,40V16a12,12,0,0,1,24,0V40a12,12,0,0,1-24,0Zm52,12a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,128,52Zm40,0a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,168,52Zm83.2002,53.6001L224,126v58a36.04061,36.04061,0,0,1-36,36H68a36.04061,36.04061,0,0,1-36-36V126L4.7998,105.6001A12.0002,12.0002,0,0,1,19.2002,86.3999L32,96V88A20.02229,20.02229,0,0,1,52,68H204a20.02229,20.02229,0,0,1,20,20v8l12.7998-9.6001a12.0002,12.0002,0,0,1,14.4004,19.2002ZM200,92H56v92a12.01375,12.01375,0,0,0,12,12H188a12.01375,12.01375,0,0,0,12-12Z" />
               </svg>
-              <span className="mt-2 font-semibold text-sm dark:text-slate-300">Cook:</span>
+              <span className="mt-2 font-semibold text-sm dark:text-slate-300">
+                Cook:
+              </span>
               <span className="dark:text-slate-400">{recipe.cook} mins</span>
             </div>
 
@@ -271,8 +269,12 @@ export default function RecipeCard({
                   ></line>
                 </g>
               </svg>
-              <span className="mt-2 font-semibold text-sm dark:text-slate-300">Serves:</span>
-              <span className="dark:text-slate-400">{recipe.servings} people</span>
+              <span className="mt-2 font-semibold text-sm dark:text-slate-300">
+                Serves:
+              </span>
+              <span className="dark:text-slate-400">
+                {recipe.servings} people
+              </span>
             </div>
           </div>
 

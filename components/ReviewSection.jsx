@@ -84,7 +84,11 @@ function ReviewSection({ recipeId }) {
    */
   const handleAddOrUpdateReview = async () => {
     if (!session) {
-      swal("Please log in", "You must be logged in to add a review.", "warning");
+      swal(
+        "Please log in",
+        "You must be logged in to add a review.",
+        "warning"
+      );
       signIn();
       return;
     }
@@ -124,11 +128,19 @@ function ReviewSection({ recipeId }) {
       // Reset form.
       setNewReview({ rating: 0, comment: "" });
       setEditingReviewId(null);
-      swal("Review submitted", "Your review has been successfully submitted.", "success");
+      swal(
+        "Review submitted",
+        "Your review has been successfully submitted.",
+        "success"
+      );
     } catch (error) {
       console.error("Failed to submit review:", error);
       setError(error.message);
-      swal("Submission failed", error.message || "Failed to add review", "error");
+      swal(
+        "Submission failed",
+        error.message || "Failed to add review",
+        "error"
+      );
     } finally {
       setSubmittingReview(false);
     }
@@ -140,7 +152,11 @@ function ReviewSection({ recipeId }) {
    */
   const handleDeleteReview = async (reviewId) => {
     if (!session) {
-      swal("Please log in", "You must be logged in to delete a review.", "warning");
+      swal(
+        "Please log in",
+        "You must be logged in to delete a review.",
+        "warning"
+      );
       setError("You must be logged in to delete a review");
       return;
     }
@@ -170,11 +186,19 @@ function ReviewSection({ recipeId }) {
         const refreshResponse = await fetch(`/api/recipes/${recipeId}/reviews`);
         const refreshData = await refreshResponse.json();
         setReviews(refreshData.reviews || []);
-        swal("Review deleted", "Your review has been successfully deleted.", "success");
+        swal(
+          "Review deleted",
+          "Your review has been successfully deleted.",
+          "success"
+        );
       } catch (error) {
         console.error("Error deleting review:", error);
         setError(error.message || "Failed to delete review");
-        swal("Deletion failed", error.message || "Failed to delete review", "error");
+        swal(
+          "Deletion failed",
+          error.message || "Failed to delete review",
+          "error"
+        );
       }
     }
   };
@@ -214,11 +238,15 @@ function ReviewSection({ recipeId }) {
           <div className="my-4 flex gap-4">
             {/* Sort by Date */}
             <div>
-              <p className="text-gray-700 mb-2 font-semibold dark:text-gray-300">Sort by Date:</p>
+              <p className="text-gray-700 mb-2 font-semibold dark:text-gray-300">
+                Sort by Date:
+              </p>
               <button
                 onClick={() => handleSortChange("date", "desc")}
                 className={`bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-black dark:bg-[#333836] dark:hover:bg-[#444944] dark:text-gray-100 ${
-                  sortBy === "date" && sortOrder === "desc" ? "bg-gray-400 dark:bg-[#56605B]" : ""
+                  sortBy === "date" && sortOrder === "desc"
+                    ? "bg-gray-400 dark:bg-[#56605B]"
+                    : ""
                 }`}
               >
                 Newest
@@ -226,7 +254,9 @@ function ReviewSection({ recipeId }) {
               <button
                 onClick={() => handleSortChange("date", "asc")}
                 className={`bg-gray-200 px-4 py-2 ml-2 rounded-lg hover:bg-gray-300 transition-colors text-black dark:bg-[#333836] dark:hover:bg-[#444944] dark:text-gray-100 ${
-                  sortBy === "date" && sortOrder === "asc" ? "bg-gray-400 dark:bg-[#56605B]" : ""
+                  sortBy === "date" && sortOrder === "asc"
+                    ? "bg-gray-400 dark:bg-[#56605B]"
+                    : ""
                 }`}
               >
                 Oldest
@@ -235,32 +265,41 @@ function ReviewSection({ recipeId }) {
 
             {/* Sort by Rating */}
             <div>
-              <p className="text-gray-700 mb-2 font-semibold dark:text-gray-300">Sort by Rating:</p>
+              <p className="text-gray-700 mb-2 font-semibold dark:text-gray-300">
+                Sort by Rating:
+              </p>
               <button
                 onClick={() => handleSortChange("rating", "desc")}
                 className={`bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-black dark:bg-[#333836] dark:hover:bg-[#444944] dark:text-gray-100 ${
-                  sortBy === "rating" && sortOrder === "desc" ? "bg-gray-400 dark:bg-[#56605B]" : ""
+                  sortBy === "rating" && sortOrder === "desc"
+                    ? "bg-gray-400 dark:bg-[#56605B]"
+                    : ""
                 }`}
               >
-                  Highest
+                Highest
               </button>
               <button
                 onClick={() => handleSortChange("rating", "asc")}
                 className={`bg-gray-200 px-4 py-2 ml-2 rounded-lg hover:bg-gray-300 transition-colors text-black dark:bg-[#333836] dark:hover:bg-[#444944] dark:text-gray-100 ${
-                  sortBy === "rating" && sortOrder === "asc" ? "bg-gray-400 dark:bg-[#56605B]" : ""
+                  sortBy === "rating" && sortOrder === "asc"
+                    ? "bg-gray-400 dark:bg-[#56605B]"
+                    : ""
                 }`}
               >
-                  Lowest
+                Lowest
               </button>
               <button
-                onClick={() => { setSortBy("date"); setSortOrder("desc"); }}
+                onClick={() => {
+                  setSortBy("date");
+                  setSortOrder("desc");
+                }}
                 className="ml-5 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors dark:bg-[#B04646] dark:hover:bg-[#8F3A3A]"
               >
-                  Reset Filters
+                Reset Filters
               </button>
             </div>
           </div>
-  
+
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded relative dark:bg-[#502D2D] dark:text-[#D9A2A2]">
               <span className="block sm:inline">{error}</span>
@@ -269,22 +308,37 @@ function ReviewSection({ recipeId }) {
 
           {!session && (
             <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded dark:bg-[#4A4A27] dark:text-[#E0DA9E]">
-              <p>Please <button onClick={() => signIn()} className="text-blue-600 hover:underline dark:text-blue-400">sign in</button> to leave a review.</p>
+              <p>
+                Please{" "}
+                <button
+                  onClick={() => signIn()}
+                  className="text-blue-600 hover:underline dark:text-blue-400"
+                >
+                  sign in
+                </button>{" "}
+                to leave a review.
+              </p>
             </div>
           )}
 
           {session && canAddReview && !editingReviewId && (
             <div className="mb-8 p-4 bg-gray-50 rounded-lg dark:bg-[#2C2F2D]">
-              <h3 className="text-lg font-semibold mb-4 dark:text-gray-100">Add a Review</h3>
+              <h3 className="text-lg font-semibold mb-4 dark:text-gray-100">
+                Add a Review
+              </h3>
               {/* Review form */}
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Rating</label>
+                <label className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">
+                  Rating
+                </label>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
                       type="button"
-                      onClick={() => setNewReview({ ...newReview, rating: star })}
+                      onClick={() =>
+                        setNewReview({ ...newReview, rating: star })
+                      }
                       onMouseEnter={() => setHover(star)}
                       onMouseLeave={() => setHover(0)}
                       className="focus:outline-none"
@@ -299,7 +353,7 @@ function ReviewSection({ recipeId }) {
                     </button>
                   ))}
                 </div>
-              </div>  
+              </div>
 
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">
@@ -314,7 +368,7 @@ function ReviewSection({ recipeId }) {
                   placeholder="Share your thoughts about this recipe..."
                 />
               </div>
-  
+
               <button
                 onClick={handleAddOrUpdateReview}
                 disabled={submittingReview || newReview.rating === 0}
@@ -337,7 +391,9 @@ function ReviewSection({ recipeId }) {
                     <button
                       key={star}
                       type="button"
-                      onClick={() => setNewReview({ ...newReview, rating: star })}
+                      onClick={() =>
+                        setNewReview({ ...newReview, rating: star })
+                      }
                       onMouseEnter={() => setHover(star)}
                       onMouseLeave={() => setHover(0)}
                       className="focus:outline-none"
@@ -355,7 +411,9 @@ function ReviewSection({ recipeId }) {
               </div>
 
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Comment</label>
+                <label className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">
+                  Comment
+                </label>
                 <textarea
                   value={newReview.comment}
                   onChange={(e) =>
@@ -395,7 +453,9 @@ function ReviewSection({ recipeId }) {
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <strong className="dark:text-gray-100">{review.username}</strong>
+                    <strong className="dark:text-gray-100">
+                      {review.username}
+                    </strong>
                     <div className="flex gap-1">
                       {Array.from({ length: 5 }).map((_, index) => (
                         <Star
@@ -429,7 +489,9 @@ function ReviewSection({ recipeId }) {
                 </div>
 
                 {review.comment && (
-                  <p className="text-gray-700 mt-2 dark:text-gray-300">{review.comment}</p>
+                  <p className="text-gray-700 mt-2 dark:text-gray-300">
+                    {review.comment}
+                  </p>
                 )}
 
                 <div className="flex justify-between items-center mt-2">
@@ -447,7 +509,10 @@ function ReviewSection({ recipeId }) {
 
             {reviews.length === 0 && (
               <p className="text-center text-gray-500 py-4 dark:text-gray-400">
-                No reviews yet. {session ? "Be the first to review this recipe!" : "Sign in to be the first to review this recipe!"}
+                No reviews yet.{" "}
+                {session
+                  ? "Be the first to review this recipe!"
+                  : "Sign in to be the first to review this recipe!"}
               </p>
             )}
           </div>

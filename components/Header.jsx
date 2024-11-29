@@ -168,7 +168,7 @@ const Header = () => {
           </svg>
         </button>
         {isUserMenuOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 py-2 z-50 overflow-hidden">
+          <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 py-2 z-50 overflow-hidden">
             <div className="px-4 py-3 bg-teal-50 dark:bg-teal-900 border-b border-teal-100 dark:border-teal-800">
               <p className="text-sm text-teal-800 dark:text-teal-200 font-medium truncate">
                 {session?.user?.name || "Guest"}
@@ -248,9 +248,9 @@ const Header = () => {
 
   return (
     <nav
-    className="bg-teal-800 dark:bg-teal-900 text-white dark:text-teal-100 shadow-md fixed z-50 w-full"
-    ref={navbarRef}
-  >
+      className="bg-teal-800 dark:bg-teal-900 text-white dark:text-teal-100 shadow-md fixed z-50 w-full"
+      ref={navbarRef}
+    >
       <Alert
         isVisible={navAlertConfig.isVisible}
         message={navAlertConfig.message}
@@ -330,13 +330,13 @@ const Header = () => {
               </div>
 
               <Link
-            href="/downloaded-recipes"
-            className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Downloads
-          </Link>
-          
+                href="/downloaded-recipes"
+                className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Downloads
+              </Link>
+
               <UserMenu />
             </div>
           </div>
@@ -407,12 +407,11 @@ const Header = () => {
                   My Profile
                 </Link>
                 <Link
-            href="/downloaded-recipes"
-            className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
-          >
-    
-            Downloads
-          </Link>
+                  href="/downloaded-recipes"
+                  className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
+                >
+                  Downloads
+                </Link>
                 <Link
                   href="/settings"
                   className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"

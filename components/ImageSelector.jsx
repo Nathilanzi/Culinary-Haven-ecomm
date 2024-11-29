@@ -9,7 +9,7 @@ import Image from "next/image";
  *
  * @param {Object} props - The component props.
  * @param {string[]} props.images - An array of image URLs to display in the selector.
- * 
+ *
  * @returns {JSX.Element} The rendered ImageSelector component.
  */
 export default function ImageSelector({ images }) {

@@ -3,7 +3,15 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, Trash2, Check, Loader2, X, Share2 } from "lucide-react";
+import {
+  ShoppingCart,
+  Trash2,
+  Check,
+  Loader2,
+  X,
+  Share2,
+  PlusCircle,
+} from "lucide-react";
 import BackButton from "@/components/BackButton";
 import LoadingPage from "../loading";
 
@@ -18,6 +26,9 @@ export default function ShoppingListPage() {
   const [updatingQuantity, setUpdatingQuantity] = useState({});
   const [newListName, setNewListName] = useState("");
   const [creatingList, setCreatingList] = useState(false);
+  const [newItemAmount, setNewItemAmount] = useState(1);
+  const [newItemIngredient, setNewItemIngredient] = useState("");
+  const [addingManualItem, setAddingManualItem] = useState(null);
 
   const fetchLists = async () => {
     try {
@@ -219,12 +230,61 @@ export default function ShoppingListPage() {
   // Ensure session exists (redundant with useEffect, but added for type safety)
   if (!session) return null;
 
+  const addManualItem = async (id) => {
+    if (!newItemIngredient.trim()) {
+      alert("Please enter an item name");
+      return;
+    }
+
+    try {
+      setAddingManualItem(id);
+      const list = lists.find((l) => l._id === id);
+      if (!list) return;
+
+      const newItem = {
+        ingredient: newItemIngredient.trim(),
+        amount: newItemAmount,
+        purchased: false,
+      };
+
+      const updatedItems = [...list.items, newItem];
+
+      const response = await fetch(`/api/shopping-list/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "user-id": session.user.id,
+        },
+        body: JSON.stringify({ items: updatedItems }),
+      });
+
+      if (!response.ok) throw new Error("Failed to add manual item");
+
+      // Reset input fields
+      setNewItemIngredient("");
+      setNewItemAmount(1);
+
+      // Refresh lists
+      fetchLists();
+    } catch (error) {
+      setError("Error adding manual item: " + error.message);
+      alert("Failed to add item to shopping list");
+    } finally {
+      setAddingManualItem(null);
+    }
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 min-h-screen">
       {/* Fixed position back button */}
       <div className="fixed top-4 -left-20 z-50">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
       </div>
+
+      <h1 className="text-4xl font-bold mb-10 dark:text-white text-center tracking-tight text-gray-700 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
+        My Shopping Lists
+      </h1>
+
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl overflow-hidden">
           <div className="px-6 py-4 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 flex items-center justify-between">
@@ -295,6 +355,34 @@ export default function ShoppingListPage() {
                           <Loader2 className="w-5 h-5 animate-spin" />
                         ) : (
                           <Trash2 className="w-5 h-5" />
+                        )}
+                      </button>
+                      {/* Manual Item Addition Section */}
+                      <input
+                        type="number"
+                        value={newItemAmount}
+                        onChange={(e) =>
+                          setNewItemAmount(parseInt(e.target.value, 10) || 1)
+                        }
+                        min="1"
+                        className="w-16 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md"
+                      />
+                      <input
+                        type="text"
+                        value={newItemIngredient}
+                        onChange={(e) => setNewItemIngredient(e.target.value)}
+                        placeholder="Add custom item"
+                        className="flex-grow px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md"
+                      />
+                      <button
+                        onClick={() => addManualItem(list._id)}
+                        disabled={addingManualItem === list._id}
+                        className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 disabled:opacity-50"
+                      >
+                        {addingManualItem === list._id ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <PlusCircle className="w-5 h-5" />
                         )}
                       </button>
                     </div>

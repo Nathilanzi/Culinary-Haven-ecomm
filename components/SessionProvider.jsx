@@ -15,7 +15,7 @@ import { SessionProvider as Provider } from "next-auth/react";
  * // Wrapping the application with SessionProvider to enable session handling
  * import SessionProvider from './path/to/SessionProvider';
  * import { App } from './App';
- * 
+ *
  * export default function MyApp({ session }) {
  *   return (
  *     <SessionProvider session={session}>

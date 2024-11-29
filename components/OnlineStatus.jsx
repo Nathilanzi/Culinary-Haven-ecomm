@@ -1,14 +1,8 @@
 'use client'; // Indicates this is a client-side component for Next.js App Router.
 
-import { useEffect, useState } from "react"; // Import React hooks.
-import Alert from "./Alert"; // Import the Alert component for displaying alerts.
+import { useEffect, useState } from "react";
+import Alert from "./Alert"; 
 
-/**
- * OnlineStatus Component
- * - Monitors the user's online/offline status using the browser's `navigator.onLine` API.
- * - Displays an alert message indicating the user's current network status.
- * - Provides troubleshooting tips if the user is offline.
- */
 export default function OnlineStatus() {
   // State to track the user's online status (true if online, false if offline).
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -25,19 +19,17 @@ export default function OnlineStatus() {
      * Updates the online status and displays an alert based on the user's connection.
      */
     const updateOnlineStatus = () => {
-      const onlineStatus = navigator.onLine; // Get the current online status.
-      setIsOnline(onlineStatus); // Update the state.
+      const onlineStatus = navigator.onLine;
+      setIsOnline(onlineStatus);
 
-      // Update the alert with an appropriate message and type.
+
       setAlert({
-        message: onlineStatus
-          ? "You are online" // Message for online status.
-          : "You are offline. No Internet. Try:", // Message for offline status.
-        type: onlineStatus ? "success" : "error", // Alert type.
-        show: true, // Show the alert.
+        message: onlineStatus ? "You are online" : "You are offline. No Internet. Try:",
+        type: onlineStatus ? "success" : "error", 
+        show: true,
       });
 
-      // Hide the alert after 5 seconds.
+     
       setTimeout(() => {
         setAlert((prevAlert) => ({ ...prevAlert, show: false }));
       }, 5000);
@@ -47,7 +39,7 @@ export default function OnlineStatus() {
     window.addEventListener("online", updateOnlineStatus);
     window.addEventListener("offline", updateOnlineStatus);
 
-    // Hide the initial alert after 5 seconds.
+    
     const initialTimeout = setTimeout(() => {
       setAlert((prevAlert) => ({ ...prevAlert, show: false }));
     }, 5000);
@@ -56,7 +48,7 @@ export default function OnlineStatus() {
     return () => {
       window.removeEventListener("online", updateOnlineStatus);
       window.removeEventListener("offline", updateOnlineStatus);
-      clearTimeout(initialTimeout); // Clear the timeout.
+      clearTimeout(initialTimeout); 
     };
   }, []); // Empty dependency array ensures this effect runs only once on mount.
 

@@ -113,13 +113,13 @@ export default function Favorites() {
   if (!session) return null;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 min-h-screen">
       {/* Fixed position back button */}
       <div className="fixed top-4 -left-20 z-50">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
       </div>
-      <h1 className="text-center text-3xl text-black dark:text-white font-bold mb-8">
-        My Favorite Recipes⭐
+      <h1 className="text-4xl font-bold mb-10 dark:text-white text-center tracking-tight text-gray-700 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
+        My Favorite Recipes
       </h1>
 
       {favorites.length === 0 ? (
