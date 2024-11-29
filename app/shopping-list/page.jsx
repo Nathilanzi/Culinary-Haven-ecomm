@@ -275,11 +275,16 @@ export default function ShoppingListPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 h-screen">
       {/* Fixed position back button */}
       <div className="fixed top-4 -left-20 z-50">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
       </div>
+
+      <h1 className="text-4xl font-bold mb-10 dark:text-white text-center tracking-tight text-gray-700 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
+        My Shopping Lists
+      </h1>
+
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl overflow-hidden">
           <div className="px-6 py-4 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 flex items-center justify-between">
