@@ -13,6 +13,7 @@
     "ajv": "^8.17.1",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.5.1",
     "framer-motion": "^11.11.17",
     "google-auth-library": "^9.14.2",
     "lucide-react": "^0.453.0",
