@@ -5,6 +5,7 @@ import RecipeCard from "@/components/RecipeCard";
 import Pagination from "@/components/Pagination";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
+import { Trash2 } from "lucide-react";
 
 const DownloadedRecipesPage = () => {
   const [recipes, setRecipes] = useState([]);
@@ -12,6 +13,7 @@ const DownloadedRecipesPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deleteConfirmation, setDeleteConfirmation] = useState({ id: null });
 
   // Load recipes from localStorage
   const loadRecipes = () => {
@@ -74,6 +76,9 @@ const DownloadedRecipesPage = () => {
       // Reload recipes and show toast
       loadRecipes();
       toast.success("Recipe deleted successfully");
+      
+      // Reset delete confirmation
+      setDeleteConfirmation({ id: null });
     } catch (err) {
       setError("Error deleting recipe: " + err.message);
       toast.error("Failed to delete recipe");
@@ -94,7 +99,6 @@ const DownloadedRecipesPage = () => {
       <h1 className="text-4xl font-bold mb-10 dark:text-white text-center tracking-tight text-gray-700 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
         My Downloaded Recipes
       </h1>
-      {/* <h1 className="text-2xl font-bold mb-4">Downloaded Recipes</h1> */}
 
       {loading && (
         <div className="flex justify-center items-center h-64">
@@ -123,12 +127,32 @@ const DownloadedRecipesPage = () => {
               {recipes.map((recipe) => (
                 <div key={recipe.id} className="relative group">
                   <RecipeCard recipe={recipe} />
-                  <button
-                    onClick={() => handleDelete(recipe.id)}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  >
-                    Delete
-                  </button>
+                  {deleteConfirmation.id === recipe.id ? (
+                    <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-red-100 border border-red-300 rounded-lg p-2 z-10 shadow-lg">
+                      <div className="flex items-center space-x-2">
+                        <p className="text-red-700 text-sm">Delete?</p>
+                        <button
+                          onClick={() => handleDelete(recipe.id)}
+                          className="bg-red-500 text-white rounded-full px-2 py-1 text-xs hover:bg-red-600 transition-colors"
+                        >
+                          Confirm
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirmation({ id: null })}
+                          className="bg-gray-200 text-gray-700 rounded-full px-2 py-1 text-xs hover:bg-gray-300 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setDeleteConfirmation({ id: recipe.id })}
+                      className="absolute top-2 left-1/2 -translate-x-1/2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
