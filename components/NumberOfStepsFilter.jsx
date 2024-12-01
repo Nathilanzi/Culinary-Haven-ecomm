@@ -70,8 +70,11 @@ const NumberOfStepsFilter = ({ searchParams, updateUrl }) => {
             rounded-xl border 
             border-teal-300 
             bg-white 
+            dark:bg-slate-800
             text-teal-900 
-            placeholder-teal-600 
+            dark:border-slate-700
+            placeholder-teal-500 
+            dark:text-teal-300
             focus:outline-none 
             focus:ring-2 
             focus:ring-teal-500 
@@ -80,7 +83,10 @@ const NumberOfStepsFilter = ({ searchParams, updateUrl }) => {
             duration-300 
             ease-in-out 
             hover:shadow-md 
-            hover:border-teal-500"
+            hover:border-teal-500
+            flex items-center justify-between
+            dark:focus:ring-teal-500/40
+            dark:hover:border-slate-600"
         />
         {numberOfSteps && (
           <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-teal-600">

@@ -105,8 +105,11 @@ export default function IngredientsFilter({
             rounded-xl border 
             border-teal-300 
             bg-white 
-            text-teal-900 
+            dark:bg-slate-800
+            text-teal-800 
+            dark:border-slate-700
             placeholder-teal-600 
+            dark:text-teal-300
             focus:outline-none 
             focus:ring-2 
             focus:ring-teal-500 
@@ -116,7 +119,9 @@ export default function IngredientsFilter({
             ease-in-out 
             hover:shadow-md 
             hover:border-teal-500
-            flex items-center justify-between"
+            flex items-center justify-between
+            dark:focus:ring-teal-500/40
+            dark:hover:border-slate-600"
         >
           <div className="flex items-center space-x-2">
             <Filter className="w-4 h-4" />
@@ -147,9 +152,9 @@ export default function IngredientsFilter({
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 20 }}
-              className="fixed right-0 top-0 h-full w-full sm:w-[400px] bg-white dark:bg-neutral-900 shadow-2xl z-50 overflow-y-auto"
+              className="fixed right-0 top-0 h-full w-full sm:w-[400px] bg-white dark:bg-slate-800 shadow-2xl z-50 overflow-y-auto"
             >
-              <div className="px-4 py-4 bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-neutral-800 dark:to-teal-900 border-b border-neutral-100 dark:border-neutral-700 sticky top-0 z-10">
+              <div className="px-4 py-4 bg-gradient-to-r from-teal-50 to-slate-100 dark:from-slate-800 dark:to-teal-900 border-b border-neutral-100 dark:border-slate-700 sticky top-0 z-10">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <Filter className="w-5 h-5 text-teal-600 dark:text-emerald-400" />
@@ -233,7 +238,7 @@ export default function IngredientsFilter({
                           ${
                             currentIngredients.includes(ingredient)
                               ? "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 hover:bg-teal-200 dark:hover:bg-teal-800"
-                              : "bg-neutral-100 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-600"
+                              : "bg-neutral-100 dark:bg-gray-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-gray-600"
                           }`}
                       >
                         {ingredient}
