@@ -40,10 +40,10 @@ function highlightText(text, query) {
 export default function RecipeCard({
   recipe,
   searchQuery = "",
-  isFavorited: initialIsFavorited,
-  toggleFavorite,
+  initialIsFavorited = false,
 }) {
   // State for hover, alert, and download functionality
+  const [isFavorited, setIsFavorited] = useState(initialIsFavorited);
   const [isHovered, setIsHovered] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -69,7 +69,6 @@ export default function RecipeCard({
 
     checkDownloadStatus();
 
-    // Listen for download events
     window.addEventListener("recipesDownloaded", checkDownloadStatus);
 
     return () => {
@@ -112,7 +111,7 @@ export default function RecipeCard({
             <DownloadButton recipe={recipe} />
             <FavoritesButton
               recipeId={recipe._id}
-              isFavorited={initialIsFavorited}
+              initialIsFavorited={isFavorited}
               onFavoriteToggle={handleFavoriteToggle}
             />
           </div>
