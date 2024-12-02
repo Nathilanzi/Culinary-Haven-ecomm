@@ -53,7 +53,7 @@ export default function NotFoundPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 p-4 overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 overflow-hidden">
       <motion.div
         className="text-center max-w-md w-full relative"
         variants={containerVariants}

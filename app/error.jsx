@@ -44,7 +44,7 @@ export default function ErrorPage({ statusCode = 500 }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <motion.div
         className="text-center max-w-md w-full"
         variants={containerVariants}
