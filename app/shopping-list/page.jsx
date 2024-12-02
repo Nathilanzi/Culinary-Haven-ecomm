@@ -11,9 +11,11 @@ import {
   X,
   Share2,
   PlusCircle,
+  NotebookPen,
 } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import LoadingPage from "../loading";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ShoppingListPage() {
   const { data: session } = useSession();
@@ -29,6 +31,8 @@ export default function ShoppingListPage() {
   const [newItemAmount, setNewItemAmount] = useState(1);
   const [newItemIngredient, setNewItemIngredient] = useState("");
   const [addingManualItem, setAddingManualItem] = useState(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+
 
   const fetchLists = async () => {
     try {
@@ -285,28 +289,92 @@ export default function ShoppingListPage() {
       </h1>
 
       <div className="mx-auto space-y-8 max-w-7xl">
-        {/* List Creation Section */}
-        <div className="bg-white dark:bg-gray-750 shadow-xl rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
-          <div className="p-6 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex space-x-4 items-center">
-              <input
-                type="text"
-                value={newListName}
-                onChange={(e) => setNewListName(e.target.value)}
-                placeholder="Create a new shopping list"
-                className="flex-grow px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
-              />
-              <button
-                onClick={createShoppingList}
-                disabled={creatingList}
-                className="px-6 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-300 disabled:opacity-50 flex items-center space-x-2"
-              >
-                {creatingList && <Loader2 className="w-5 h-5 animate-spin" />}
-                <span>{creatingList ? "Creating..." : "Create List"}</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* Trigger Button - Fixed on the left side */}
+        <motion.button
+          onClick={() => setIsPanelOpen(true)}
+          className="fixed left-0 -translate-y-[3rem] bg-teal-600 dark:bg-teal-700 text-white p-3 rounded-r-lg shadow-lg hover:bg-teal-700 dark:hover:bg-teal-600 transition-colors z-40 group"
+        >
+          <NotebookPen className="w-5 h-5" />
+          <span className="absolute left-full top-1/2 -translate-y-1/2 bg-teal-600 dark:bg-teal-700 text-white px-2 py-1 rounded-r-md text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap ml-0.5">
+            Create Shopping List
+          </span>
+        </motion.button>
+
+        {/* Overlay Background */}
+        <AnimatePresence>
+          {isPanelOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsPanelOpen(false)}
+              className="fixed inset-0 bg-black/50 z-40"
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Panel */}
+        <AnimatePresence>
+          {isPanelOpen && (
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 20 }}
+              className="fixed right-0 top-0 h-full w-full sm:w-[400px] bg-white dark:bg-neutral-900 shadow-2xl z-50 overflow-y-auto"
+            >
+              {/* Panel Header */}
+              <div className="px-4 py-4 bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-neutral-800 dark:to-teal-900 border-b border-neutral-100 dark:border-neutral-700 sticky top-0 z-10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <NotebookPen className="w-5 h-5 text-teal-600 dark:text-emerald-400" />
+                    <h2 className="text-base font-semibold text-teal-800 dark:text-emerald-300">
+                      Create Shopping List
+                    </h2>
+                  </div>
+                  <motion.button
+                    onClick={() => setIsPanelOpen(false)}
+                    className="text-neutral-600 dark:text-neutral-300 hover:text-teal-600 dark:hover:text-emerald-400 transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <X className="w-5 h-5" />
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-4 space-y-4">
+                {/* Create Shopping List Section */}
+                <div className="flex flex-col space-y-3 pt-3 dark:border-slate-700">
+                  <div className="relative">
+                    <div className="flex space-x-4 items-center">
+                      <input
+                        type="text"
+                        value={newListName}
+                        onChange={(e) => setNewListName(e.target.value)}
+                        placeholder="Create a new shopping list"
+                        className="flex-grow px-4 p-2 rounded-lg border border-teal-100 dark:border-slate-700 bg-white dark:bg-slate-800 text-teal-900 dark:text-slate-200 shadow-sm hover:border-teal-200 dark:hover:border-slate-600 hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-teal-500/40 focus:border-teal-500"
+                      />
+                      <button
+                        onClick={createShoppingList}
+                        disabled={creatingList}
+                        className="px-4 py-2 bg-teal-600 text-white dark:bg-teal-500 rounded-lg transition-all duration-300 hover:bg-teal-700 dark:hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-teal-400 dark:focus:ring-offset-slate-800 disabled:opacity-50 flex items-center space-x-2"
+                      >
+                        {creatingList && (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        )}
+                        <span>
+                          {creatingList ? "Creating..." : "Create List"}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Shopping Lists Grid */}
         {lists.length === 0 ? (
