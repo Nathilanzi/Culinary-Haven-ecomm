@@ -116,13 +116,13 @@ export default async function RootLayout({ children }) {
           sizes="16x16"
           href="/favicon-16x16.png"
         />
-         <link
+        <link
           rel="icon"
           type="image/png"
           sizes="192x192"
           href="/android-chrome-192x192.png"
         />
-         <link
+        <link
           rel="icon"
           type="image/png"
           sizes="512x512"
@@ -138,7 +138,7 @@ export default async function RootLayout({ children }) {
         <SessionProvider session={session}>
           <ThemeProvider>
             <Header />
-            <OnlineStatus /> 
+            <OnlineStatus />
             <PushNotificationManager />
             <main className="pt-16">{children}</main>
             <Footer />

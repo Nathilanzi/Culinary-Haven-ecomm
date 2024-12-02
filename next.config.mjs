@@ -52,9 +52,9 @@ const pwaConfig = withPWA({
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|webp|svg|gif)$/,
-      handler: 'CacheFirst',
+      handler: "CacheFirst",
       options: {
-        cacheName: 'image-cache',
+        cacheName: "image-cache",
         expiration: {
           maxEntries: 60,
           maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
@@ -63,9 +63,9 @@ const pwaConfig = withPWA({
     },
     {
       urlPattern: /^https:\/\/api\..*\.com\/.*$/,
-      handler: 'NetworkFirst',
+      handler: "NetworkFirst",
       options: {
-        cacheName: 'api-cache',
+        cacheName: "api-cache",
         networkTimeoutSeconds: 10,
         expiration: {
           maxEntries: 50,

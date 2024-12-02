@@ -5,6 +5,7 @@
 The Recipe App is a cutting-edge platform designed to revolutionize how users discover, manage, and utilize recipes. Whether you're a home cook, a professional chef, or someone seeking inspiration, our app offers features to simplify and elevate your cooking experience.
 
 ### **Live Demo**
+
 https://culinary-haven-a.vercel.app/
 <br>
 
@@ -176,7 +177,8 @@ Have questions or need support? Reach out to the team:
 - GitHub Issues: Report an Issue
 - Community: Join us on Discord.
 
-## Contributors - *We're here to help!*
+## Contributors - _We're here to help!_
+
 - [Inolofatseng Motloba](https://github.com/InolofatsengMotloba)
 - [Neo Mosotho](https://github.com/neomosotho)
 - [Rethabile Diale](https://github.com/RethaD27)
@@ -185,7 +187,6 @@ Have questions or need support? Reach out to the team:
 - [Ndumiso Sibanda](https://github.com/Ndumiso-Sibanda)
 - [Nkosinathi Milanzi](https://github.com/Nathilanzi)
 - [Mohau Mushi](https://github.com/MohauMushi)
-
 
 ## 📚 API Documentation
 

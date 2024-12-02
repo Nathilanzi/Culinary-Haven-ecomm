@@ -76,7 +76,7 @@ const DownloadedRecipesPage = () => {
       // Reload recipes and show toast
       loadRecipes();
       toast.success("Recipe deleted successfully");
-      
+
       // Reset delete confirmation
       setDeleteConfirmation({ id: null });
     } catch (err) {

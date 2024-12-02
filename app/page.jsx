@@ -8,7 +8,6 @@ import ClearFiltersButton from "@/components/ClearFiltersButton";
 import RecipeCarousel from "@/components/RecipeCarousel";
 import { SearchIcon } from "@/components/Svg";
 
-
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
   description:
