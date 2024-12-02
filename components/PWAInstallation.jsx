@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 /**
  * PWAInstallPrompt component handles the display and functionality of the PWA installation prompt.
@@ -19,6 +20,7 @@ export default function PWAInstallPrompt({
 }) {
     const [deferredPrompt, setDeferredPrompt] = useState(null);
     const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+    const pathname = usePathname();
 
     useEffect(() => {
         const handleBeforeInstallPrompt = (event) => {
@@ -53,7 +55,8 @@ export default function PWAInstallPrompt({
         setShowInstallPrompt(false);
     };
 
-    if (!showInstallPrompt) return null;
+    // Do not show on home page
+    if (!showInstallPrompt || pathname === "/") return null;
 
     return (
         <div
