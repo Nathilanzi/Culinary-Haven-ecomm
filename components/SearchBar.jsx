@@ -121,7 +121,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
         // Reset page parameter
         params.delete("page");
         // Update URL with new parameters
-        router.push(`/?${params.toString()}`);
+        router.push(`/recipes/?${params.toString()}`);
       }, 500);
     },
     [searchParams, router]
@@ -215,7 +215,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("search", searchTerm);
     params.delete("page");
-    router.push(`/?${params.toString()}`);
+    router.push(`/recipes/?${params.toString()}`);
   };
 
   /**
@@ -239,7 +239,7 @@ const SearchBar = ({ isVisible, onToggle }) => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("search");
     params.delete("page");
-    router.push(`/?${params.toString()}`);
+    router.push(`/recipes/?${params.toString()}`);
   };
 
   /**

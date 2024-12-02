@@ -23,7 +23,7 @@ export default function SignIn() {
   const searchParams = useSearchParams(); // URL search parameters
 
   // Get callback URL or default to root
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const callbackUrl = searchParams.get("callbackUrl") || "/recipes";
 
   // State management for form and authentication
   const [loading, setLoading] = useState(false); // Loading state during sign-in

@@ -299,7 +299,7 @@ const Header = () => {
 
             <div className="hidden md:flex items-center space-x-7">
               <Link
-                href="/"
+                href="/recipes"
                 className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
               >
                 <BookOpen className="mr-2 h-4 w-4" />
@@ -374,7 +374,7 @@ const Header = () => {
               <ThemeToggle />
             </div>
             <Link
-              href="/"
+              href="/recipes"
               className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
             >
               Recipes

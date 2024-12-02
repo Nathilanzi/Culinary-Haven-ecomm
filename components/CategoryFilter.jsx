@@ -64,7 +64,7 @@ export default function CategoryFilter({ categories, currentCategory }) {
 
     // Update selected category and navigate
     setSelectedCategory(tempCategory);
-    router.push(`/?${params.toString()}`);
+    router.push(`/recipes/?${params.toString()}`);
 
     // Close dropdown
     setIsOpen(false);
@@ -95,7 +95,7 @@ export default function CategoryFilter({ categories, currentCategory }) {
     params.delete("page");
 
     // Navigate to clean URL
-    router.push(`/?${params.toString()}`);
+    router.push(`/recipes/?${params.toString()}`);
   };
 
   return (

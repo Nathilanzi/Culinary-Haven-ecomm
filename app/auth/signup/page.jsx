@@ -116,7 +116,7 @@ export default function SignUp() {
   const handleGoogleSignUp = () => {
     // Set loading state and initiate Google sign-in
     setLoading(true);
-    signIn("google", { callbackUrl: "/", redirect: true });
+    signIn("google", { callbackUrl: "/recipes", redirect: true });
   };
 
   // Render signup page
