@@ -5,7 +5,7 @@ import RecipeCard from "@/components/RecipeCard";
 import Pagination from "@/components/Pagination";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
-import { Trash2 } from "lucide-react";
+import { Trash2, Download } from "lucide-react";
 
 const DownloadedRecipesPage = () => {
   const [recipes, setRecipes] = useState([]);
@@ -37,12 +37,6 @@ const DownloadedRecipesPage = () => {
       setRecipes(paginatedRecipes);
       setTotalPages(totalPageCount);
 
-      // If no recipes, set an informative message
-      if (storedRecipes.length === 0) {
-        setError("No downloaded recipes found.");
-      } else {
-        setError("");
-      }
     } catch (err) {
       setError("Error loading recipes: " + err.message);
       toast.error("Failed to load recipes");
@@ -118,9 +112,12 @@ const DownloadedRecipesPage = () => {
       {!loading && !error && (
         <>
           {recipes.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
-              <p>You have no downloaded recipes.</p>
-              <p className="mt-2">Start exploring and download some recipes!</p>
+            <div className="text-center py-12 px-6">
+              <Download className="mx-auto w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
+              <p className="text-gray-500 dark:text-gray-400">
+                You haven't downloaded any recipes yet. Start by downloading
+                one!
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
