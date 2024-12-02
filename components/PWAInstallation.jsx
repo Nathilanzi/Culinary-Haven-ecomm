@@ -61,7 +61,7 @@ export default function PWAInstallPrompt({
     return (
         <div
             className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-white rounded-lg shadow-lg p-4 border border-teal-500 
-                       transition-transform transform duration-300 ease-in-out"
+                       transition-transform transform duration-300 ease-in-out z-10"
         >
             <div className="flex items-start">
                 <div className="flex-shrink-0">

@@ -53,7 +53,7 @@ export default function Home() {
       {/* Background Image with Modern Overlay */}
       <div className="absolute inset-0">
         <Image
-          src="/hero_section1.jpg"
+          src="/HomePage_Image.jpg"
           alt="Culinary Artistry Backdrop"
           fill
           className="object-cover"
