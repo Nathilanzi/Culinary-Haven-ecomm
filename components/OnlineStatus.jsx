@@ -24,7 +24,7 @@ export default function OnlineStatus() {
 
 
       setAlert({
-        message: onlineStatus ? "You are online" : "You are offline. No Internet. Try:",
+        message: onlineStatus ? "Online" : "Offline. No internet. Install the app for a better experience.",
         type: onlineStatus ? "success" : "error", 
         show: true,
       });
@@ -62,17 +62,6 @@ export default function OnlineStatus() {
           isVisible={alert.show}  // Pass the visibility state.
           onClose={() => setAlert({ ...alert, show: false })} // Hide the alert on close.
         />
-      )}
-
-      {/* Display troubleshooting tips if offline and the alert is visible. */}
-      {!isOnline && alert.show && (
-        <div className="mt-2 text-sm">
-          <ul>
-            <li>Checking the network cables, modem, and router</li>
-            <li>Reconnecting to Wi-Fi</li>
-            <li>Running Windows Network Diagnostics</li>
-          </ul>
-        </div>
       )}
     </div>
   );
