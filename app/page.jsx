@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDownToLine, BookOpen } from "lucide-react";
+import { Telescope, LogIn } from "lucide-react";
 
 /**
  * Home page component that serves as a landing page with a hero section
@@ -18,7 +18,7 @@ export default function Home() {
           src="/hero_section1.jpg"
           alt="Culinary Artistry Backdrop"
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-cover"
           priority
         />
         <div
@@ -65,12 +65,12 @@ export default function Home() {
                   transition-all 
                   shadow-md hover:shadow-lg"
               >
-                <ArrowDownToLine className="w-5 h-5" />
+                <Telescope className="w-5 h-5" />
                 Explore Recipes
               </Link>
 
               <Link
-                href="/recipes"
+                href="/auth/signin"
                 className="flex items-center gap-2 px-6 py-3 
                   bg-teal-500/10 dark:bg-slate-500/10 
                   hover:bg-teal-500/20 dark:hover:bg-slate-500/20 
@@ -82,8 +82,8 @@ export default function Home() {
                   transition-all 
                   shadow-md hover:shadow-lg"
               >
-                <BookOpen className="w-5 h-5" />
-                View Collections
+                <LogIn className="w-5 h-5" />
+                Login
               </Link>
             </div>
           </div>

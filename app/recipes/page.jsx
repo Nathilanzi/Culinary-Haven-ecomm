@@ -8,17 +8,16 @@ import ClearFiltersButton from "@/components/ClearFiltersButton";
 import RecipeCarousel from "@/components/RecipeCarousel";
 import { SearchIcon } from "@/components/Svg";
 
-
 export const metadata = {
-	title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
-	description:
-	  "Browse through our collection of delicious recipes. Find everything from quick weeknight dinners to gourmet dishes.",
-	openGraph: {
-	  title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
-	  description:
-		"Browse through our collection of delicious recipes. Find everything from quick weeknight dinners to gourmet dishes.",
-	},
-  };
+  title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
+  description:
+    "Browse through our collection of delicious recipes. Find everything from quick weeknight dinners to gourmet dishes.",
+  openGraph: {
+    title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
+    description:
+      "Browse through our collection of delicious recipes. Find everything from quick weeknight dinners to gourmet dishes.",
+  },
+};
 
 /**
  * ResultsSummary component that displays a summary of the filtered results.
@@ -116,14 +115,14 @@ export default async function Home({ searchParams: rawSearchParams }) {
   const tags = Array.isArray(searchParams["tags[]"])
     ? searchParams["tags[]"]
     : searchParams["tags[]"]
-    ? [searchParams["tags[]"]]
-    : [];
+      ? [searchParams["tags[]"]]
+      : [];
 
   const ingredients = Array.isArray(searchParams["ingredients[]"])
     ? searchParams["ingredients[]"]
     : searchParams["ingredients[]"]
-    ? [searchParams["ingredients[]"]]
-    : [];
+      ? [searchParams["ingredients[]"]]
+      : [];
 
   // Fetch all data concurrently
   const [recipesData, categories, availableTags, availableIngredients] =
