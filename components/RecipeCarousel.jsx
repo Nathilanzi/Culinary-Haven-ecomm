@@ -1,7 +1,7 @@
 "use client";
 
 // Importing necessary React hooks, routing, icons, and animation libraries
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
@@ -24,6 +24,8 @@ const ResponsiveRecipeCarousel = () => {
   const [direction, setDirection] = useState(0); // Carousel navigation direction
   const [loading, setLoading] = useState(true); // Loading state for initial data fetch
   const [skeletonCount, setSkeletonCount] = useState(5); // Number of skeleton cards to show
+  const [scrollProgress, setScrollProgress] = useState(0); // Scroll progress for custom scrollbar
+  const scrollbarRef = useRef(null); // Ref for scrollbar container
   const router = useRouter(); // Next.js router for navigation
 
   /**
@@ -71,7 +73,9 @@ const ResponsiveRecipeCarousel = () => {
     // Set direction to forward (1)
     setDirection(1);
     // Update current index, wrapping around to start if at end
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % recipes.length);
+    const newIndex = (currentIndex + 1) % recipes.length;
+    setCurrentIndex(newIndex);
+    updateScrollProgress(newIndex);
   };
 
   /**
@@ -82,9 +86,39 @@ const ResponsiveRecipeCarousel = () => {
     // Set direction to backward (-1)
     setDirection(-1);
     // Update current index, wrapping around to end if at start
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? recipes.length - 1 : prevIndex - 1
-    );
+    const newIndex = currentIndex === 0 ? recipes.length - 1 : currentIndex - 1;
+    setCurrentIndex(newIndex);
+    updateScrollProgress(newIndex);
+  };
+
+  /**
+   * Update scroll progress based on current index
+   *
+   * @param {number} index - Current carousel index
+   */
+  const updateScrollProgress = (index) => {
+    if (recipes.length > 0) {
+      setScrollProgress((index / (recipes.length - 1)) * 100);
+    }
+  };
+
+  /**
+   * Handle manual scrollbar interaction
+   *
+   * @param {React.MouseEvent} e - Mouse event from scrollbar
+   */
+  const handleScrollbarClick = (e) => {
+    if (scrollbarRef.current) {
+      const rect = scrollbarRef.current.getBoundingClientRect();
+      const clickPosition = (e.clientX - rect.left) / rect.width;
+      const newIndex = Math.min(
+        Math.max(0, Math.floor(clickPosition * recipes.length)),
+        recipes.length - 1
+      );
+      setCurrentIndex(newIndex);
+      updateScrollProgress(newIndex);
+      setDirection(newIndex > currentIndex ? 1 : -1);
+    }
   };
 
   /**
@@ -141,10 +175,10 @@ const ResponsiveRecipeCarousel = () => {
           damping: 20,
           delay: index * 0.2, // Staggered animation
         }}
-        className="flex-1 max-w-[220px] w-full bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse"
+        className="w-full bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse"
       >
         {/* Skeleton image and text placeholders */}
-        <div className="h-48 w-full bg-gray-300 dark:bg-gray-700"></div>
+        <div className="h-48 w-full bg-gray-300 rounded-2xl dark:bg-gray-700"></div>
         <div className="p-4">
           <div className="h-6 bg-gray-300 dark:bg-gray-600 mb-4"></div>
           <div className="flex items-center justify-between">
@@ -216,13 +250,53 @@ const ResponsiveRecipeCarousel = () => {
       </motion.h2>
 
       <div className="relative">
-        {/* Conditional rendering: loading skeletons or recipe cards */}
+        {/* Navigation and scrollbar container - Now more responsive */}
+        {recipes.length > visibleRecipes.length && !loading && (
+          <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-6 mb-4">
+            {/* Scrollbar with full width on small screens */}
+            <div className="w-full sm:flex-grow">
+              <div
+                ref={scrollbarRef}
+                onClick={handleScrollbarClick}
+                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full cursor-pointer overflow-hidden"
+              >
+                <div
+                  className="h-full bg-gradient-to-r from-green-400 to-blue-500 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${scrollProgress}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Navigation buttons - Now inline with scrollbar on larger screens */}
+            <div className="flex space-x-2 justify-center sm:justify-end">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={prevSlide}
+                className="bg-white/70 dark:bg-[#333333]/70 p-2 rounded-full hover:bg-white/90 dark:hover:bg-[#333333]/90 transition-all"
+              >
+                <ChevronLeftIcon className="h-5 w-5 text-gray-700 dark:text-[#A3C9A7]" />
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={nextSlide}
+                className="bg-white/70 dark:bg-[#333333]/70 p-2 rounded-full hover:bg-white/90 dark:hover:bg-[#333333]/90 transition-all"
+              >
+                <ChevronRightIcon className="h-5 w-5 text-gray-700 dark:text-[#A3C9A7]" />
+              </motion.button>
+            </div>
+          </div>
+        )}
+
+        {/* Rest of the component remains the same */}
         {loading ? (
-          <div className="flex justify-center space-x-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-center">
             {renderSkeletonCards()}
           </div>
         ) : (
-          // Animated recipe carousel
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
               variants={containerVariants}
@@ -230,7 +304,7 @@ const ResponsiveRecipeCarousel = () => {
               animate="visible"
               className="flex justify-center space-x-6"
             >
-              {/* Render visible recipes with animations */}
+              {/* Recipe cards rendering */}
               {visibleRecipes.map((recipe, index) => (
                 <motion.div
                   key={recipe._id || index}
@@ -277,28 +351,6 @@ const ResponsiveRecipeCarousel = () => {
               ))}
             </motion.div>
           </AnimatePresence>
-        )}
-
-        {/* Previous and Next navigation buttons */}
-        {recipes.length > visibleRecipes.length && !loading && (
-          <>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={prevSlide}
-              className="absolute top-1/2 left-0 bg-white/70 dark:bg-[#333333]/70 p-3 rounded-full hover:bg-white/90 dark:hover:bg-[#333333]/90 transition-all"
-            >
-              <ChevronLeftIcon className="h-6 w-6 text-gray-700 dark:text-[#A3C9A7]" />
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={nextSlide}
-              className="absolute top-1/2 right-0 bg-white/70 dark:bg-[#333333]/70 p-3 rounded-full hover:bg-white/90 dark:hover:bg-[#333333]/90 transition-all"
-            >
-              <ChevronRightIcon className="h-6 w-6 text-gray-700 dark:text-[#A3C9A7]" />
-            </motion.button>
-          </>
         )}
       </div>
     </motion.div>
