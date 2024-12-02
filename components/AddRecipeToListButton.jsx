@@ -14,7 +14,7 @@ import { ListPlus } from "lucide-react";
  * @param {string} props.shoppingListId - The ID of the shopping list to which ingredients will be added.
  * @returns {JSX.Element} The rendered button component.
  */
-const AddRecipeToListButton = ({ ingredients, shoppingListId }) => {
+const AddRecipeToListButton = ({ ingredients, shoppingListId, recipeName }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [notification, setNotification] = useState(null);
 
@@ -56,7 +56,7 @@ const AddRecipeToListButton = ({ ingredients, shoppingListId }) => {
         },
         body: JSON.stringify({
           items,
-          name: `Shopping List ${new Date().toLocaleDateString()}`,
+          name: `Shopping List for ${recipeName}`,
         }),
       });
 
