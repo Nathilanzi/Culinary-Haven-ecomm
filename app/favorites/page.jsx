@@ -33,6 +33,7 @@ import { useRouter } from "next/navigation";
 import RecipeCard from "@/components/RecipeCard";
 import LoadingPage from "../loading";
 import BackButton from "@/components/BackButton";
+import { Heart } from "lucide-react";
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState([]);
@@ -123,8 +124,11 @@ export default function Favorites() {
       </h1>
 
       {favorites.length === 0 ? (
-        <div className="text-center text-black dark:text-white py-8">
-          <p>You haven&apos;t saved any favorites yet.</p>
+        <div className="text-center py-12 px-6">
+          <Heart className="mx-auto w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
+          <p className="text-gray-500 dark:text-gray-400">
+            You haven't added any favorites yet. Start by adding some!
+          </p>
         </div>
       ) : (
         <div className="max-w-7xl mx-auto">
