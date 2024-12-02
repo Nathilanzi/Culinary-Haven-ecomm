@@ -582,6 +582,7 @@ export default async function RecipeDetail({ params }) {
                 <AddRecipeToListButton
                   ingredients={recipe.ingredients}
                   shoppingListId="your-shopping-list-id"
+                  recipeName={recipe.title}
                 />
               </div>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
