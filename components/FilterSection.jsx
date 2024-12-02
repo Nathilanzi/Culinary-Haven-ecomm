@@ -178,14 +178,14 @@ export default function FilterSection({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 20 }}
-            className="fixed right-0 top-0 h-full w-full sm:w-[400px] bg-white dark:bg-neutral-900 shadow-2xl z-50 overflow-y-auto"
+            className="fixed right-0 top-0 h-full w-full sm:w-[400px] bg-white dark:bg-slate-800 shadow-2xl z-50 overflow-y-auto"
           >
             {/* Panel Header */}
-            <div className="px-4 py-4 bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-neutral-800 dark:to-teal-900 border-b border-neutral-100 dark:border-neutral-700 sticky top-0 z-10">
+            <div className="px-4 py-4 bg-gradient-to-r from-teal-50 to-slate-100 dark:from-slate-800 dark:to-teal-900 border-b border-neutral-100 dark:border-slate-700 sticky top-0 z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <Filter className="w-5 h-5 text-teal-600 dark:text-emerald-400" />
-                  <h2 className="text-base font-semibold text-teal-800 dark:text-emerald-300">
+                  <Filter className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                  <h2 className="text-base font-semibold text-teal-800 dark:text-teal-300">
                     Recipe Filters
                   </h2>
                   {isFilterActive && (
@@ -197,7 +197,7 @@ export default function FilterSection({
                 </div>
                 <motion.button
                   onClick={() => setIsPanelOpen(false)}
-                  className="text-neutral-600 dark:text-neutral-300 hover:text-teal-600 dark:hover:text-emerald-400 transition-colors"
+                  className="text-neutral-600 dark:text-neutral-300 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -228,7 +228,7 @@ export default function FilterSection({
               {/* Advanced Filters Toggle */}
               <motion.button
                 onClick={() => setIsAdvancedFiltersOpen(!isAdvancedFiltersOpen)}
-                className="flex items-center space-x-2 bg-white dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 px-3 py-2 rounded-lg text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors w-full justify-center"
+                className="flex items-center space-x-2 bg-white dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 px-3 py-2 rounded-lg text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-slate-600 transition-colors w-full justify-center"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -265,7 +265,7 @@ export default function FilterSection({
                         updateUrl={updateUrl}
                       />
                       {!isFilterActive && (
-                        <div className="text-gray-500 text-sm italic mt-4">
+                        <div className="text-gray-500 dark:text-slate-400 text-sm italic mt-4">
                           No filter applied
                         </div>
                       )}
@@ -275,7 +275,7 @@ export default function FilterSection({
               </AnimatePresence>
 
               {/* Category and Sort Order Section */}
-              <div className="flex flex-col space-y-3 pt-3 border-t border-gray-100">
+              <div className="flex flex-col space-y-3 pt-3 border-t border-gray-100 dark:border-slate-700">
                 <CategoryFilter
                   categories={categories}
                   currentCategory={filterState.category}

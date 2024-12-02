@@ -126,17 +126,17 @@ export default function SortOrder({ currentSort, currentOrder }) {
       {/* Sort dropdown trigger button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center justify-between w-full md:w-64 px-4 py-2.5 text-sm bg-white border border-teal-100 rounded-lg text-teal-900 shadow-sm hover:border-teal-200 hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+        className="inline-flex items-center justify-between w-full px-4 py-2.5 text-sm bg-white dark:bg-slate-800 border border-teal-100 dark:border-slate-700 rounded-lg text-teal-900 dark:text-slate-200 shadow-sm hover:border-teal-200 dark:hover:border-slate-600 hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-teal-500/40 focus:border-teal-500"
       >
         <div className="flex items-center gap-2">
-          <ArrowUpDown className="w-4 h-4 text-teal-500" />
+          <ArrowUpDown className="w-4 h-4 text-teal-500 dark:text-teal-400" />
           <span className="font-medium">
             {sortOptions[selectedSort]?.label || "Sort Recipes"}
           </span>
         </div>
         {/* Dropdown chevron with rotation animation */}
         <ChevronDown
-          className={`w-4 h-4 text-teal-400 transition-transform duration-200 ${
+          className={`w-4 h-4 text-teal-400 dark:text-teal-300 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
           }`}
         />
@@ -144,27 +144,27 @@ export default function SortOrder({ currentSort, currentOrder }) {
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute z-50 w-full md:w-80 mt-2 bg-white rounded-lg shadow-xl border border-teal-100 animate-in fade-in slide-in-from-top-2">
-          <div className="px-2 py-1.5 text-xs font-medium text-teal-500 uppercase tracking-wider">
+        <div className="absolute z-50 w-full md:w-80 mt-2 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-teal-100 dark:border-slate-700 animate-in fade-in slide-in-from-top-2">
+          <div className="px-2 py-1.5 text-xs font-medium text-teal-500 dark:text-teal-400 uppercase tracking-wider">
             Sort Options
           </div>
 
           {/* Sort options list */}
-          <div className="mt-1 max-h-64 overflow-auto">
+          <div className="mt-1 max-h-64 overflow-auto custom-scrollbar">
             {Object.entries(sortOptions).map(([value, option]) => (
               <button
                 key={value}
                 onClick={() => handleSelect(value)}
-                className={`w-full flex items-start gap-3 px-3 py-2.5 text-left hover:bg-teal-50 transition-colors duration-150 ${
-                  tempSort === value ? "bg-teal-50/50" : ""
+                className={`w-full flex items-start gap-3 px-3 py-2.5 text-left hover:bg-teal-50 dark:hover:bg-slate-700 transition-colors duration-150 ${
+                  tempSort === value ? "bg-teal-50/50 dark:bg-slate-700/50" : ""
                 }`}
               >
                 {/* Radio button style selector */}
                 <div
                   className={`mt-1 w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                     tempSort === value
-                      ? "border-teal-500 bg-teal-500"
-                      : "border-teal-200"
+                      ? "border-teal-500 bg-teal-500 dark:border-teal-400 dark:bg-teal-400"
+                      : "border-teal-200 dark:border-slate-600"
                   }`}
                 >
                   {tempSort === value && (
@@ -173,11 +173,11 @@ export default function SortOrder({ currentSort, currentOrder }) {
                 </div>
                 {/* Option details */}
                 <div>
-                  <div className="font-medium text-teal-900">
+                  <div className="font-medium text-teal-900 dark:text-slate-200">
                     {option.label}
                   </div>
                   {option.description && (
-                    <div className="text-sm text-teal-600 mt-0.5">
+                    <div className="text-sm text-teal-600 dark:text-slate-400 mt-0.5">
                       {option.description}
                     </div>
                   )}
@@ -187,16 +187,16 @@ export default function SortOrder({ currentSort, currentOrder }) {
           </div>
 
           {/* Action buttons */}
-          <div className="flex justify-end items-center gap-3 mt-6 pt-4 border-t border-teal-100 px-3 pb-3">
+          <div className="flex justify-end items-center gap-3 mt-6 pt-4 border-t border-teal-100 dark:border-slate-700 px-3 pb-3">
             <button
               onClick={handleClear}
-              className="px-4 py-2 text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors duration-200"
+              className="px-4 py-2 text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:bg-teal-50 dark:hover:bg-slate-700 rounded-lg transition-colors duration-200"
             >
               Reset
             </button>
             <button
               onClick={handleApply}
-              className="px-6 py-2 bg-teal-600 text-white rounded-lg transition-all duration-300 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+              className="px-6 py-2 bg-teal-600 text-white dark:bg-teal-500 rounded-lg transition-all duration-300 hover:bg-teal-700 dark:hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-teal-400 dark:focus:ring-offset-slate-800"
             >
               Apply
             </button>

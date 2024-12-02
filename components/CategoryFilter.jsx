@@ -103,11 +103,11 @@ export default function CategoryFilter({ categories, currentCategory }) {
       {/* Main dropdown trigger button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center justify-between w-full md:w-64 px-4 py-2.5 text-sm bg-white border border-teal-100 rounded-lg text-teal-900 shadow-sm hover:border-teal-200 hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+        className="inline-flex items-center justify-between w-full  px-4 py-2.5 text-sm bg-white dark:bg-slate-800 border border-teal-100 dark:border-slate-700 rounded-lg text-teal-900 dark:text-slate-200 shadow-sm hover:border-teal-200 dark:hover:border-slate-600 hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-teal-500/40 focus:border-teal-500"
       >
         {/* Category display and icons */}
         <div className="flex items-center gap-2">
-          <FolderTree className="w-4 h-4 text-teal-500" />
+          <FolderTree className="w-4 h-4 text-teal-500 dark:text-teal-400" />
           <span className="font-medium truncate">
             {selectedCategory || "All Categories"}
           </span>
@@ -117,14 +117,14 @@ export default function CategoryFilter({ categories, currentCategory }) {
           {selectedCategory && (
             <button
               onClick={clearSelection}
-              className="p-1 hover:bg-teal-50 rounded-full transition-colors"
+              className="p-1 hover:bg-teal-50 dark:hover:bg-slate-700 rounded-full transition-colors"
             >
-              <X className="w-3 h-3 text-teal-400" />
+              <X className="w-3 h-3 text-teal-400 dark:text-slate-400" />
             </button>
           )}
           {/* Dropdown chevron with rotation animation */}
           <ChevronDown
-            className={`w-4 h-4 text-teal-400 transition-transform duration-200 ${
+            className={`w-4 h-4 text-teal-400 dark:text-teal-300 transition-transform duration-200 ${
               isOpen ? "rotate-180" : ""
             }`}
           />
@@ -133,32 +133,33 @@ export default function CategoryFilter({ categories, currentCategory }) {
 
       {/* Dropdown menu (rendered when isOpen is true) */}
       {isOpen && (
-        <div className="absolute z-50 w-full md:w-72 mt-2 bg-white rounded-lg shadow-xl border border-teal-100 animate-in fade-in slide-in-from-top-2">
-          {/* Dropdown header */}
-          <div className="px-2 py-1.5 text-xs font-medium text-teal-500 uppercase tracking-wider">
+        <div className="absolute z-50 w-full md:w-72 mt-2 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-teal-100 dark:border-slate-700 animate-in fade-in slide-in-from-top-2">
+          <div className="px-2 py-1.5 text-xs font-medium text-teal-500 dark:text-teal-400 uppercase tracking-wider">
             Select Category
           </div>
 
           {/* Category selection list */}
-          <div className="mt-1 max-h-64 overflow-auto">
+          <div className="mt-1 max-h-64 overflow-auto custom-scrollbar">
             {/* All Categories option */}
             <button
               onClick={() => handleSelect("")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-teal-50 transition-colors duration-150 ${
-                !tempCategory ? "bg-teal-50/50" : ""
+              className={`w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-teal-50 dark:hover:bg-slate-700 transition-colors duration-150 ${
+                !tempCategory ? "bg-teal-50/50 dark:bg-slate-700/50" : ""
               }`}
             >
               {/* Radio button style selector */}
               <div
                 className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                   !tempCategory
-                    ? "border-teal-500 bg-teal-500"
-                    : "border-teal-200"
+                    ? "border-teal-500 bg-teal-500 dark:border-teal-400 dark:bg-teal-400"
+                    : "border-teal-200 dark:border-slate-600"
                 }`}
               >
                 {!tempCategory && <Check className="w-3 h-3 text-white" />}
               </div>
-              <span className="font-medium text-teal-900">All Categories</span>
+              <span className="font-medium text-teal-900 dark:text-slate-200">
+                All Categories
+              </span>
             </button>
 
             {/* Dynamic category options */}
@@ -166,40 +167,44 @@ export default function CategoryFilter({ categories, currentCategory }) {
               <button
                 key={category}
                 onClick={() => handleSelect(category)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-teal-50 transition-colors duration-150 ${
-                  tempCategory === category ? "bg-teal-50/50" : ""
+                className={`w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-teal-50 dark:hover:bg-slate-700 transition-colors duration-150 ${
+                  tempCategory === category
+                    ? "bg-teal-50/50 dark:bg-slate-700/50"
+                    : ""
                 }`}
               >
                 {/* Radio button style selector */}
                 <div
                   className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                     tempCategory === category
-                      ? "border-teal-500 bg-teal-500"
-                      : "border-teal-200"
+                      ? "border-teal-500 bg-teal-500 dark:border-teal-400 dark:bg-teal-400"
+                      : "border-teal-200 dark:border-slate-600"
                   }`}
                 >
                   {tempCategory === category && (
                     <Check className="w-3 h-3 text-white" />
                   )}
                 </div>
-                <span className="font-medium text-teal-900">{category}</span>
+                <span className="font-medium text-teal-900 dark:text-slate-200">
+                  {category}
+                </span>
               </button>
             ))}
           </div>
 
           {/* Dropdown action buttons */}
-          <div className="flex justify-end items-center gap-3 mt-6 pt-4 border-t border-teal-100 px-3 pb-3">
+          <div className="flex justify-end items-center gap-3 mt-6 pt-4 border-t border-teal-100 dark:border-slate-700 px-3 pb-3">
             {/* Reset button */}
             <button
               onClick={handleClear}
-              className="px-4 py-2 text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors duration-200"
+              className="px-4 py-2 text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:bg-teal-50 dark:hover:bg-slate-700 rounded-lg transition-colors duration-200"
             >
               Reset
             </button>
             {/* Apply button */}
             <button
               onClick={handleApply}
-              className="px-6 py-2 bg-teal-600 text-white rounded-lg transition-all duration-300 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+              className="px-6 py-2 bg-teal-600 text-white dark:bg-teal-500 rounded-lg transition-all duration-300 hover:bg-teal-700 dark:hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-teal-400 dark:focus:ring-offset-slate-800"
             >
               Apply
             </button>
