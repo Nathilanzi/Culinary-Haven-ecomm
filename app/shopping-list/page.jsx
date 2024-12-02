@@ -176,7 +176,7 @@ export default function ShoppingListPage() {
       )
       .join("\n");
 
-    const message = encodeURIComponent(`Shopping List: \n${listText}`);
+    const message = encodeURIComponent(`${list.name}: \n${listText}`);
     return `https://wa.me/?text=${message}`;
   };
 
@@ -389,10 +389,14 @@ export default function ShoppingListPage() {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                        {list.name ||
+                        {list.name && list.name.length > 52 ? (
+                          <>{list.name.slice(0, 52)}...</>
+                        ) : (
+                          list.name ||
                           `Shopping List - ${new Date(
                             list.createdAt
-                          ).toLocaleDateString()}`}
+                          ).toLocaleDateString()}`
+                        )}
                       </h2>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Created on{" "}
