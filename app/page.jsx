@@ -6,6 +6,8 @@ import FilterSection from "@/components/FilterSection";
 import Loader from "@/components/Loader";
 import ClearFiltersButton from "@/components/ClearFiltersButton";
 import RecipeCarousel from "@/components/RecipeCarousel";
+import { SearchIcon } from "@/components/Svg";
+
 
 export const metadata = {
   title: "Culinary Haven: Online Recipes | SA's leading online recipe app",
@@ -18,23 +20,15 @@ export const metadata = {
   },
 };
 
-const SearchIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-);
-
+/**
+ * ResultsSummary component that displays a summary of the filtered results.
+ * It shows the total number of matching recipes, and details about any active filters such as tags, ingredients, etc.
+ *
+ * @param {Object} props - The component's props.
+ * @param {number} props.total - The total number of recipes that match the search criteria.
+ * @param {Object} props.filters - The active filters applied to the search.
+ * @returns {JSX.Element} The rendered component.
+ */
 function ResultsSummary({ total, filters }) {
   const { tags, numberOfSteps, ingredients, category, search } = filters;
 
@@ -65,6 +59,14 @@ function ResultsSummary({ total, filters }) {
   );
 }
 
+/**
+ * NoResults component that displays a message when no recipes match the search filters.
+ * It also includes a button to clear the current filters.
+ *
+ * @param {Object} props - The component's props.
+ * @param {boolean} props.hasFilters - A flag indicating whether filters are applied.
+ * @returns {JSX.Element} The rendered component.
+ */
 function NoResults({ hasFilters }) {
   return (
     <div className="text-center py-12">
@@ -77,6 +79,20 @@ function NoResults({ hasFilters }) {
   );
 }
 
+/**
+ * Home component that renders the main recipe search page.
+ * This component handles the search functionality, filters, and pagination
+ * for the recipe listings. It fetches the necessary data, including recipes, categories, tags, and ingredients,
+ * and displays the results in a grid layout. It also includes a recipe carousel and pagination controls.
+ *
+ * @param {Object} props - The component's props.
+ * @param {Object} props.searchParams - The query parameters for the search, passed as an object.
+ * @returns {JSX.Element} The rendered component.
+ *
+ * @example
+ * // Example of using the Home component with query parameters
+ * <Home searchParams={{ page: 1, limit: 20, search: "pasta", category: "Italian" }} />
+ */
 export default async function Home({ searchParams: rawSearchParams }) {
   // Wait for searchParams to be ready
   const searchParams = await Promise.resolve(rawSearchParams);
@@ -100,14 +116,14 @@ export default async function Home({ searchParams: rawSearchParams }) {
   const tags = Array.isArray(searchParams["tags[]"])
     ? searchParams["tags[]"]
     : searchParams["tags[]"]
-      ? [searchParams["tags[]"]]
-      : [];
+    ? [searchParams["tags[]"]]
+    : [];
 
   const ingredients = Array.isArray(searchParams["ingredients[]"])
     ? searchParams["ingredients[]"]
     : searchParams["ingredients[]"]
-      ? [searchParams["ingredients[]"]]
-      : [];
+    ? [searchParams["ingredients[]"]]
+    : [];
 
   // Fetch all data concurrently
   const [recipesData, categories, availableTags, availableIngredients] =

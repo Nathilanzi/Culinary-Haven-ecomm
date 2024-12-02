@@ -9,15 +9,28 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import clientPromise from "@/lib/mongodb";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { v2 as cloudinary } from "cloudinary";
 
+// Configure Cloudinary with environment variables for secure image uploads
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Ensure the route is dynamically rendered for real-time data
 export const dynamic = "force-dynamic";
 
+/**
+ * GET handler for retrieving user profile
+ * @returns {NextResponse} User profile data or error response
+ */
 export async function GET() {
   try {
-    // Get the user's session using the authOptions
+    // Validate user session
     const session = await getServerSession(authOptions);
 
-    // If there is no session, return a 401 Unauthorized response
+    // Reject unauthenticated requests
     if (!session) {
       return NextResponse.json(
         { error: "Authentication required" },
@@ -25,9 +38,11 @@ export async function GET() {
       );
     }
 
+    // Connect to MongoDB database
     const client = await clientPromise;
     const db = client.db("devdb");
 
+    // Find user by email, excluding sensitive fields
     const user = await db
       .collection("users")
       .findOne(
@@ -35,7 +50,7 @@ export async function GET() {
         { projection: { password: 0, _id: 0 } }
       );
 
-    // If the user's profile is not found, return a 404 Not Found response
+    // Handle case where user is not found
     if (!user) {
       return NextResponse.json(
         { error: "User profile not found" },
@@ -43,9 +58,10 @@ export async function GET() {
       );
     }
 
-    // Return the user's profile as a JSON response
+    // Return user profile data
     return NextResponse.json(user);
   } catch (error) {
+    // Log and handle any unexpected errors
     console.error("Profile retrieval error:", error);
     return NextResponse.json(
       { error: "Internal server error while retrieving profile" },
@@ -55,19 +71,16 @@ export async function GET() {
 }
 
 /**
- * Updates the user's profile in the database.
- *
- * This route is marked as dynamic since it depends on the user's session and headers.
- *
- * @param {Request} request - The incoming HTTP request
- * @returns {Promise<NextResponse>} - A JSON response with the update status.
+ * PUT handler for updating user profile
+ * @param {Request} request - Incoming request with form data
+ * @returns {NextResponse} Updated profile data or error response
  */
 export async function PUT(request) {
   try {
-    // Get the user's session using the authOptions
+    // Validate user session
     const session = await getServerSession(authOptions);
 
-    // If there is no session, return a 401 Unauthorized response
+    // Reject unauthenticated requests
     if (!session) {
       return NextResponse.json(
         { error: "Authentication required" },
@@ -75,42 +88,76 @@ export async function PUT(request) {
       );
     }
 
-    // Get the updates from the request body
-    const updates = await request.json();
+    // Parse incoming form data
+    const formData = await request.formData();
+    const name = formData.get("name");
+    const imageFile = formData.get("image");
 
-    // Validate that update data is provided
-    if (!updates || Object.keys(updates).length === 0) {
+    // Validate that at least one update field is provided
+    if (!name && !imageFile) {
       return NextResponse.json(
         { error: "No update data provided" },
         { status: 400 }
       );
     }
 
-    // Filter the allowed fields to update
-    const allowedUpdates = ["name", "image"];
-    const sanitizedUpdates = Object.keys(updates)
-      .filter((key) => allowedUpdates.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = updates[key];
-        return obj;
-      }, {});
+    // Prepare updates object
+    const updates = {};
 
-    // Connect to the MongoDB database
+    // Handle image upload if an image is provided
+    let imageUrl = null;
+    if (imageFile && imageFile instanceof File) {
+      // Convert image file to base64 for Cloudinary upload
+      const bytes = await imageFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const base64Image = buffer.toString("base64");
+
+      // Upload image to Cloudinary with specific configurations
+      const uploadResult = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload(
+          `data:${imageFile.type};base64,${base64Image}`,
+          {
+            folder: "profile_images", // Organize images in a specific folder
+            public_id: `${session.user.email}_profile`, // Unique identifier
+            overwrite: true, // Replace existing image
+            transformation: [
+              { width: 500, height: 500, crop: "fill" }, // Standardize image size
+              { quality: "auto" }, // Optimize image quality
+            ],
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+      });
+
+      // Store Cloudinary image URL
+      imageUrl = uploadResult.secure_url;
+      updates.image = imageUrl;
+    }
+
+    // Add name to updates if provided
+    if (name) {
+      updates.name = name;
+    }
+
+    // Connect to MongoDB database
     const client = await clientPromise;
     const db = client.db("devdb");
 
-    // Update the user's profile in the "users" collection
+    // Update user profile in the database
     const result = await db.collection("users").updateOne(
       { email: session.user.email },
       {
         $set: {
-          ...sanitizedUpdates,
-          updatedAt: new Date(),
+          ...updates,
+          updatedAt: new Date(), // Track last update timestamp
         },
       }
     );
 
-    // If the user's profile is not found, return a 404 Not Found response
+    // Handle case where user is not found
     if (result.matchedCount === 0) {
       return NextResponse.json(
         { error: "User profile not found" },
@@ -118,20 +165,17 @@ export async function PUT(request) {
       );
     }
 
-    // If no changes were made, return a 200 OK response with a message
-    if (result.modifiedCount === 0) {
-      return NextResponse.json(
-        { message: "No changes were made to the profile" },
-        { status: 200 }
-      );
-    }
-
-    // Return a 200 OK response with a success message
+    // Return successful update response with new data
     return NextResponse.json(
-      { message: "Profile updated successfully" },
+      {
+        message: "Profile updated successfully",
+        image: imageUrl,
+        name: name,
+      },
       { status: 200 }
     );
   } catch (error) {
+    // Log and handle any unexpected errors
     console.error("Profile update error:", error);
     return NextResponse.json(
       { error: "Internal server error while updating profile" },

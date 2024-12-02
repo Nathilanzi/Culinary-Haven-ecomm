@@ -1,106 +1,70 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, CheckCircle2, Filter } from "lucide-react";
 
-// SVG Icons as inline components
-const FilterIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="text-gray-600"
-  >
-    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-  </svg>
-);
-
-const XIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="18" y1="6" x2="6" y2="18"></line>
-    <line x1="6" y1="6" x2="18" y2="18"></line>
-  </svg>
-);
-
-const CheckIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="20 6 9 17 4 12"></polyline>
-  </svg>
-);
-
+/**
+ * A flexible tag filtering component with dynamic URL updating and matching options.
+ *
+ * @component
+ * @param {Object} props - Component properties
+ * @param {string[]} [props.availableTags=[]] - List of tags that can be filtered
+ * @param {URLSearchParams} props.searchParams - Current URL search parameters
+ * @param {Function} props.updateUrl - Function to update URL with new search parameters
+ * @param {Object} [props.defaultValues={tags: [], tagMatchType: "all"}] - Default filter settings
+ * @returns {React.ReactElement} Rendered tag filter component
+ */
 export default function TagFilter({
-  availableTags = [],
-  searchParams,
-  updateUrl,
-  defaultValues = { tags: [], tagMatchType: "all" },
-  recipes = [],
+  availableTags = [], // Default empty array of available tags
+  searchParams, // URL search parameters
+  updateUrl, // Function to update URL
+  defaultValues = { tags: [], tagMatchType: "all" }, // Default configuration
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  // State to control tag filter modal visibility
+  const [isTagFilterOpen, setIsTagFilterOpen] = useState(false);
 
-  const currentTags = searchParams.getAll("tags[]");
+  // Extract current tags and match type from search parameters
+  const currentTags = searchParams.getAll("tags[]"); // Get all current tag values
   const currentMatchType =
-    searchParams.get("tagMatchType") || defaultValues.tagMatchType;
+    searchParams.get("tagMatchType") || defaultValues.tagMatchType; // Determine current match type
 
-  // Outside click effect
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Existing handler methods remain the same
+  /**
+   * Handles tag selection/deselection
+   *
+   * @param {string} tag - The tag being clicked
+   */
   const handleTagClick = (tag) => {
+    // Toggle tag in current tags list
     const newTags = currentTags.includes(tag)
-      ? currentTags.filter((t) => t !== tag)
-      : [...currentTags, tag];
+      ? currentTags.filter((t) => t !== tag) // Remove tag if already present
+      : [...currentTags, tag]; // Add tag if not present
 
+    // Prepare updates for URL
     const updates = {
-      "tags[]": newTags,
+      "tags[]": newTags, // Update tags array
       tagMatchType:
         currentMatchType !== defaultValues.tagMatchType
           ? currentMatchType
-          : null,
+          : null, // Preserve match type if different from default
     };
 
+    // Clear match type if no tags are selected
     if (newTags.length === 0) {
       updates.tagMatchType = null;
     }
 
+    // Update URL with new parameters
     updateUrl(updates);
   };
 
+  /**
+   * Changes the tag matching type (all/any)
+   *
+   * @param {string} newMatchType - New match type to apply
+   */
   const handleMatchTypeChange = (newMatchType) => {
+    // Only update if tags exist or match type differs from default
     if (currentTags.length > 0 || newMatchType !== defaultValues.tagMatchType) {
       updateUrl({
         "tags[]": currentTags,
@@ -109,175 +73,207 @@ export default function TagFilter({
     }
   };
 
+  /**
+   * Clears all selected tags
+   */
   const clearAllTags = () => {
+    // Reset to default state
     updateUrl({
       "tags[]": defaultValues.tags,
       tagMatchType: null,
     });
-    setIsOpen(false);
   };
 
-  const noRecipesFound = currentTags.length > 0 && recipes.length === 0;
+  // Check if any tags are currently selected
+  const isTagFilterActive = currentTags.length > 0;
 
   return (
-    <div className="relative w-full" ref={dropdownRef}>
+    <div className="w-full max-w-sm">
+      {/* Tag filter label */}
       <label
-        htmlFor="tags"
-        className="block text-sm font-semibold text-gray-700 mb-2 select-none"
+        htmlFor="tagFilter"
+        className="block mb-2 text-sm font-medium text-teal-700 dark:text-teal-300"
       >
-        Filter by Tags
+        Tag Filters
       </label>
 
-      {/* Trigger Button with Elegant Design */}
-      <button
-        id="tags"
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 px-4 py-2.5 
-        w-full max-w-[300px]
-        bg-white border border-gray-200 rounded-xl 
-        hover:bg-gray-50 hover:shadow-md 
-        transition-all duration-300 ease-in-out
-        focus:outline-none focus:ring-2 focus:ring-blue-500/50
-        text-gray-800 font-medium"
-      >
-        <FilterIcon />
-        <span>Filters</span>
-
-        {currentTags.length > 0 && (
-          <span
-            className="ml-2 px-2.5 py-0.5 
-            bg-blue-500 text-white rounded-full 
-            text-xs font-bold tracking-tight"
-          >
-            {currentTags.length}
-          </span>
-        )}
-      </button>
-
-      {isOpen && (
-        <div
-          className={`
-            w-full max-w-[400px] mx-auto
-            fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-            z-50 
-            bg-white rounded-2xl 
-            shadow-2xl border border-gray-200 
-            overflow-hidden
-            transform transition-all 
-            duration-400 ease-elegant
-            max-h-[90vh] overflow-y-auto`}
+      <div className="relative">
+        {/* Main filter button */}
+        <button
+          id="tagFilter"
+          onClick={() => setIsTagFilterOpen(true)} // Open filter modal
+          className="w-full px-4 py-2.5 
+            rounded-xl border 
+            border-teal-300 
+            bg-white 
+            dark:bg-slate-800
+            text-teal-800 
+            dark:border-slate-700
+            placeholder-teal-600 
+            dark:text-teal-300
+            focus:outline-none 
+            focus:ring-2 
+            focus:ring-teal-500 
+            focus:border-transparent 
+            transition-all 
+            duration-300 
+            ease-in-out 
+            hover:shadow-md 
+            hover:border-teal-500
+            flex items-center justify-between
+            dark:focus:ring-teal-500/40
+            dark:hover:border-slate-600"
         >
-          <div className="p-6 space-y-6">
-            {/* Header with Refined Styling */}
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900">
-                Filter Recipes
-              </h3>
-              {currentTags.length > 0 && (
-                <button
-                  onClick={clearAllTags}
-                  className="flex items-center gap-2 
-                    text-sm text-gray-500 hover:text-gray-800 
-                    transition-colors duration-200 
-                    hover:bg-gray-100 px-2.5 py-1.5 rounded-lg"
-                >
-                  <XIcon />
-                  Clear All
-                </button>
-              )}
-            </div>
+          {/* Filter button content */}
+          <div className="flex items-center space-x-2">
+            <Filter className="w-4 h-4" />
+            <span>Tag Filters</span>
+          </div>
 
-            {/* Match Type Section with Enhanced Design */}
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-gray-700 mb-3">
-                Tag Matching
-              </p>
-              <div className="flex gap-4">
-                {["all", "any"].map((type) => (
-                  <label
-                    key={type}
-                    className="flex items-center gap-3 cursor-pointer group"
+          {/* Active tag count indicator */}
+          {isTagFilterActive && (
+            <span className="ml-2 px-2 py-1 bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 text-xs rounded-full flex items-center">
+              <CheckCircle2 className="w-3 h-3 mr-1" />
+              {currentTags.length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Animated filter modal */}
+      <AnimatePresence>
+        {isTagFilterOpen && (
+          <>
+            {/* Overlay backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsTagFilterOpen(false)} // Close modal on backdrop click
+              className="fixed inset-0 bg-black/50 z-40"
+            />
+
+            {/* Filter modal sliding panel */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 20 }}
+              className="fixed right-0 top-0 h-full w-full sm:w-[400px] bg-white dark:bg-slate-800 shadow-2xl z-50 overflow-y-auto"
+            >
+              {/* Modal header */}
+              <div className="px-4 py-4 bg-gradient-to-r from-teal-50 to-slate-100 dark:from-slate-800 dark:to-teal-900 border-b border-neutral-100 dark:border-slate-700 sticky top-0 z-10">
+                <div className="flex items-center justify-between">
+                  {/* Modal title and active indicator */}
+                  <div className="flex items-center space-x-3">
+                    <Filter className="w-5 h-5 text-teal-600 dark:text-emerald-400" />
+                    <h2 className="text-base font-semibold text-teal-800 dark:text-emerald-300">
+                      Tag Filters
+                    </h2>
+                    {isTagFilterActive && (
+                      <span className="ml-2 px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs rounded-full flex items-center">
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        Active
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Close modal button */}
+                  <motion.button
+                    onClick={() => setIsTagFilterOpen(false)}
+                    className="text-neutral-600 dark:text-neutral-300 hover:text-teal-600 dark:hover:text-emerald-400 transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                   >
-                    <div className="relative">
-                      <input
-                        type="radio"
-                        name="tagMatchType"
-                        value={type}
-                        checked={currentMatchType === type}
-                        onChange={(e) => handleMatchTypeChange(e.target.value)}
-                        className="w-5 h-5 text-blue-600 
-                          border-gray-300 focus:ring-blue-500 
-                          rounded-full appearance-none 
-                          border-2 checked:border-blue-600"
-                      />
-                      {currentMatchType === type && (
-                        <CheckIcon
-                          className="absolute top-1/2 left-1/2 transform 
-                          -translate-x-1/2 -translate-y-1/2 
-                          w-3 h-3 text-blue-600"
-                        />
-                      )}
-                    </div>
-                    <span
-                      className="text-sm text-gray-600 
-                        group-hover:text-gray-900 
-                        capitalize transition-colors duration-200"
-                    >
-                      {type} tags
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
+                    <X className="w-5 h-5" />
+                  </motion.button>
+                </div>
 
-            {/* Tags Section with Improved Layout */}
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-gray-700 mb-3">
-                Available Tags
-              </p>
-              <div
-                className="max-h-64 overflow-y-auto pr-2 
-                  scrollbar-thin scrollbar-thumb-gray-300 
-                  scrollbar-track-gray-100 
-                  scrollbar-thumb-rounded-full"
-              >
-                <div className="grid grid-cols-2 gap-2.5">
-                  {availableTags.map((tag) => (
+                {/* Clear all tags button (shown when tags are active) */}
+                {isTagFilterActive && (
+                  <motion.div
+                    className="mt-3"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
                     <button
-                      key={tag}
-                      onClick={() => handleTagClick(tag)}
-                      className={`px-4 py-2 rounded-lg text-sm
-                              transition-all duration-200 font-medium
-                              flex items-center justify-between
-                              ${
-                    currentTags.includes(tag)
-                      ? "bg-blue-50 text-blue-700 hover:bg-blue-100"
-                      : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                    }`}
+                      onClick={clearAllTags}
+                      className="flex items-center space-x-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-3 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors text-sm w-full justify-center"
                     >
-                      <span>{tag}</span>
-                      {currentTags.includes(tag) && <CheckIcon />}
+                      <X className="w-4 h-4" />
+                      <span>Clear All Tags</span>
                     </button>
-                  ))}
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Modal content */}
+              <div className="p-4 space-y-4">
+                {/* Tag matching type selection */}
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-3">
+                    Tag Matching
+                  </p>
+                  <div className="flex gap-4">
+                    {["all", "any"].map((type) => (
+                      <label
+                        key={type}
+                        className="flex items-center gap-3 cursor-pointer group"
+                      >
+                        {/* Radio button for match type */}
+                        <input
+                          type="radio"
+                          name="tagMatchType"
+                          value={type}
+                          checked={currentMatchType === type}
+                          onChange={(e) =>
+                            handleMatchTypeChange(e.target.value)
+                          }
+                          className="w-4 h-4 text-teal-600 border-neutral-300 focus:ring-teal-500 rounded-full"
+                        />
+                        <span className="text-sm text-neutral-600 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 capitalize transition-colors duration-200">
+                          {type} tags
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Available tags grid */}
+                <div className="space-y-3 mt-4">
+                  <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-3">
+                    Available Tags
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Render each available tag as a button */}
+                    {availableTags.map((tag) => (
+                      <button
+                        key={tag}
+                        onClick={() => handleTagClick(tag)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium
+                          transition-all duration-200
+                          ${
+                            currentTags.includes(tag)
+                              ? "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 hover:bg-teal-200 dark:hover:bg-teal-800"
+                              : "bg-neutral-100 dark:bg-gray-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-gray-600"
+                          }`}
+                      >
+                        {tag}
+                        {/* Show checkmark for selected tags */}
+                        {currentTags.includes(tag) && (
+                          <span className="ml-2 text-teal-600 dark:text-teal-400">
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* No Recipes Found with Softer Design */}
-            {noRecipesFound && (
-              <div
-                className="mt-4 p-4 bg-yellow-50/80 
-                  border border-yellow-200 rounded-xl 
-                  text-center shadow-sm"
-              >
-                <p className="text-yellow-800 font-medium">
-                  No recipes found for the selected tags.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

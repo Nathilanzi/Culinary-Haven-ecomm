@@ -44,15 +44,21 @@ function validateReview(review) {
 async function updateRecipeRating(db, recipeId) {
   const recipe = await db.collection("recipes").findOne({ _id: recipeId });
   if (recipe && recipe.reviews) {
-    const totalRating = recipe.reviews.reduce((sum, review) => sum + review.rating, 0);
-    const averageRating = recipe.reviews.length > 0
-      ? Number((totalRating / recipe.reviews.length).toFixed(1))
-      : 0;
-
-    await db.collection("recipes").updateOne(
-      { _id: recipeId },
-      { $set: { averageRating, reviewCount: recipe.reviews.length } }
+    const totalRating = recipe.reviews.reduce(
+      (sum, review) => sum + review.rating,
+      0
     );
+    const averageRating =
+      recipe.reviews.length > 0
+        ? Number((totalRating / recipe.reviews.length).toFixed(1))
+        : 0;
+
+    await db
+      .collection("recipes")
+      .updateOne(
+        { _id: recipeId },
+        { $set: { averageRating, reviewCount: recipe.reviews.length } }
+      );
   }
 }
 
@@ -70,9 +76,7 @@ export async function GET(request, { params }) {
     const client = await clientPromise;
     const db = client.db("devdb");
 
-    const recipe = await db.collection("recipes").findOne(
-      { _id: params.id }
-    );
+    const recipe = await db.collection("recipes").findOne({ _id: params.id });
 
     if (!recipe) {
       return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
@@ -81,9 +85,11 @@ export async function GET(request, { params }) {
     let reviews = recipe.reviews || [];
 
     // Add isOwner flag to each review based on userId or username
-    const reviewsWithOwnership = reviews.map(review => ({
+    const reviewsWithOwnership = reviews.map((review) => ({
       ...review,
-      isOwner: session?.user?.id === review.userId || session?.user?.name === review.username
+      isOwner:
+        session?.user?.id === review.userId ||
+        session?.user?.name === review.username,
     }));
 
     return NextResponse.json({
@@ -91,14 +97,19 @@ export async function GET(request, { params }) {
       totalReviews: reviews.length,
       averageRating: recipe.averageRating || 0,
       reviewCount: recipe.reviewCount || 0,
-      currentUser: session ? {
-        id: session.user.id,
-        name: session.user.name
-      } : null
+      currentUser: session
+        ? {
+            id: session.user.id,
+            name: session.user.name,
+          }
+        : null,
     });
   } catch (error) {
     console.error("Error fetching reviews:", error);
-    return NextResponse.json({ error: "Error fetching reviews" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error fetching reviews" },
+      { status: 500 }
+    );
   }
 }
 
@@ -142,17 +153,19 @@ export async function POST(request, { params }) {
     // Check if user already has a review
     const existingReview = await db.collection("recipes").findOne({
       _id: params.id,
-      "reviews.userId": review.userId
+      "reviews.userId": review.userId,
     });
 
     if (existingReview) {
-      return NextResponse.json({ error: "You have already reviewed this recipe" }, { status: 400 });
+      return NextResponse.json(
+        { error: "You have already reviewed this recipe" },
+        { status: 400 }
+      );
     }
 
-    const result = await db.collection("recipes").updateOne(
-      { _id: params.id },
-      { $push: { reviews: review } }
-    );
+    const result = await db
+      .collection("recipes")
+      .updateOne({ _id: params.id }, { $push: { reviews: review } });
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
@@ -163,8 +176,8 @@ export async function POST(request, { params }) {
     return NextResponse.json({
       review: {
         ...review,
-        isOwner: true
-      }
+        isOwner: true,
+      },
     });
   } catch (error) {
     console.error("Error adding review:", error);
@@ -201,31 +214,34 @@ export async function PUT(request, { params }) {
     // First find the review to verify ownership
     const recipe = await db.collection("recipes").findOne({
       _id: params.id,
-      "reviews._id": body.reviewId
+      "reviews._id": body.reviewId,
     });
 
-    const review = recipe?.reviews?.find(r => r._id === body.reviewId);
+    const review = recipe?.reviews?.find((r) => r._id === body.reviewId);
 
     if (!review) {
       return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
 
     // Check ownership by userId or username
-    if (review.userId !== session.user.id && review.username !== session.user.name) {
+    if (
+      review.userId !== session.user.id &&
+      review.username !== session.user.name
+    ) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const result = await db.collection("recipes").updateOne(
       {
         _id: params.id,
-        "reviews._id": body.reviewId
+        "reviews._id": body.reviewId,
       },
       {
         $set: {
           "reviews.$.rating": body.rating,
           "reviews.$.comment": body.comment?.trim() || "",
           "reviews.$.updatedAt": new Date().toISOString(),
-        }
+        },
       }
     );
 
@@ -238,7 +254,10 @@ export async function PUT(request, { params }) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error updating review:", error);
-    return NextResponse.json({ error: "Error updating review" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error updating review" },
+      { status: 500 }
+    );
   }
 }
 
@@ -262,7 +281,10 @@ export async function DELETE(request, { params }) {
     const reviewId = searchParams.get("reviewId");
 
     if (!reviewId) {
-      return NextResponse.json({ error: "Review ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Review ID is required" },
+        { status: 400 }
+      );
     }
 
     const client = await clientPromise;
@@ -271,24 +293,26 @@ export async function DELETE(request, { params }) {
     // First find the review to verify ownership
     const recipe = await db.collection("recipes").findOne({
       _id: params.id,
-      "reviews._id": reviewId
+      "reviews._id": reviewId,
     });
 
-    const review = recipe?.reviews?.find(r => r._id === reviewId);
+    const review = recipe?.reviews?.find((r) => r._id === reviewId);
 
     if (!review) {
       return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
 
     // Check ownership by userId or username
-    if (review.userId !== session.user.id && review.username !== session.user.name) {
+    if (
+      review.userId !== session.user.id &&
+      review.username !== session.user.name
+    ) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const result = await db.collection("recipes").updateOne(
-      { _id: params.id },
-      { $pull: { reviews: { _id: reviewId } } }
-    );
+    const result = await db
+      .collection("recipes")
+      .updateOne({ _id: params.id }, { $pull: { reviews: { _id: reviewId } } });
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ error: "Review not found" }, { status: 404 });
@@ -299,6 +323,9 @@ export async function DELETE(request, { params }) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting review:", error);
-    return NextResponse.json({ error: "Error deleting review" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error deleting review" },
+      { status: 500 }
+    );
   }
 }

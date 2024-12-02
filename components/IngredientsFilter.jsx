@@ -1,108 +1,69 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, CheckCircle2, Filter } from "lucide-react";
 
-// SVG Icons as inline components
-const FilterIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="text-gray-600"
-  >
-    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-  </svg>
-);
-
-const XIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="18" y1="6" x2="6" y2="18"></line>
-    <line x1="6" y1="6" x2="18" y2="18"></line>
-  </svg>
-);
-
-const CheckIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="20 6 9 17 4 12"></polyline>
-  </svg>
-);
-
+/**
+ * A React component for filtering ingredients with dynamic URL updates
+ * @param {Object} props - Component properties
+ * @param {string[]} [props.availableIngredients=[]] - List of ingredients that can be filtered
+ * @param {URLSearchParams} props.searchParams - Current URL search parameters
+ * @param {function} props.updateUrl - Function to update URL with new parameters
+ * @param {Object} [props.defaultValues] - Default filter configuration
+ * @returns {JSX.Element} Ingredient filter component
+ */
 export default function IngredientsFilter({
-  availableIngredients = [],
-  searchParams,
-  updateUrl,
-  defaultValues = { ingredients: [], ingredientMatchType: "all" },
-  recipes = [],
+  availableIngredients = [], // Default to empty array if no ingredients provided
+  searchParams, // Current URL search parameters
+  updateUrl, // Function to update URL parameters
+  defaultValues = { ingredients: [], ingredientMatchType: "all" }, // Default filter configuration
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  // State to control the visibility of the ingredient filter modal
+  const [isIngredientFilterOpen, setIsIngredientFilterOpen] = useState(false);
 
+  // Get currently selected ingredients from URL search params
   const currentIngredients = searchParams.getAll("ingredients[]");
+
+  // Get current match type, defaulting to the default value if not specified
   const currentMatchType =
     searchParams.get("ingredientMatchType") ||
     defaultValues.ingredientMatchType;
 
-  // Outside click effect
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Ingredient click handler
+  /**
+   * Handles click events on ingredient buttons, toggling their selection
+   * @param {string} ingredient - The ingredient to toggle
+   */
   const handleIngredientClick = (ingredient) => {
+    // Determine new list of ingredients: add or remove based on current state
     const newIngredients = currentIngredients.includes(ingredient)
       ? currentIngredients.filter((i) => i !== ingredient)
       : [...currentIngredients, ingredient];
 
+    // Prepare updates for URL parameters
     const updates = {
-      "ingredients[]": newIngredients,
+      "ingredients[]": newIngredients, // Updated ingredient list
       ingredientMatchType:
         currentMatchType !== defaultValues.ingredientMatchType
           ? currentMatchType
-          : null,
+          : null, // Preserve match type if non-default
     };
 
+    // If no ingredients are selected, reset match type
     if (newIngredients.length === 0) {
       updates.ingredientMatchType = null;
     }
 
+    // Update URL with new parameters
     updateUrl(updates);
   };
 
-  // Match type change handler
+  /**
+   * Updates the ingredient matching type (all or any)
+   * @param {string} newMatchType - The new matching type to apply
+   */
   const handleMatchTypeChange = (newMatchType) => {
+    // Only update if ingredients are selected or match type differs from default
     if (
       currentIngredients.length > 0 ||
       newMatchType !== defaultValues.ingredientMatchType
@@ -114,163 +75,187 @@ export default function IngredientsFilter({
     }
   };
 
-  // Clear all ingredients
+  /**
+   * Clears all selected ingredients and resets match type
+   */
   const clearAllIngredients = () => {
     updateUrl({
       "ingredients[]": defaultValues.ingredients,
       ingredientMatchType: null,
     });
-    setIsOpen(false);
   };
 
-  const noRecipesFound = currentIngredients.length > 0 && recipes.length === 0;
+  // Check if any ingredients are currently selected
+  const isIngredientFilterActive = currentIngredients.length > 0;
 
+  // Render the ingredient filter component
   return (
-    <div className="relative w-full" ref={dropdownRef}>
+    <div className="w-full max-w-sm">
       <label
-        htmlFor="ingredients"
-        className="block text-sm font-semibold text-gray-700 mb-2 select-none"
+        htmlFor="ingredientFilter"
+        className="block mb-2 text-sm font-medium text-teal-700 dark:text-teal-300"
       >
-        Filter by Ingredients
+        Ingredient Filters
       </label>
-
-      {/* Trigger Button with Elegant Design */}
-      <button
-        id="ingredients"
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 px-14 py-2.5 
-        w-full max-w-[500px]
-        bg-white border border-gray-200 rounded-xl 
-        hover:bg-gray-50 hover:shadow-md 
-        transition-all duration-300 ease-in-out
-        focus:outline-none focus:ring-2 focus:ring-blue-500/50
-        text-gray-800 font-medium"
-      >
-        <FilterIcon />
-        <span>Filters</span>
-
-        {currentIngredients.length > 0 && (
-          <span
-            className="ml-2 px-2.5 py-0.5 
-            bg-blue-500 text-white rounded-full 
-            text-xs font-bold tracking-tight"
-          >
-            {currentIngredients.length}
-          </span>
-        )}
-      </button>
-
-      {isOpen && (
-        <div
-          className={`
-            w-full max-w-[400px] mx-auto
-            fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-            z-50 
-            bg-white rounded-2xl 
-            shadow-2xl border border-gray-200 
-            overflow-hidden
-            transform transition-all 
-            duration-400 ease-elegant
-            max-h-[90vh] overflow-y-auto`}
+      <div className="relative">
+        <button
+          id="ingredientFilter"
+          onClick={() => setIsIngredientFilterOpen(true)}
+          className="w-full px-4 py-2.5 
+            rounded-xl border 
+            border-teal-300 
+            bg-white 
+            dark:bg-slate-800
+            text-teal-800 
+            dark:border-slate-700
+            placeholder-teal-600 
+            dark:text-teal-300
+            focus:outline-none 
+            focus:ring-2 
+            focus:ring-teal-500 
+            focus:border-transparent 
+            transition-all 
+            duration-300 
+            ease-in-out 
+            hover:shadow-md 
+            hover:border-teal-500
+            flex items-center justify-between
+            dark:focus:ring-teal-500/40
+            dark:hover:border-slate-600"
         >
-          <div className="p-6 space-y-6">
-            {/* Header with Refined Styling */}
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900">
-                Filter Recipes by Ingredients
-              </h3>
-              {currentIngredients.length > 0 && (
-                <button
-                  onClick={clearAllIngredients}
-                  className="flex items-center gap-2 
-                    text-sm text-gray-500 hover:text-gray-800 
-                    transition-colors duration-200 
-                    hover:bg-gray-100 px-2.5 py-1.5 rounded-lg"
-                >
-                  <XIcon />
-                  Clear All
-                </button>
-              )}
-            </div>
+          <div className="flex items-center space-x-2">
+            <Filter className="w-4 h-4" />
+            <span>Ingredient Filters</span>
+          </div>
+          {isIngredientFilterActive && (
+            <span className="ml-2 px-2 py-1 bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 text-xs rounded-full flex items-center">
+              <CheckCircle2 className="w-3 h-3 mr-1" />
+              {currentIngredients.length}
+            </span>
+          )}
+        </button>
+      </div>
 
-            {/* Match Type Section with Enhanced Design */}
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-gray-700 mb-3">
-                Ingredient Matching
-              </p>
-              <div className="flex gap-4">
-                {["all", "any"].map((type) => (
-                  <label
-                    key={type}
-                    className="flex items-center gap-3 cursor-pointer group"
+      <AnimatePresence>
+        {isIngredientFilterOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsIngredientFilterOpen(false)}
+              className="fixed inset-0 bg-black/50 z-40"
+            />
+
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 20 }}
+              className="fixed right-0 top-0 h-full w-full sm:w-[400px] bg-white dark:bg-slate-800 shadow-2xl z-50 overflow-y-auto"
+            >
+              <div className="px-4 py-4 bg-gradient-to-r from-teal-50 to-slate-100 dark:from-slate-800 dark:to-teal-900 border-b border-neutral-100 dark:border-slate-700 sticky top-0 z-10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Filter className="w-5 h-5 text-teal-600 dark:text-emerald-400" />
+                    <h2 className="text-base font-semibold text-teal-800 dark:text-emerald-300">
+                      Ingredient Filters
+                    </h2>
+                    {isIngredientFilterActive && (
+                      <span className="ml-2 px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs rounded-full flex items-center">
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        Active
+                      </span>
+                    )}
+                  </div>
+                  <motion.button
+                    onClick={() => setIsIngredientFilterOpen(false)}
+                    className="text-neutral-600 dark:text-neutral-300 hover:text-teal-600 dark:hover:text-emerald-400 transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                   >
-                    <div className="relative">
-                      <input
-                        type="radio"
-                        name="ingredientMatchType"
-                        value={type}
-                        checked={currentMatchType === type}
-                        onChange={(e) => handleMatchTypeChange(e.target.value)}
-                        className="w-5 h-5 text-blue-600 
-                          border-gray-300 focus:ring-blue-500 
-                          rounded-full appearance-none 
-                          border-2 checked:border-blue-600"
-                      />
-                      {currentMatchType === type && (
-                        <CheckIcon
-                          className="absolute top-1/2 left-1/2 transform 
-                          -translate-x-1/2 -translate-y-1/2 
-                          w-3 h-3 text-blue-600"
-                        />
-                      )}
-                    </div>
-                    <span
-                      className="text-sm text-gray-600 
-                        group-hover:text-gray-900 
-                        capitalize transition-colors duration-200"
-                    >
-                      {type} ingredients
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
+                    <X className="w-5 h-5" />
+                  </motion.button>
+                </div>
 
-            {/* Ingredients Section with Improved Layout */}
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-gray-700 mb-3">
-                Available Ingredients
-              </p>
-              <div
-                className="max-h-64 overflow-y-auto pr-2 
-                  scrollbar-thin scrollbar-thumb-gray-300 
-                  scrollbar-track-gray-100 
-                  scrollbar-thumb-rounded-full"
-              >
-                <div className="grid grid-cols-2 gap-2.5">
-                  {availableIngredients.map((ingredient) => (
+                {isIngredientFilterActive && (
+                  <motion.div
+                    className="mt-3"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
                     <button
-                      key={ingredient}
-                      onClick={() => handleIngredientClick(ingredient)}
-                      className={`px-4 py-2 rounded-lg text-sm
-                              transition-all duration-200 font-medium
-                              flex items-center justify-between
-                              ${
-                    currentIngredients.includes(ingredient)
-                      ? "bg-blue-50 text-blue-700 hover:bg-blue-100"
-                      : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                    }`}
+                      onClick={clearAllIngredients}
+                      className="flex items-center space-x-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-3 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors text-sm w-full justify-center"
                     >
-                      <span>{ingredient}</span>
-                      {currentIngredients.includes(ingredient) && <CheckIcon />}
+                      <X className="w-4 h-4" />
+                      <span>Clear All Ingredients</span>
                     </button>
-                  ))}
+                  </motion.div>
+                )}
+              </div>
+
+              <div className="p-4 space-y-4">
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-3">
+                    Ingredient Matching
+                  </p>
+                  <div className="flex gap-4">
+                    {["all", "any"].map((type) => (
+                      <label
+                        key={type}
+                        className="flex items-center gap-3 cursor-pointer group"
+                      >
+                        <input
+                          type="radio"
+                          name="ingredientMatchType"
+                          value={type}
+                          checked={currentMatchType === type}
+                          onChange={(e) =>
+                            handleMatchTypeChange(e.target.value)
+                          }
+                          className="w-4 h-4 text-teal-600 border-neutral-300 focus:ring-teal-500 rounded-full"
+                        />
+                        <span className="text-sm text-neutral-600 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 capitalize transition-colors duration-200">
+                          {type} ingredients
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3 mt-4">
+                  <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-3">
+                    Available Ingredients
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {availableIngredients.map((ingredient) => (
+                      <button
+                        key={ingredient}
+                        onClick={() => handleIngredientClick(ingredient)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium
+                          transition-all duration-200
+                          ${
+                            currentIngredients.includes(ingredient)
+                              ? "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 hover:bg-teal-200 dark:hover:bg-teal-800"
+                              : "bg-neutral-100 dark:bg-gray-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-gray-600"
+                          }`}
+                      >
+                        {ingredient}
+                        {currentIngredients.includes(ingredient) && (
+                          <span className="ml-2 text-teal-600 dark:text-teal-400">
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

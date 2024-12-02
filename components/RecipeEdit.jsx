@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -7,15 +8,16 @@ const RecipeEdit = ({ recipe }) => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [description, setDescription] = useState(recipe?.description || "");
+  const [localRecipe, setLocalRecipe] = useState(recipe);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
+  // Update local state when recipe prop changes
   useEffect(() => {
-    if (recipe?.description) {
-      setDescription(recipe.description);
-    }
+    setDescription(recipe?.description || "");
+    setLocalRecipe(recipe);
   }, [recipe]);
 
   const handleSubmit = async (event) => {
@@ -41,6 +43,21 @@ const RecipeEdit = ({ recipe }) => {
     setSuccessMessage(null);
 
     try {
+      // Optimistically update local state
+      const optimisticUpdate = {
+        ...localRecipe,
+        description: description.trim(),
+        userVersions: {
+          ...localRecipe.userVersions,
+          [Date.now()]: {
+            userName: session.user.name || session.user.email,
+            lastModified: new Date().toISOString(),
+          },
+        },
+      };
+      setLocalRecipe(optimisticUpdate);
+
+      // Send update request
       const response = await fetch(`/api/recipes/${recipe._id}`, {
         method: "PATCH",
         headers: {
@@ -62,14 +79,10 @@ const RecipeEdit = ({ recipe }) => {
 
       setSuccessMessage("Description updated successfully!");
       setIsEditing(false);
-
-      // Update the local state with the new data
-      if (updatedRecipe) {
-        setDescription(updatedRecipe.description);
-      }
-
-      router.refresh(); // Refresh the server component
+      setLocalRecipe(updatedRecipe);
     } catch (error) {
+      // Revert to original state on error
+      setLocalRecipe(recipe);
       setError(error.message || "An error occurred while updating.");
     } finally {
       setLoading(false);
@@ -77,13 +90,13 @@ const RecipeEdit = ({ recipe }) => {
   };
 
   const handleReset = () => {
-    setDescription(recipe?.description || "");
+    setDescription(localRecipe?.description || "");
     setError(null);
     setSuccessMessage(null);
     setIsEditing(false);
   };
 
-  if (!recipe) {
+  if (!localRecipe) {
     return null;
   }
 
@@ -99,9 +112,9 @@ const RecipeEdit = ({ recipe }) => {
   };
 
   const renderEditHistory = () => {
-    if (!recipe.userVersions) return null;
+    if (!localRecipe.userVersions) return null;
 
-    const latestVersion = Object.values(recipe.userVersions).sort(
+    const latestVersion = Object.values(localRecipe.userVersions).sort(
       (a, b) => new Date(b.lastModified) - new Date(a.lastModified)
     )[0];
 
@@ -132,7 +145,9 @@ const RecipeEdit = ({ recipe }) => {
               </button>
             )}
           </div>
-          <p className="text-gray-700 dark:text-gray-300">{description}</p>
+          <p className="text-gray-700 dark:text-gray-300">
+            {localRecipe.description}
+          </p>
           {renderEditHistory()}
         </div>
       ) : (
@@ -191,7 +206,7 @@ const RecipeEdit = ({ recipe }) => {
             Please{" "}
             <button
               onClick={() => signIn()}
-              className="text-blue-600 hover:underline dark:text-blue-400"
+              className="flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
             >
               sign in
             </button>{" "}

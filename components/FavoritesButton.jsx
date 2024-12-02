@@ -4,6 +4,16 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
+/**
+ * A button component that allows users to add or remove recipes from their favorites.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.recipeId - The unique ID of the recipe.
+ * @param {boolean} props.isFavorited - Initial state of whether the recipe is favorited.
+ * @param {Function} props.onFavoriteToggle - Callback function triggered when the favorite status changes.
+ *
+ * @returns {JSX.Element} The rendered component.
+ */
 const FavoritesButton = ({
   recipeId,
   isFavorited: initialIsFavorited,
@@ -14,20 +24,32 @@ const FavoritesButton = ({
   const { data: session } = useSession();
   const router = useRouter();
 
+  /**
+   * Handles the toggle of the favorite status. If the user is not logged in, they are redirected to the sign-in page.
+   * If the recipe is already favorited, it shows a confirmation modal for removal.
+   */
   const handleToggle = async () => {
     if (!session) {
+      // Redirect to sign-in page if user is not logged in
       router.push("/auth/signin");
       return;
     }
 
     if (isFavorited) {
+      // If the recipe is already favorited, show confirmation modal to remove
       setIsOpen(true);
       return;
     }
 
+    // If not favorited, toggle the favorite status
     await toggleFavorite();
   };
 
+  /**
+   * Toggles the favorite status of a recipe.
+   * It sends a request to the server to either add or remove the recipe from favorites.
+   * Upon success, it updates the local state and triggers the provided callback.
+   */
   const toggleFavorite = async () => {
     try {
       const response = await fetch("/api/favorites", {
@@ -43,7 +65,7 @@ const FavoritesButton = ({
         const newFavoritedState = !isFavorited;
         setIsFavorited(newFavoritedState);
 
-        // Trigger alert
+        // Trigger alert with success message
         onFavoriteToggle(
           true,
           newFavoritedState
@@ -51,10 +73,10 @@ const FavoritesButton = ({
             : "Recipe removed from favorites!"
         );
 
-        // Dispatch event for any other components that need to update
+        // Dispatch event to update other components that depend on the favorites state
         window.dispatchEvent(new Event("favoritesUpdated"));
 
-        // Refresh the page data to ensure sync with server state
+        // Refresh the page data to ensure the server state is synchronized
         router.refresh();
       } else {
         throw new Error("Failed to update favorite");
@@ -65,6 +87,10 @@ const FavoritesButton = ({
     }
   };
 
+  /**
+   * Confirms the removal of a recipe from the favorites.
+   * Calls `toggleFavorite` to remove the recipe and closes the confirmation modal.
+   */
   const confirmRemove = async () => {
     await toggleFavorite();
     setIsOpen(false);
@@ -78,7 +104,9 @@ const FavoritesButton = ({
         aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
       >
         <svg
-          className={`w-6 h-6 ${isFavorited ? "text-red-500" : "text-gray-400"}`}
+          className={`w-6 h-6 ${
+            isFavorited ? "text-red-500" : "text-gray-400"
+          }`}
           fill={isFavorited ? "currentColor" : "none"}
           viewBox="0 0 24 24"
           stroke="currentColor"

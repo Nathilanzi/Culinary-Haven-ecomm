@@ -1,5 +1,17 @@
 import { ErrorLayout, Button } from "@/components/ErrorShared";
 
+/**
+ * NotFoundPage Component
+ *
+ * @description This component renders a custom 404 error page to inform users that the requested page was not found.
+ * It uses the `ErrorLayout` component to display an error code, title, message, and a button to navigate back to the home page.
+ *
+ * @returns {JSX.Element} The rendered 404 error page.
+ *
+ * @example
+ * // Example usage in a Next.js app's custom 404 page:
+ * export default NotFoundPage;
+ */
 export default function NotFoundPage() {
   return (
     <ErrorLayout
