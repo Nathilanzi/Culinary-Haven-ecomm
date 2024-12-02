@@ -1,33 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
-/**
- * A button component that allows users to add or remove recipes from their favorites.
- *
- * @param {Object} props - The component props.
- * @param {string} props.recipeId - The unique ID of the recipe.
- * @param {boolean} props.isFavorited - Initial state of whether the recipe is favorited.
- * @param {Function} props.onFavoriteToggle - Callback function triggered when the favorite status changes.
- *
- * @returns {JSX.Element} The rendered component.
- */
 const FavoritesButton = ({
   recipeId,
-  isFavorited: initialIsFavorited,
+  initialIsFavorited = false,
   onFavoriteToggle,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isFavorited, setIsFavorited] = useState(initialIsFavorited);
   const { data: session } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
 
-  /**
-   * Handles the toggle of the favorite status. If the user is not logged in, they are redirected to the sign-in page.
-   * If the recipe is already favorited, it shows a confirmation modal for removal.
-   */
+  // Update favorited state when initial prop changes
+  useEffect(() => {
+    setIsFavorited(initialIsFavorited);
+  }, [initialIsFavorited, pathname]);
+
+  // Trigger favorite toggle
   const handleToggle = async () => {
     if (!session) {
       // Redirect to sign-in page if user is not logged in
@@ -45,18 +38,13 @@ const FavoritesButton = ({
     await toggleFavorite();
   };
 
-  /**
-   * Toggles the favorite status of a recipe.
-   * It sends a request to the server to either add or remove the recipe from favorites.
-   * Upon success, it updates the local state and triggers the provided callback.
-   */
+  // Toggle favorite status
   const toggleFavorite = async () => {
     try {
       const response = await fetch("/api/favorites", {
         method: isFavorited ? "DELETE" : "POST",
         headers: {
           "Content-Type": "application/json",
-          "user-id": session.user.id,
         },
         body: JSON.stringify({ recipeId }),
       });
@@ -65,19 +53,22 @@ const FavoritesButton = ({
         const newFavoritedState = !isFavorited;
         setIsFavorited(newFavoritedState);
 
-        // Trigger alert with success message
+        // Custom event for cross-component communication
+        window.dispatchEvent(
+          new CustomEvent("favoritesUpdated", {
+            detail: {
+              recipeId,
+              isFavorited: newFavoritedState,
+            },
+          })
+        );
+
         onFavoriteToggle(
           true,
           newFavoritedState
             ? "Recipe added to favorites!"
             : "Recipe removed from favorites!"
         );
-
-        // Dispatch event to update other components that depend on the favorites state
-        window.dispatchEvent(new Event("favoritesUpdated"));
-
-        // Refresh the page data to ensure the server state is synchronized
-        router.refresh();
       } else {
         throw new Error("Failed to update favorite");
       }
@@ -87,10 +78,7 @@ const FavoritesButton = ({
     }
   };
 
-  /**
-   * Confirms the removal of a recipe from the favorites.
-   * Calls `toggleFavorite` to remove the recipe and closes the confirmation modal.
-   */
+  // Confirm removal of favorite
   const confirmRemove = async () => {
     await toggleFavorite();
     setIsOpen(false);
@@ -120,6 +108,7 @@ const FavoritesButton = ({
         </svg>
       </button>
 
+      {/* Confirmation Modal */}
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">

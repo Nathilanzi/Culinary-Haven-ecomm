@@ -33,7 +33,6 @@ import { useRouter } from "next/navigation";
 import RecipeCard from "@/components/RecipeCard";
 import LoadingPage from "../loading";
 import BackButton from "@/components/BackButton";
-import { Heart } from "lucide-react";
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState([]);
@@ -42,53 +41,52 @@ export default function Favorites() {
   const { data: session } = useSession();
   const router = useRouter();
 
-  /**
-   * Fetches and updates the user's favorite recipes.
-   *
-   * @function fetchFavorites
-   * @async
-   * @description Makes a call to the `/api/favorites` endpoint to retrieve a list
-   * of the user's favorite recipes. For each recipe ID, it fetches full recipe details
-   * from the `/api/recipes/:id` endpoint.
-   *
-   * @returns {Promise<void>} - Updates state with fetched favorites or logs errors.
-   */
+  const fetchFavorites = async () => {
+    try {
+      // Guard clause if no session
+      if (!session) return;
+
+      setLoading(true);
+      const response = await fetch("/api/favorites", {
+        headers: {
+          // Optional: only include user-id if your backend requires it
+          ...(session.user.id && { "user-id": session.user.id }),
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch favorites");
+
+      const data = await response.json();
+      // Fetch full recipe details for each favorite
+      const recipesWithDetails = await Promise.all(
+        data.favorites.map(async (fav) => {
+          const recipeResponse = await fetch(`/api/recipes/${fav.recipeId}`);
+          if (!recipeResponse.ok) {
+            console.warn(`Could not fetch recipe ${fav.recipeId}`);
+            return null;
+          }
+          const recipeData = await recipeResponse.json();
+          return {
+            ...recipeData,
+            favorited_at: fav.created_at,
+          };
+        })
+      );
+
+      // Filter out any null recipes (failed fetches)
+      setFavorites(recipesWithDetails.filter(Boolean));
+    } catch (error) {
+      setError("Error fetching favorites: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!session) {
       router.push("/auth/signin");
       return;
     }
-
-    const fetchFavorites = async () => {
-      try {
-        const response = await fetch("/api/favorites?action=list", {
-          headers: {
-            "user-id": session.user.id,
-          },
-        });
-
-        if (!response.ok) throw new Error("Failed to fetch favorites");
-
-        const data = await response.json();
-        // Fetch full recipe details for each favorite
-        const recipesWithDetails = await Promise.all(
-          data.favorites.map(async (fav) => {
-            const recipeResponse = await fetch(`/api/recipes/${fav.recipeId}`);
-            const recipeData = await recipeResponse.json();
-            return {
-              ...recipeData,
-              favorited_at: fav.created_at,
-            };
-          })
-        );
-
-        setFavorites(recipesWithDetails);
-      } catch (error) {
-        setError("Error fetching favorites: " + error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
 
     fetchFavorites();
 
@@ -105,7 +103,9 @@ export default function Favorites() {
    * @returns {void} - Updates the state by filtering out the unfavorited recipe.
    */
   const handleFavoriteToggle = (recipeId) => {
-    setFavorites(favorites.filter((fav) => fav._id !== recipeId));
+    setFavorites((prevFavorites) =>
+      prevFavorites.filter((fav) => fav._id !== recipeId)
+    );
   };
 
   if (loading) return <LoadingPage />;
@@ -124,11 +124,8 @@ export default function Favorites() {
       </h1>
 
       {favorites.length === 0 ? (
-        <div className="text-center py-12 px-6">
-          <Heart className="mx-auto w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
-          <p className="text-gray-500 dark:text-gray-400">
-            You haven't added any favorites yet. Start by adding some!
-          </p>
+        <div className="text-center text-black dark:text-white py-8">
+          <p>You haven&apos;t added any favorites yet.</p>
         </div>
       ) : (
         <div className="max-w-7xl mx-auto">
@@ -137,9 +134,8 @@ export default function Favorites() {
               <div key={recipe._id} className="relative">
                 <RecipeCard
                   recipe={recipe}
-                  showFavoriteButton
                   isFavorited={true}
-                  onFavoriteToggle={handleFavoriteToggle}
+                  onFavoriteToggle={() => handleFavoriteToggle(recipe._id)}
                   additionalInfo={
                     <p className="text-sm text-gray-500 mt-2">
                       Added to favorites:{" "}
