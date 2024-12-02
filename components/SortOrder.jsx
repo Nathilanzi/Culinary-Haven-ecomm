@@ -2,77 +2,101 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import { ChevronDown, ArrowUpDown, Check } from "lucide-react";
 
-// SVG Icons as components
-const ChevronDownIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="w-4 h-4 ml-2 text-gray-600"
-  >
-    <polyline points="6 9 12 15 18 9"></polyline>
-  </svg>
-);
-
-const CloseIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="w-5 h-5 text-gray-500"
-  >
-    <line x1="18" y1="6" x2="6" y2="18"></line>
-    <line x1="6" y1="6" x2="18" y2="18"></line>
-  </svg>
-);
-
+/**
+ * Predefined sort options for recipes with labels and descriptions
+ * @type {Object.<string, {label: string, description?: string, icon?: React.ComponentType}>}
+ */
 const sortOptions = {
-  "$natural-asc": "Default Sort",
-  "prep-asc": "Prep Time (Low to High)",
-  "prep-desc": "Prep Time (High to Low)",
-  "cook-asc": "Cook Time (Low to High)",
-  "cook-desc": "Cook Time (High to Low)",
-  "published-asc": "Date Published (Oldest to Newest)",
-  "published-desc": "Date Published (Newest to Oldest)",
-  "instructionCount-asc": "Steps (Fewest to Most)",
-  "instructionCount-desc": "Steps (Most to Fewest)",
+  "$natural-asc": {
+    label: "Default Sort",
+    icon: ArrowUpDown,
+  },
+  "prep-asc": {
+    label: "Prep Time: Low to High",
+    description: "Sort recipes by shortest preparation time first",
+  },
+  "prep-desc": {
+    label: "Prep Time: High to Low",
+    description: "Sort recipes by longest preparation time first",
+  },
+  "cook-asc": {
+    label: "Cook Time: Low to High",
+    description: "Quick cooking recipes first",
+  },
+  "cook-desc": {
+    label: "Cook Time: High to Low",
+    description: "Slow cooking recipes first",
+  },
+  "published-asc": {
+    label: "Date: Oldest First",
+    description: "Sort by publication date, starting with oldest",
+  },
+  "published-desc": {
+    label: "Date: Newest First",
+    description: "Sort by publication date, starting with newest",
+  },
+  "instructionCount-asc": {
+    label: "Steps: Fewest First",
+    description: "Sort by complexity, simplest recipes first",
+  },
+  "instructionCount-desc": {
+    label: "Steps: Most First",
+    description: "Sort by complexity, detailed recipes first",
+  },
 };
 
+/**
+ * SortOrder Component
+ * Provides an interactive dropdown for sorting recipes with multiple options
+ *
+ * @component
+ * @param {Object} props - Component properties
+ * @param {string} [props.currentSort] - Currently selected sort option
+ * @param {string} [props.currentOrder] - Currently selected sort order
+ * @returns {React.ReactElement} Rendered sort order dropdown
+ */
 export default function SortOrder({ currentSort, currentOrder }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSort, setSelectedSort] = useState("$natural-asc");
+  // Initialize Next.js router and search parameters
+  const router = useRouter(); // Navigation router
+  const searchParams = useSearchParams(); // URL search parameters
 
-  // Update selectedSort based on URL changes
+  // State management for dropdown and sort selection
+  const [isOpen, setIsOpen] = useState(false); // Dropdown visibility
+  const [selectedSort, setSelectedSort] = useState("$natural-asc"); // Confirmed sort option
+  const [tempSort, setTempSort] = useState("$natural-asc"); // Temporary sort selection
+
+  // Synchronize sort option with URL parameters
   useEffect(() => {
-    const sortBy = searchParams.get("sortBy") || "$natural"; 
-    const order = searchParams.get("order") || "asc"; 
+    // Extract sort parameters from URL
+    const sortBy = searchParams.get("sortBy") || "$natural";
+    const order = searchParams.get("order") || "asc";
     const sortKey = `${sortBy}-${order}`;
-    setSelectedSort(sortOptions[sortKey] ? sortKey : "$natural-asc");
+
+    // Validate and set sort option
+    const finalSort = sortOptions[sortKey] ? sortKey : "$natural-asc";
+    setSelectedSort(finalSort);
+    setTempSort(finalSort);
   }, [searchParams]);
 
-  const handleSortChange = (e) => {
-    setSelectedSort(e.target.value);
+  /**
+   * Handles temporary sort selection
+   * @param {string} value - Selected sort option key
+   */
+  const handleSelect = (value) => {
+    setTempSort(value);
   };
 
-  const clearSort = () => {
-    setSelectedSort("$natural-asc");
-  };
-
-  const applySort = () => {
-    const [sortBy, order] = selectedSort.split("-");
+  /**
+   * Applies selected sort option to URL and updates state
+   */
+  const handleApply = () => {
+    // Split sort key into sortBy and order
+    const [sortBy, order] = tempSort.split("-");
     const params = new URLSearchParams(searchParams);
 
+    // Update or remove sort parameters
     if (sortBy && order) {
       params.set("sortBy", sortBy);
       params.set("order", order);
@@ -80,74 +104,109 @@ export default function SortOrder({ currentSort, currentOrder }) {
       params.delete("sortBy");
       params.delete("order");
     }
+
+    // Reset pagination
     params.delete("page");
 
-    router.push(`/?${params.toString()}`);
-    toggleModal();
+    // Update state and navigate
+    setSelectedSort(tempSort);
+    router.push(`/recipes/?${params.toString()}`);
+    setIsOpen(false);
   };
 
-  const toggleModal = () => setIsModalOpen(!isModalOpen);
+  /**
+   * Resets temporary sort selection to default
+   */
+  const handleClear = () => {
+    setTempSort("$natural-asc");
+  };
 
   return (
     <div className="relative">
+      {/* Sort dropdown trigger button */}
       <button
-        onClick={toggleModal}
-        className="group flex items-center justify-between w-full md:w-48 px-6 py-3 bg-emerald-950/30 border-2 border-emerald-800/50 rounded-full text-emerald-50 focus:outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-800/50 transition-all duration-300 hover:bg-emerald-950/40 hover:border-emerald-700/60"
+        onClick={() => setIsOpen(!isOpen)}
+        className="inline-flex items-center justify-between w-full px-4 py-2.5 text-sm bg-white dark:bg-slate-800 border border-teal-100 dark:border-slate-700 rounded-lg text-teal-900 dark:text-slate-200 shadow-sm hover:border-teal-200 dark:hover:border-slate-600 hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-teal-500/40 focus:border-teal-500"
       >
-        <span className="truncate">{sortOptions[selectedSort]}</span>{" "}
-        {/* Display the label */}
-        <ChevronDownIcon />
+        <div className="flex items-center gap-2">
+          <ArrowUpDown className="w-4 h-4 text-teal-500 dark:text-teal-400" />
+          <span className="font-medium">
+            {sortOptions[selectedSort]?.label || "Sort Recipes"}
+          </span>
+        </div>
+        {/* Dropdown chevron with rotation animation */}
+        <ChevronDown
+          className={`w-4 h-4 text-teal-400 dark:text-teal-300 transition-transform duration-200 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
       </button>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 animate-fade-in">
-          <div
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-            onClick={toggleModal}
-          />
+      {/* Dropdown menu */}
+      {isOpen && (
+        <div className="absolute z-50 w-full md:w-80 mt-2 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-teal-100 dark:border-slate-700 animate-in fade-in slide-in-from-top-2">
+          <div className="px-2 py-1.5 text-xs font-medium text-teal-500 dark:text-teal-400 uppercase tracking-wider">
+            Sort Options
+          </div>
 
-          <div className="bg-white/95 p-8 rounded-2xl shadow-xl w-11/12 max-w-lg relative transform translate-y-0 animate-slide-up">
+          {/* Sort options list */}
+          <div className="mt-1 max-h-64 overflow-auto custom-scrollbar">
+            {Object.entries(sortOptions).map(([value, option]) => (
+              <button
+                key={value}
+                onClick={() => handleSelect(value)}
+                className={`w-full flex items-start gap-3 px-3 py-2.5 text-left hover:bg-teal-50 dark:hover:bg-slate-700 transition-colors duration-150 ${
+                  tempSort === value ? "bg-teal-50/50 dark:bg-slate-700/50" : ""
+                }`}
+              >
+                {/* Radio button style selector */}
+                <div
+                  className={`mt-1 w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    tempSort === value
+                      ? "border-teal-500 bg-teal-500 dark:border-teal-400 dark:bg-teal-400"
+                      : "border-teal-200 dark:border-slate-600"
+                  }`}
+                >
+                  {tempSort === value && (
+                    <Check className="w-3 h-3 text-white" />
+                  )}
+                </div>
+                {/* Option details */}
+                <div>
+                  <div className="font-medium text-teal-900 dark:text-slate-200">
+                    {option.label}
+                  </div>
+                  {option.description && (
+                    <div className="text-sm text-teal-600 dark:text-slate-400 mt-0.5">
+                      {option.description}
+                    </div>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex justify-end items-center gap-3 mt-6 pt-4 border-t border-teal-100 dark:border-slate-700 px-3 pb-3">
             <button
-              onClick={toggleModal}
-              className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200"
+              onClick={handleClear}
+              className="px-4 py-2 text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:bg-teal-50 dark:hover:bg-slate-700 rounded-lg transition-colors duration-200"
             >
-              <CloseIcon />
+              Reset
             </button>
-
-            <h2 className="text-xl font-semibold text-emerald-900 mb-6">
-              Sort by
-            </h2>
-
-            <div className="relative mb-6">
-              <select
-                value={selectedSort}
-                onChange={handleSortChange}
-                className="appearance-none w-full px-6 py-4 bg-emerald-950/5 border-2 border-emerald-800/20 rounded-xl text-emerald-900 focus:outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-800/30 transition-all duration-300 cursor-pointer hover:bg-emerald-950/10"
-              >
-                {Object.entries(sortOptions).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex justify-end items-center gap-4">
-              <button
-                onClick={clearSort}
-                className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors duration-200 rounded-lg hover:bg-red-50"
-              >
-                Clear Sort
-              </button>
-              <button
-                onClick={applySort}
-                className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all duration-300 hover:shadow-lg transform hover:-translate-y-0.5"
-              >
-                Apply Sort
-              </button>
-            </div>
+            <button
+              onClick={handleApply}
+              className="px-6 py-2 bg-teal-600 text-white dark:bg-teal-500 rounded-lg transition-all duration-300 hover:bg-teal-700 dark:hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-teal-400 dark:focus:ring-offset-slate-800"
+            >
+              Apply
+            </button>
           </div>
         </div>
+      )}
+
+      {/* Overlay to close dropdown when clicking outside */}
+      {isOpen && (
+        <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
       )}
     </div>
   );

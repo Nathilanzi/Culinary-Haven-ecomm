@@ -1,83 +1,63 @@
-"use client";
+"use client"; // Indicates this is a client-side React component for Next.js
+
+import { useState } from "react"; // React state management hook
+import { signIn } from "next-auth/react"; // NextAuth authentication method
+import { useRouter } from "next/navigation"; // Next.js routing
+import { Eye, EyeOff } from "lucide-react"; // Password visibility icons
+import Link from "next/link"; // Next.js link component
+import Image from "next/image"; // Next.js image optimization
+import Alert from "@/components/Alert"; // Custom alert component
 
 /**
- * @fileoverview SignUp component that handles user registration through email/password and Google OAuth
- * @requires react
- * @requires next-auth/react
- * @requires next/navigation
- * @requires lucide-react
- * @requires next/link
- * @requires next/image
- * @requires @/components/Alert
- */
-
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
-import Alert from "@/components/Alert";
-
-/**
- * @typedef {Object} FormData
- * @property {string} name - User's full name
- * @property {string} email - User's email address
- * @property {string} password - User's password
- * @property {string} confirmPassword - Password confirmation
- */
-
-/**
- * SignUp component for user registration
- * @returns {JSX.Element} The SignUp form component
+ * SignUp component for user registration with email and Google authentication
+ * @component
+ * @returns {JSX.Element} Signup page with form and authentication options
  */
 export default function SignUp() {
   // Initialize router for navigation
   const router = useRouter();
 
-  // State management
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // State management for form and UI
+  const [loading, setLoading] = useState(false); // Tracks submission loading state
+  const [error, setError] = useState(""); // Stores error messages
+  const [showPassword, setShowPassword] = useState(false); // Toggles password visibility
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Toggles confirm password visibility
 
-  /**
-   * Form data state
-   * @type {[FormData, Function]}
-   */
+  // Form data state to manage input values
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+    name: "", // User's full name
+    email: "", // User's email address
+    password: "", // User's password
+    confirmPassword: "", // Password confirmation
   });
 
-  /**
-   * Alert state for displaying notifications
-   */
+  // Alert state for user feedback
   const [alert, setAlert] = useState({
-    show: false,
-    message: "",
-    type: "success",
+    show: false, // Controls alert visibility
+    message: "", // Alert message content
+    type: "success", // Alert type (success/error)
   });
 
   /**
-   * Handle form input changes
-   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event
+   * Handles input changes and updates form data
+   * @param {React.ChangeEvent<HTMLInputElement>} e - Input change event
    */
   const handleChange = (e) => {
+    // Dynamically update form data based on input name
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   /**
-   * Handle form submission for user registration
-   * @param {React.FormEvent<HTMLFormElement>} e - The form submission event
+   * Handles form submission for user signup
+   * @param {React.FormEvent} e - Form submission event
    */
   const handleSubmit = async (e) => {
+    // Prevent default form submission
     e.preventDefault();
 
     // Validate password match
     if (formData.password !== formData.confirmPassword) {
+      // Show error alert if passwords don't match
       setAlert({
         show: true,
         message: "Passwords do not match",
@@ -86,11 +66,12 @@ export default function SignUp() {
       return;
     }
 
+    // Set loading state and clear previous errors
     setLoading(true);
     setError("");
 
     try {
-      // Send registration request to API
+      // Send signup request to backend API
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -101,41 +82,47 @@ export default function SignUp() {
         }),
       });
 
+      // Parse response data
       const data = await res.json();
 
+      // Handle unsuccessful responses
       if (!res.ok) {
         throw new Error(data.error || "Something went wrong");
       }
 
-      // Show success message
+      // Show success alert
       setAlert({
         show: true,
         message: "Account created successfully! Please sign in to continue.",
         type: "success",
       });
 
-      // Redirect to sign in page after delay
+      // Redirect to signin page after 3 seconds
       setTimeout(() => {
         router.push("/auth/signin");
       }, 3000);
     } catch (error) {
+      // Set error message if signup fails
       setError(error.message);
     } finally {
+      // Reset loading state
       setLoading(false);
     }
   };
 
   /**
-   * Handle Google OAuth sign-up
+   * Handles Google OAuth signup
    */
   const handleGoogleSignUp = () => {
+    // Set loading state and initiate Google sign-in
     setLoading(true);
-    signIn("google", { callbackUrl: "/", redirect: true });
+    signIn("google", { callbackUrl: "/recipes", redirect: true });
   };
 
+  // Render signup page
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-10">
-      {/* Alert component for notifications */}
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-800 p-10">
+      {/* Alert component for displaying success/error messages */}
       <Alert
         message={alert.message}
         type={alert.type}
@@ -143,11 +130,11 @@ export default function SignUp() {
         onClose={() => setAlert({ ...alert, show: false })}
       />
 
-      <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-lg">
-        {/* Header section */}
+      {/* Signup form container */}
+      <div className="w-full max-w-md p-8 bg-white dark:bg-slate-700 rounded-3xl shadow-lg">
+        {/* Logo and title section */}
         <div className="text-center mb-8">
-          {/* Logo */}
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4">
+          <div className="inline-flex dark:bg-slate-50 items-center justify-center w-12 h-12 rounded-full mb-4">
             <Image
               src="/logo.png"
               width={100}
@@ -156,23 +143,22 @@ export default function SignUp() {
               className="h-10 w-12"
             />
           </div>
-          {/* Title and subtitle */}
-          <h2 className="text-2xl font-semibold text-gray-900">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
             Create account
           </h2>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
             Please enter your details to sign up
           </p>
         </div>
 
-        {/* Google Sign-up button */}
+        {/* Google signup button */}
         <div className="flex items-center justify-center">
           <button
             onClick={handleGoogleSignUp}
-            className="flex items-center justify-center p-3 px-16 border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="flex items-center justify-center p-3 px-16 border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500"
           >
-            {/* Google logo SVG */}
             <svg viewBox="0 0 24 24" className="w-6 h-6">
+              {/* Google logo path */}
               <path
                 d="M12,5c1.6167603,0,3.1012573,0.5535278,4.2863159,1.4740601l3.637146-3.4699707 C17.8087769,1.1399536,15.0406494,0,12,0C7.392395,0,3.3966675,2.5999146,1.3858032,6.4098511l4.0444336,3.1929321 C6.4099731,6.9193726,8.977478,5,12,5z"
                 fill="#EA4335"
@@ -190,61 +176,68 @@ export default function SignUp() {
                 fill="#34A853"
               />
             </svg>
-            <p className="ml-2">Sign up with Google</p>
+            <p className="ml-2 text-gray-800 dark:text-white">
+              Sign up with Google
+            </p>
           </button>
         </div>
 
         {/* Divider */}
         <div className="relative my-3">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
+            <div className="w-full border-t border-gray-300 dark:border-slate-600"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">or</span>
+            <span className="px-2 bg-white dark:bg-slate-700 text-gray-500 dark:text-gray-300">
+              or
+            </span>
           </div>
         </div>
 
-        {/* Registration form */}
+        {/* Email signup form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Error message display */}
           {error && (
-            <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg">
+            <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 dark:text-red-300 rounded-lg">
               {error}
             </div>
           )}
 
+          {/* Name input */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Full name
             </label>
             <input
               name="name"
               type="text"
               required
-              className="block w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-teal-950 focus:border-teal-950"
+              className="block w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-teal-950 focus:border-teal-950 dark:bg-slate-600 dark:text-white dark:border-slate-500 dark:placeholder-gray-300 dark:focus:ring-teal-600 dark:focus:border-teal-600"
               placeholder="Enter your name"
               value={formData.name}
               onChange={handleChange}
             />
           </div>
 
+          {/* Email input */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Email address
             </label>
             <input
               name="email"
               type="email"
               required
-              className="block w-full px-3 py-2 border border-gray-300 text-gray-700 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-teal-950 focus:border-teal-950"
+              className="block w-full px-3 py-2 border border-gray-300 text-gray-700 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-teal-950 focus:border-teal-950 dark:bg-slate-600 dark:text-white dark:border-slate-500 dark:placeholder-gray-300 dark:focus:ring-teal-600 dark:focus:border-teal-600"
               placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
             />
           </div>
 
+          {/* Password input */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Password
             </label>
             <div className="relative">
@@ -252,27 +245,29 @@ export default function SignUp() {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 required
-                className="block w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-teal-950 focus:border-teal-950"
+                className="block w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-teal-950 focus:border-teal-950 dark:bg-slate-600 dark:text-white dark:border-slate-500 dark:placeholder-gray-300 dark:focus:ring-teal-600 dark:focus:border-teal-600"
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={handleChange}
               />
+              {/* Password visibility toggle */}
               <button
                 type="button"
                 className="absolute inset-y-0 right-0 flex items-center pr-3"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400" />
+                  <EyeOff className="h-5 w-5 text-gray-400 dark:text-gray-200" />
                 ) : (
-                  <Eye className="h-5 w-5 text-gray-400" />
+                  <Eye className="h-5 w-5 text-gray-400 dark:text-gray-200" />
                 )}
               </button>
             </div>
           </div>
 
+          {/* Confirm password input */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Confirm Password
             </label>
             <div className="relative">
@@ -280,20 +275,21 @@ export default function SignUp() {
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 required
-                className="block w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-teal-950 focus:border-teal-950"
+                className="block w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-teal-950 focus:border-teal-950 dark:bg-slate-600 dark:text-white dark:border-slate-500 dark:placeholder-gray-300 dark:focus:ring-teal-600 dark:focus:border-teal-600"
                 placeholder="••••••••"
                 value={formData.confirmPassword}
                 onChange={handleChange}
               />
+              {/* Confirm password visibility toggle */}
               <button
                 type="button"
                 className="absolute inset-y-0 right-0 flex items-center pr-3"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 {showConfirmPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400" />
+                  <EyeOff className="h-5 w-5 text-gray-400 dark:text-gray-200" />
                 ) : (
-                  <Eye className="h-5 w-5 text-gray-400" />
+                  <Eye className="h-5 w-5 text-gray-400 dark:text-gray-200" />
                 )}
               </button>
             </div>
@@ -303,18 +299,18 @@ export default function SignUp() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-950 hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-950"
+            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-950 hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-950 dark:bg-teal-700 dark:hover:bg-teal-600 dark:focus:ring-teal-600"
           >
             {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
 
-        {/* Sign-in link */}
-        <p className="mt-6 text-center text-sm text-gray-600">
+        {/* Sign in link */}
+        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-300">
           Already have an account?
           <Link
             href="/auth/signin"
-            className="font-medium ml-1 text-green-900 hover:text-green-800"
+            className="font-medium ml-1 text-green-900 hover:text-green-800 dark:text-green-300 dark:hover:text-green-200"
           >
             Sign in
           </Link>

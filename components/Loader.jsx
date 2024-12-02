@@ -1,5 +1,12 @@
 import React from "react";
 
+/**
+ * Loader component that displays a custom loading animation.
+ * The loader is a circular spinner with a unique conic-gradient animation.
+ * The loader is centered both vertically and horizontally on the screen.
+ *
+ * @returns {JSX.Element} The rendered Loader component.
+ */
 const Loader = () => {
   return (
     <div style={styles.loaderWrapper}>
@@ -15,23 +22,33 @@ const Loader = () => {
             83.33% { -webkit-mask: conic-gradient(#0000 300deg, #000 0); }
             100%   { -webkit-mask: conic-gradient(#0000 360deg, #000 0); }
           }
-          }
         `}
       </style>
     </div>
   );
 };
 
+/**
+ * CSS-in-JS styles for the Loader component.
+ * These styles control the layout of the loader, its appearance, and the animation.
+ */
 const styles = {
+  /**
+   * Wrapper style for centering the loader on the screen.
+   * It uses flexbox to center the loader both vertically and horizontally.
+   */
   loaderWrapper: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: "100vh", 
-    width: "100vw", 
-    backgroundColor: "#f3f3f3", 
+    height: "100vh",
+    width: "100vw",
     position: "relative",
   },
+  /**
+   * Loader style for creating the animated circular spinner.
+   * The loader has multiple radial gradients and a conic animation.
+   */
   loader: {
     width: "120px",
     height: "120px",
@@ -52,7 +69,7 @@ const styles = {
       #f6d353
     `,
     backgroundSize: "20px 20px, 8px 8px",
-    animation: "l4 5s infinite, rotate 3s linear infinite",
+    animation: "l4 5s infinite, rotate 3s linear infinite", // Rotation animation and conic-gradient animation
   },
 };
 

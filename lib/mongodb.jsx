@@ -16,7 +16,7 @@ import { MongoClient } from "mongodb";
 
 // Check if the required environment variable is set
 if (!process.env.MONGODB_URI) {
-  throw new Error("Invalid/Missing environment variable: \"MONGODB_URI\"");
+  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
 }
 
 // Set the MongoDB connection options
