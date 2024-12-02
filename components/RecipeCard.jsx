@@ -2,11 +2,18 @@
 
 import Link from "next/link";
 import Gallery from "./Gallery";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FavoritesButton from "./FavoritesButton";
+import DownloadButton from "./DownloadButton";
 import Alert from "./Alert";
+import { DownloadIcon } from "lucide-react";
 
-// Highlight text function
+/**
+ * Highlights search query text within a given text string
+ * @param {string} text - The text to be searched and highlighted
+ * @param {string} query - The search query to highlight
+ * @returns {Array<string|JSX.Element>} Array of text parts with highlighted matches
+ */
 function highlightText(text, query) {
   if (!query) return text;
   const regex = new RegExp(`(${query})`, "gi");
@@ -21,18 +28,60 @@ function highlightText(text, query) {
   );
 }
 
+/**
+ * RecipeCard component displays detailed information about a single recipe
+ * @param {Object} props - Component properties
+ * @param {Object} props.recipe - The recipe object containing all recipe details
+ * @param {string} [props.searchQuery=''] - Optional search query for text highlighting
+ * @param {boolean} [props.isFavorited] - Initial favorited state of the recipe
+ * @param {Function} [props.toggleFavorite] - Function to toggle favorite status
+ * @returns {JSX.Element} Rendered recipe card component
+ */
 export default function RecipeCard({
   recipe,
   searchQuery = "",
   isFavorited: initialIsFavorited,
   toggleFavorite,
 }) {
+  // State for hover, alert, and download functionality
   const [isHovered, setIsHovered] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success");
+  const [isDownloaded, setIsDownloaded] = useState(false);
+
+  // Ensure images is an array, defaulting to empty array if undefined
   const images = Array.isArray(recipe?.images) ? recipe.images : [];
 
+  // Check if recipe is downloaded
+  useEffect(() => {
+    const checkDownloadStatus = () => {
+      const downloadedRecipes = JSON.parse(
+        localStorage.getItem("downloadedRecipes") || "[]"
+      ).map((r) => (typeof r === "string" ? JSON.parse(r) : r));
+
+      const downloaded = downloadedRecipes.some(
+        (savedRecipe) => savedRecipe.id === recipe._id
+      );
+
+      setIsDownloaded(downloaded);
+    };
+
+    checkDownloadStatus();
+
+    // Listen for download events
+    window.addEventListener("recipesDownloaded", checkDownloadStatus);
+
+    return () => {
+      window.removeEventListener("recipesDownloaded", checkDownloadStatus);
+    };
+  }, [recipe]);
+
+  /**
+   * Handles the favorite toggle action and shows appropriate alert
+   * @param {boolean} success - Whether the favorite toggle was successful
+   * @param {string} message - Alert message to display
+   */
   const handleFavoriteToggle = async (success, message) => {
     setAlertMessage(message);
     setAlertType(success ? "success" : "error");
@@ -42,25 +91,35 @@ export default function RecipeCard({
   return (
     <>
       <div
-        className="bg-white dark:bg-[#333333] text-gray-900 dark:text-gray-100 rounded-3xl shadow-md overflow-hidden transition-all duration-500 hover:shadow-lg hover:scale-[1.02] flex flex-col justify-between"
+        className="bg-white border-2 border-opacity-30 dark:border-gray-800 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-3xl shadow-md overflow-hidden transition-all duration-500 hover:shadow-lg hover:scale-[1.02] flex flex-col justify-between dark:shadow-m dark:hover:shadow-slate-800"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Image Section */}
-        <div className="relative overflow-hidden object-contain">
+        {/* Downloaded Indicator */}
+        {isDownloaded && (
+          <div className="absolute top-2 left-2 z-10 bg-green-500 text-white px-2 py-1 rounded-full text-xs flex items-center">
+            <DownloadIcon className="w-3 h-3 mr-1" />
+            Offline
+          </div>
+        )}
+
+        {/* Image Section with Gallery and Buttons */}
+        <div className="relative overflow-hidden max-h-56">
           <Gallery images={images} />
 
-          {/* Favorites Button */}
-          <div className="absolute top-2 right-2 z-10">
-            {/* Pass isFavorited and toggleFavorite to FavoritesButton */}
+          {/* Favorites and Download Buttons */}
+          <div className="absolute top-2 right-1 left-1 z-10 flex justify-between">
+            <DownloadButton recipe={recipe} />
             <FavoritesButton
               recipeId={recipe._id}
               isFavorited={initialIsFavorited}
               onFavoriteToggle={handleFavoriteToggle}
             />
           </div>
+
+          {/* Hoverable Description Overlay */}
           <div
-            className={`absolute bottom-0 left-0 right-0 p-2 bg-black bg-opacity-75 text-white text-sm transition-all duration-500 transform ${
+            className={`absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black to-black-opacity-75 text-white text-sm transition-all duration-500 transform ${
               isHovered
                 ? "translate-y-0 opacity-100"
                 : "translate-y-full opacity-0"
@@ -79,13 +138,16 @@ export default function RecipeCard({
           </div>
         </div>
 
-        {/* Text Section */}
+        {/* Recipe Details Section */}
         <div className="p-4 flex-grow flex flex-col justify-between text-center">
+          {/* Title */}
           <div>
-            <h3 className="font-bold text-lg text-[#6D9773] dark:text-[#A3C9A7] mb-2 line-clamp-2">
+            <h3 className="font-bold text-lg text-[#6D9773] dark:text-slate-300 mb-2 line-clamp-2">
               {highlightText(recipe.title, searchQuery)}
             </h3>
           </div>
+
+          {/* Publication Date }
           <div>
             <h3 className="font-light text-sm text-[#6D9773] dark:text-[#A3C9A7] mb-2 line-clamp-2">
               {new Date(recipe.published).toLocaleDateString("en-US", {
@@ -95,6 +157,8 @@ export default function RecipeCard({
               })}
             </h3>
           </div>
+
+          { Instruction Count 
           <div>
             <h3 className="font-light text-sm text-[#6D9773] dark:text-[#A3C9A7] mb-2 line-clamp-2">
               {recipe.instructions.length}{" "}
@@ -102,9 +166,9 @@ export default function RecipeCard({
                 ? "instruction"
                 : "instructions"}
             </h3>
-          </div>
+          </div>*/}
 
-          {/* Prep, Cook, and Serves */}
+          {/* Recipe Metadata Icons */}
           <div className="flex justify-center space-x-8 text-xs text-gray-500 mb-4">
             {/* Prep Time */}
             <div className="flex flex-col items-center">
@@ -114,7 +178,7 @@ export default function RecipeCard({
                 viewBox="0 0 512 512"
                 strokeWidth="1.5"
                 stroke="currentColor"
-                className="w-5 h-5 text-[#0C3B2E] dark:text-[#A3C9A7]"
+                className="w-5 h-5 text-[#0C3B2E] dark:text-teal-200"
               >
                 <path
                   strokeLinecap="round"
@@ -132,9 +196,10 @@ export default function RecipeCard({
               C470.505,220.719,462.337,238.927,449.023,252.265z"
                 />
               </svg>
-
-              <span className="mt-2 font-semibold text-sm">Prep:</span>
-              <span>{recipe.prep} mins</span>
+              <span className="mt-2 font-semibold text-sm dark:text-slate-300">
+                Prep:
+              </span>
+              <span className="dark:text-slate-400">{recipe.prep} mins</span>
             </div>
 
             {/* Cook Time */}
@@ -145,15 +210,17 @@ export default function RecipeCard({
                 viewBox="0 0 256 256"
                 strokeWidth="1.0"
                 stroke="currentColor"
-                className="w-5 h-5 text-[#0C3B2E] dark:text-[#A3C9A7]"
+                className="w-5 h-5 text-[#0C3B2E] dark:text-teal-200"
               >
                 <path d="M76,40V16a12,12,0,0,1,24,0V40a12,12,0,0,1-24,0Zm52,12a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,128,52Zm40,0a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,168,52Zm83.2002,53.6001L224,126v58a36.04061,36.04061,0,0,1-36,36H68a36.04061,36.04061,0,0,1-36-36V126L4.7998,105.6001A12.0002,12.0002,0,0,1,19.2002,86.3999L32,96V88A20.02229,20.02229,0,0,1,52,68H204a20.02229,20.02229,0,0,1,20,20v8l12.7998-9.6001a12.0002,12.0002,0,0,1,14.4004,19.2002ZM200,92H56v92a12.01375,12.01375,0,0,0,12,12H188a12.01375,12.01375,0,0,0,12-12Z" />
               </svg>
-              <span className="mt-2 font-semibold text-sm">Cook:</span>
-              <span>{recipe.cook} mins</span>
+              <span className="mt-2 font-semibold text-sm dark:text-slate-300">
+                Cook:
+              </span>
+              <span className="dark:text-slate-400">{recipe.cook} mins</span>
             </div>
 
-            {/* Servings (Plate Icon) */}
+            {/* Servings */}
             <div className="flex flex-col items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -163,7 +230,7 @@ export default function RecipeCard({
                 fill="none"
                 strokeWidth="2"
                 stroke="currentColor"
-                className="w-5 h-5 text-[#0C3B2E] dark:text-[#A3C9A7]"
+                className="w-5 h-5 text-[#0C3B2E] dark:text-teal-200"
               >
                 <g
                   id="Group_49"
@@ -202,20 +269,26 @@ export default function RecipeCard({
                   ></line>
                 </g>
               </svg>
-              <span className="mt-2 font-semibold text-sm">Serves:</span>
-              <span>{recipe.servings} people</span>
+              <span className="mt-2 font-semibold text-sm dark:text-slate-300">
+                Serves:
+              </span>
+              <span className="dark:text-slate-400">
+                {recipe.servings} people
+              </span>
             </div>
           </div>
 
           {/* View Recipe Button */}
           <Link
             href={`/recipes/${recipe._id}`}
-            className="w-[85%] mx-auto block text-center bg-[#DB8C28] dark:bg-[#FFA53D] text-white font-semibold py-2 rounded-full shadow hover:bg-[#0C3B2E] dark:hover:bg-[#A3C9A7] transition-colors mt-auto"
+            className="w-[85%] mx-auto block text-center bg-[#DB8C28] dark:bg-teal-600 dark:hover:bg-teal-700 text-white font-semibold py-2 rounded-full shadow hover:bg-[#0C3B2E] transition-colors mt-auto"
           >
             View Recipe
           </Link>
         </div>
       </div>
+
+      {/* Alert Component for Favorite Actions */}
       <Alert
         message={alertMessage}
         type={alertType}

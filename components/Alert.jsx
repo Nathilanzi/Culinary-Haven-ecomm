@@ -1,6 +1,31 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { AlertCircle, CheckCircle2, X } from "lucide-react";
 
+/**
+ * Alert component for displaying brief messages to the user.
+ * Supports success and error message types with an optional auto-dismiss feature.
+ *
+ * @param {Object} props - The props for the component.
+ * @param {string} props.message - The message to display in the alert.
+ * @param {string} [props.type="success"] - The type of the alert, which determines its appearance. Possible values: `"success"`, `"error"`.
+ * @param {number} [props.duration=5000] - The duration (in milliseconds) for which the alert is visible. A value of `0` disables auto-dismiss.
+ * @param {Function} [props.onClose] - Callback function executed when the alert is dismissed.
+ * @param {boolean} [props.isVisible=false] - Determines whether the alert is initially visible.
+ *
+ * @returns {JSX.Element} The rendered alert component.
+ *
+ * @example
+ * // Example usage of the Alert component
+ * <Alert
+ *   message="Data saved successfully!"
+ *   type="success"
+ *   duration={3000}
+ *   isVisible={true}
+ *   onClose={() => console.log("Alert closed")}
+ * />
+ */
 const Alert = ({
   message,
   type = "success",

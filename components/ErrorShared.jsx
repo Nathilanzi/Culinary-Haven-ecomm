@@ -3,14 +3,24 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
+/**
+ * A component that displays a digit with an animation effect that alternates every 3 seconds.
+ *
+ * @param {Object} props - The component's props.
+ * @param {string | number} props.digit - The digit to display with the animation.
+ * @returns {JSX.Element} The rendered span element with animated digit.
+ */
 export const AnimatedDigit = ({ digit }) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
+    // Start the animation effect by toggling isAnimating state every 3 seconds
     setIsAnimating(true);
     const timer = setInterval(() => {
       setIsAnimating((prev) => !prev);
     }, 3000);
+
+    // Cleanup the interval on component unmount
     return () => clearInterval(timer);
   }, []);
 
@@ -25,11 +35,22 @@ export const AnimatedDigit = ({ digit }) => {
   );
 };
 
+/**
+ * A button component that can either be a link or a regular button.
+ *
+ * @param {Object} props - The component's props.
+ * @param {string} [props.href] - The URL to navigate to if it's a link button (optional).
+ * @param {Function} [props.onClick] - The click handler function if it's a regular button (optional).
+ * @param {React.ReactNode} props.children - The content of the button (e.g., text or elements inside the button).
+ * @returns {JSX.Element} The rendered button or link element.
+ */
 export const Button = ({ href, onClick, children }) => {
+  // Base style for button and link
   const baseStyle =
     "inline-flex items-center px-6 py-3 text-white rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0C3B2E]";
 
   if (href) {
+    // Return a Link if href is provided
     return (
       <Link href={href} className={`${baseStyle} bg-[#0C3B2E]`}>
         {children}
@@ -37,6 +58,7 @@ export const Button = ({ href, onClick, children }) => {
     );
   }
 
+  // Return a button if onClick is provided
   return (
     <button onClick={onClick} className={`${baseStyle} bg-[#0C3B2E]/90`}>
       {children}
@@ -44,15 +66,26 @@ export const Button = ({ href, onClick, children }) => {
   );
 };
 
+/**
+ * A layout component for displaying error messages with optional buttons.
+ *
+ * @param {Object} props - The component's props.
+ * @param {string} props.title - The title of the error page (e.g., "404 Not Found").
+ * @param {string} props.message - The detailed error message to display.
+ * @param {string} [props.code] - The error code (e.g., "404") to display with animation (optional).
+ * @param {React.ReactNode} props.buttons - Custom buttons to be rendered (e.g., a retry button).
+ * @returns {JSX.Element} The rendered error layout component.
+ */
 export const ErrorLayout = ({ title, message, code, buttons }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    // Make the error message fade in when the component mounts
     setIsVisible(true);
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center p-4">
+    <div className="relative min-h-screen flex items-center justify-center p-4">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute w-64 h-64 rounded-full bg-[#0C3B2E]/5 -top-32 -left-32 animate-pulse" />

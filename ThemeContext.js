@@ -1,5 +1,5 @@
-"use client"
-import { createContext, useContext, useState, useEffect } from 'react';
+"use client";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const ThemeContext = createContext();
 
@@ -8,7 +8,9 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     // Set initial theme based on `prefers-color-scheme` if available
-    const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isSystemDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
     setIsDarkMode(isSystemDark);
     applyTheme(isSystemDark);
   }, []);
@@ -22,15 +24,36 @@ export function ThemeProvider({ children }) {
   };
 
   function applyTheme(isDark) {
-    document.documentElement.style.setProperty('--background', isDark ? '#1B1F1D' : '#daf1de');
-    document.documentElement.style.setProperty('--foreground', isDark ? '#daf1de' : '#0C3B2E');
-    document.documentElement.style.setProperty('--card-bg', isDark ? '#333333' : 'white');
-    document.documentElement.style.setProperty('--navbar-bg', isDark ? '#222222' : '#0C3B2E');
-    document.documentElement.style.setProperty('--text-color', isDark ? '#daf1de' : '#0C3B2E');
-    document.documentElement.style.setProperty('--feature-bg', isDark ? '#333333' : 'white');
-    document.documentElement.style.setProperty('--feature-text', isDark ? '#daf1de' : 'black');
+    document.documentElement.style.setProperty(
+      "--background",
+      isDark ? "#1B1F1D" : "#daf1de"
+    );
+    document.documentElement.style.setProperty(
+      "--foreground",
+      isDark ? "#daf1de" : "#0C3B2E"
+    );
+    document.documentElement.style.setProperty(
+      "--card-bg",
+      isDark ? "#333333" : "white"
+    );
+    document.documentElement.style.setProperty(
+      "--navbar-bg",
+      isDark ? "#222222" : "#0C3B2E"
+    );
+    document.documentElement.style.setProperty(
+      "--text-color",
+      isDark ? "#daf1de" : "#0C3B2E"
+    );
+    document.documentElement.style.setProperty(
+      "--feature-bg",
+      isDark ? "#333333" : "white"
+    );
+    document.documentElement.style.setProperty(
+      "--feature-text",
+      isDark ? "#daf1de" : "black"
+    );
 
-    document.documentElement.classList.toggle('dark', isDark); // Adds 'dark' class for Tailwind compatibility
+    document.documentElement.classList.toggle("dark", isDark); // Adds 'dark' class for Tailwind compatibility
   }
 
   return (

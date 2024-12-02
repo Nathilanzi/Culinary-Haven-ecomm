@@ -2,7 +2,20 @@
 
 import Image from "next/image";
 
+/**
+ * Renders the HeroSection component.
+ * 
+ * This component serves as the introductory section of the page with a full-screen
+ * background image, text content, and buttons that provide smooth scrolling functionality
+ * to a specified section on the page.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered HeroSection component.
+ */
 const HeroSection = () => {
+  /**
+   * Scrolls to the "recipes-section" smoothly when invoked.
+   */
   const scrollToRecipes = () => {
     const recipesSection = document.querySelector("#recipes-section");
     if (recipesSection) {
@@ -22,7 +35,7 @@ const HeroSection = () => {
             className="object-cover"
             priority
           />
-          {/* Overlay with color scheme gradient */}
+          {/* Overlay with gradient */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#0C3B2E]/80 via-[#6d977312]/85 to-[#ffbb0000]/45" />
         </div>
 
@@ -55,7 +68,7 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* Decorative elements */}
+        {/* Decorative Elements */}
         <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#0C3B2E] to-transparent" />
       </div>
     </div>

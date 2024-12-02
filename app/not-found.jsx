@@ -1,29 +1,115 @@
-import { ErrorLayout, Button } from "@/components/ErrorShared";
+"use client";
 
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { Home, Search } from "lucide-react";
+
+/**
+ * NotFoundPage Component
+ *
+ * @description A modern, animated 404 error page with Framer Motion
+ * Provides a visually appealing and interactive experience for users
+ * when a page is not found.
+ *
+ * @returns {JSX.Element} Animated 404 error page
+ */
 export default function NotFoundPage() {
+  // Animation variants for different elements
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.3,
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 100,
+      },
+    },
+  };
+
+  // Floating animation for the magnifying glass
+  const floatVariants = {
+    animate: {
+      y: [0, -10, 0],
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        repeatType: "loop",
+        ease: "easeInOut",
+      },
+    },
+  };
+
   return (
-    <ErrorLayout
-      code="404"
-      title="Page Not Found"
-      message="Sorry, we couldn't find the page you're looking for. It might have been moved or deleted."
-      buttons={
-        <Button href="/">
-          <svg
-            className="w-5 h-5 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-            />
-          </svg>
-          Return Home
-        </Button>
-      }
-    />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 p-4 overflow-hidden">
+      <motion.div
+        className="text-center max-w-md w-full relative"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* Animated 404 Code */}
+        <motion.h1
+          className="text-9xl font-bold text-teal-600 mb-4 select-none"
+          variants={itemVariants}
+        >
+          404
+        </motion.h1>
+
+        {/* Floating Search Icon */}
+        <motion.div
+          className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          variants={floatVariants}
+          animate="animate"
+        >
+          <Search
+            className="text-teal-400 opacity-30"
+            size={120}
+            strokeWidth={1}
+          />
+        </motion.div>
+
+        {/* Error Message */}
+        <motion.h2
+          className="text-3xl font-semibold text-gray-800 mb-4"
+          variants={itemVariants}
+        >
+          Page Not Found
+        </motion.h2>
+
+        <motion.p className="text-gray-600 mb-8" variants={itemVariants}>
+          Looks like you've wandered into uncharted territory. The page you're
+          searching for might have been moved or doesn't exist.
+        </motion.p>
+
+        {/* Action Buttons */}
+        <motion.div
+          className="flex justify-center space-x-4"
+          variants={itemVariants}
+        >
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Link
+              href="/recipes"
+              className="flex items-center px-6 py-3 bg-teal-600 text-white rounded-full shadow-lg hover:bg-teal-700 transition-colors"
+            >
+              <Home className="mr-2" />
+              Return Home
+            </Link>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </div>
   );
 }
