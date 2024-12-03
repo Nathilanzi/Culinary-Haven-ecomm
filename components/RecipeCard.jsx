@@ -3,10 +3,12 @@
 import Link from "next/link";
 import Gallery from "./Gallery";
 import { useState, useEffect } from "react";
-import FavoritesButton from "./FavoritesButton";
 import DownloadButton from "./DownloadButton";
 import Alert from "./Alert";
-import { DownloadIcon, StarIcon } from "lucide-react";
+import ConfirmationModal from "./ConfirmationModal";
+import { DownloadIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 /**
  * Highlights search query text within a given text string
@@ -33,8 +35,7 @@ function highlightText(text, query) {
  * @param {Object} props - Component properties
  * @param {Object} props.recipe - The recipe object containing all recipe details
  * @param {string} [props.searchQuery=''] - Optional search query for text highlighting
- * @param {boolean} [props.isFavorited] - Initial favorited state of the recipe
- * @param {Function} [props.toggleFavorite] - Function to toggle favorite status
+ * @param {boolean} [props.initialIsFavorited] - Initial favorited state of the recipe
  * @returns {JSX.Element} Rendered recipe card component
  */
 export default function RecipeCard({
@@ -42,18 +43,22 @@ export default function RecipeCard({
   searchQuery = "",
   initialIsFavorited = false,
 }) {
-  // State for hover, alert, and download functionality
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  // State management
   const [isFavorited, setIsFavorited] = useState(initialIsFavorited);
   const [isHovered, setIsHovered] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success");
   const [isDownloaded, setIsDownloaded] = useState(false);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
   // Ensure images is an array, defaulting to empty array if undefined
   const images = Array.isArray(recipe?.images) ? recipe.images : [];
 
-  // Check if recipe is downloaded
+  // Check download status on component mount and when recipe changes
   useEffect(() => {
     const checkDownloadStatus = () => {
       const downloadedRecipes = JSON.parse(
@@ -76,38 +81,96 @@ export default function RecipeCard({
     };
   }, [recipe]);
 
+  // Check favorite status on component mount
+  useEffect(() => {
+    const storedFavorite = localStorage.getItem(`favorite_${recipe._id}`);
+    if (storedFavorite !== null) {
+      setIsFavorited(JSON.parse(storedFavorite));
+    }
+  }, [recipe._id]);
+
   /**
    * Handles the favorite toggle action and shows appropriate alert
    * @param {boolean} success - Whether the favorite toggle was successful
    * @param {string} message - Alert message to display
    */
-  const handleFavoriteToggle = async (success, message) => {
+  const handleFavoriteToggle = (success, message) => {
     setAlertMessage(message);
     setAlertType(success ? "success" : "error");
     setShowAlert(true);
   };
 
-  const StarRating = ({ rating }) => {
-    // Ensure rating is between 0 and 5
-    const normalizedRating = Math.min(Math.max(rating, 0), 5);
+  /**
+   * Toggles favorite status of the recipe
+   * @param {boolean} [forceRemove=false] - Force remove from favorites
+   */
+  const toggleFavorite = async (forceRemove = false) => {
+    // Redirect to signin if no session
+    if (!session) {
+      router.push("/auth/signin");
+      return false;
+    }
 
-    return (
-      <div className="flex items-center">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <StarIcon
-            key={star}
-            className={`h-5 w-5 transition-colors duration-300 ${
-              star <= Math.round(normalizedRating)
-                ? "text-amber-400 fill-amber-400"
-                : "text-gray-300 dark:text-gray-600"
-            }`}
-          />
-        ))}
-        <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-          {normalizedRating.toFixed(1)}
-        </span>
-      </div>
-    );
+    try {
+      const response = await fetch("/api/favorites", {
+        method: forceRemove || isFavorited ? "DELETE" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "user-id": session.user.id,
+        },
+        body: JSON.stringify({ recipeId: recipe._id }),
+      });
+
+      if (response.ok) {
+        const newFavoritedState = forceRemove ? false : !isFavorited;
+        setIsFavorited(newFavoritedState);
+
+        // Persist favorite state in localStorage
+        localStorage.setItem(
+          `favorite_${recipe._id}`, 
+          JSON.stringify(newFavoritedState)
+        );
+
+        // Dispatch event for global state update
+        window.dispatchEvent(new Event("favoritesUpdated"));
+
+        router.refresh();
+
+        // Show alert based on action
+        handleFavoriteToggle(
+          true,
+          newFavoritedState 
+            ? "Recipe added to favorites!" 
+            : "Recipe removed from favorites!"
+        );
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      handleFavoriteToggle(false, "Failed to update favorites");
+      return false;
+    }
+  };
+
+  /**
+   * Handles favorite click - shows confirmation if already favorited
+   */
+  const handleFavoriteClick = () => {
+    if (isFavorited) {
+      setIsConfirmationModalOpen(true);
+    } else {
+      toggleFavorite();
+    }
+  };
+
+  /**
+   * Handles confirmation of removing from favorites
+   */
+  const handleConfirmRemoveFavorite = () => {
+    toggleFavorite(true);
+    setIsConfirmationModalOpen(false);
   };
 
   return (
@@ -132,11 +195,25 @@ export default function RecipeCard({
           {/* Favorites and Download Buttons */}
           <div className="absolute top-2 right-1 left-1 z-10 flex justify-between">
             <DownloadButton recipe={recipe} />
-            <FavoritesButton
-              recipeId={recipe._id}
-              initialIsFavorited={isFavorited}
-              onFavoriteToggle={handleFavoriteToggle}
-            />
+            <button
+              onClick={handleFavoriteClick}
+              className="flex items-center space-x-2 p-2 rounded-full bg-white bg-opacity-75 hover:bg-opacity-100 transition-all duration-300"
+              aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+            >
+              <svg
+                className={`w-6 h-6 ${isFavorited ? "text-red-500" : "text-gray-400"}`}
+                fill={isFavorited ? "currentColor" : "none"}
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+            </button>
           </div>
 
           {/* Hoverable Description Overlay */}
@@ -168,55 +245,23 @@ export default function RecipeCard({
               {highlightText(recipe.title, searchQuery)}
             </h3>
           </div>
-          {/* <div className="m-2">
-            <div className="flex justify-evenly items-center">
-              {recipe.averageRating ? (
-                <StarRating rating={recipe.averageRating} />
-              ) : (
-                <span className="text-gray-400 italic">No ratings</span>
-              )}
-            </div>
-          </div> */}
-
-          {/* Publication Date }
-          <div>
-            <h3 className="font-light text-sm text-[#6D9773] dark:text-[#A3C9A7] mb-2 line-clamp-2">
-              {new Date(recipe.published).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </h3>
-          </div>
-
-          { Instruction Count 
-          <div>
-            <h3 className="font-light text-sm text-[#6D9773] dark:text-[#A3C9A7] mb-2 line-clamp-2">
-              {recipe.instructions.length}{" "}
-              {recipe.instructions.length === 1
-                ? "instruction"
-                : "instructions"}
-            </h3>
-          </div>*/}
 
           {/* Recipe Metadata Icons */}
-          <div className="flex-col">
+          <div className="flex justify-center space-x-8 text-xs text-gray-500 mb-4">
             {/* Prep Time */}
-
-            <div className=" flex justify-center space-x-8 text-xs text-gray-500 mb-4">
-              <div className="flex flex-col items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  viewBox="0 0 512 512"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  className="w-5 h-5 text-teal-700 dark:text-teal-300"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M512,200.388c-0.016-63.431-51.406-114.828-114.845-114.836c-11.782-0.008-23.118,1.952-33.846,5.275
+            <div className="flex flex-col items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 512 512"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-5 h-5 text-teal-700 dark:text-teal-300"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M512,200.388c-0.016-63.431-51.406-114.828-114.845-114.836c-11.782-0.008-23.118,1.952-33.846,5.275
               C338.408,58.998,299.57,38.497,256,38.497c-43.57,0-82.408,20.501-107.309,52.329c-10.737-3.322-22.073-5.283-33.846-5.275
               C51.406,85.56,0.016,136.957,0,200.388c0.008,54.121,37.46,99.352,87.837,111.523c-11.368,35.548-21.594,81.104-21.538,140.848v20.744
               h379.402v-20.744c0.056-59.744-10.169-105.3-21.538-140.848C474.54,299.741,511.984,254.509,512,200.388z M449.023,252.265
@@ -227,29 +272,29 @@ export default function RecipeCard({
               c34.778-0.008,65.044,18.678,81.606,46.601l9.796,16.571l17.26-8.54c9.804-4.846,20.761-7.568,32.493-7.577
               c20.322,0.008,38.531,8.176,51.876,21.482c13.305,13.338,21.473,31.545,21.481,51.867
               C470.505,220.719,462.337,238.927,449.023,252.265z"
-                  />
-                </svg>
-                <span className="mt-2 font-semibold text-sm dark:text-slate-300">
-                  Prep:
-                </span>
-                <span className="dark:text-slate-400">{recipe.prep} mins</span>
-              </div>
+                />
+              </svg>
+              <span className="mt-2 font-semibold text-sm dark:text-slate-300">
+                Prep:
+              </span>
+              <span className="dark:text-slate-400">{recipe.prep} mins</span>
+            </div>
 
-              {/* Cook Time */}
-              <div className="flex flex-col items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  viewBox="0 0 256 256"
-                  strokeWidth="1.0"
-                  stroke="currentColor"
-                  className="w-5 h-5 text-teal-700 dark:text-teal-300"
-                >
-                  <path d="M76,40V16a12,12,0,0,1,24,0V40a12,12,0,0,1-24,0Zm52,12a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,128,52Zm40,0a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,168,52Zm83.2002,53.6001L224,126v58a36.04061,36.04061,0,0,1-36,36H68a36.04061,36.04061,0,0,1-36-36V126L4.7998,105.6001A12.0002,12.0002,0,0,1,19.2002,86.3999L32,96V88A20.02229,20.02229,0,0,1,52,68H204a20.02229,20.02229,0,0,1,20,20v8l12.7998-9.6001a12.0002,12.0002,0,0,1,14.4004,19.2002ZM200,92H56v92a12.01375,12.01375,0,0,0,12,12H188a12.01375,12.01375,0,0,0,12-12Z" />
-                </svg>
-                <span className="mt-2 font-semibold text-sm dark:text-slate-300">
-                  Cook:
-                </span>
+            {/* Cook Time */}
+            <div className="flex flex-col items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+                strokeWidth="1.0"
+                stroke="currentColor"
+                className="w-5 h-5 text-teal-700 dark:text-teal-300"
+              >
+                <path d="M76,40V16a12,12,0,0,1,24,0V40a12,12,0,0,1-24,0Zm52,12a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,128,52Zm40,0a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,168,52Zm83.2002,53.6001L224,126v58a36.04061,36.04061,0,0,1-36,36H68a36.04061,36.04061,0,0,1-36-36V126L4.7998,105.6001A12.0002,12.0002,0,0,1,19.2002,86.3999L32,96V88A20.02229,20.02229,0,0,1,52,68H204a20.02229,20.02229,0,0,1,20,20v8l12.7998-9.6001a12.0002,12.0002,0,0,1,14.4004,19.2002ZM200,92H56v92a12.01375,12.01375,0,0,0,12,12H188a12.01375,12.01375,0,0,0,12-12Z" />
+              </svg>
+              <span className="mt-2 font-semibold text-sm dark:text-slate-300">
+                Cook:
+              </span>
                 <span className="dark:text-slate-400">{recipe.cook} mins</span>
               </div>
 
@@ -320,7 +365,15 @@ export default function RecipeCard({
             </Link>
           </div>
         </div>
-      </div>
+
+      {/* Confirmation Modal for Removing Favorites */}
+      <ConfirmationModal
+        isOpen={isConfirmationModalOpen}
+        onClose={() => setIsConfirmationModalOpen(false)}
+        onConfirm={handleConfirmRemoveFavorite}
+        title="Remove from Favorites?"
+        message="Are you sure you want to remove this recipe from your favorites?"
+      />
 
       {/* Alert Component for Favorite Actions */}
       <Alert
