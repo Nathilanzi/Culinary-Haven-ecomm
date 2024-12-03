@@ -250,10 +250,10 @@ const ResponsiveRecipeCarousel = () => {
       </motion.h2>
 
       <div className="relative">
-        {/* Navigation and scrollbar container - Now more responsive */}
+        {/* Top navigation - now hidden on small screens, visible on larger screens */}
         {recipes.length > visibleRecipes.length && !loading && (
-          <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-6 mb-4">
-            {/* Scrollbar with full width on small screens */}
+          <div className="hidden sm:flex flex-col sm:flex-row items-center justify-between space-y-4 space-x-6 sm:space-y-0 sm:space-x-6 mb-4">
+            {/* Scrollbar for large screens */}
             <div className="w-full sm:flex-grow">
               <div
                 ref={scrollbarRef}
@@ -268,24 +268,23 @@ const ResponsiveRecipeCarousel = () => {
                 />
               </div>
             </div>
-
-            {/* Navigation buttons - Now inline with scrollbar on larger screens */}
-            <div className="flex space-x-2 justify-center sm:justify-end">
+            {/* Navigation buttons for large screens */}
+            <div className="flex space-x-2">
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={prevSlide}
-                className="bg-white/70 dark:bg-[#333333]/70 p-2 rounded-full hover:bg-white/90 dark:hover:bg-[#333333]/90 transition-all"
+                className="bg-teal-700 dark:bg-slate-700 p-2 rounded-full hover:bg-teal-800 dark:hover:bg-slate-800 transition-all"
               >
-                <ChevronLeftIcon className="h-5 w-5 text-gray-700 dark:text-[#A3C9A7]" />
+                <ChevronLeftIcon className="h-5 w-5 text-gray-100 dark:text-gray-200" />
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={nextSlide}
-                className="bg-white/70 dark:bg-[#333333]/70 p-2 rounded-full hover:bg-white/90 dark:hover:bg-[#333333]/90 transition-all"
+                className="bg-teal-700 dark:bg-slate-700 p-2 rounded-full hover:bg-teal-800 dark:hover:bg-slate-800 transition-all"
               >
-                <ChevronRightIcon className="h-5 w-5 text-gray-700 dark:text-[#A3C9A7]" />
+                <ChevronRightIcon className="h-5 w-5 text-gray-100 dark:text-gray-200" />
               </motion.button>
             </div>
           </div>
@@ -350,6 +349,25 @@ const ResponsiveRecipeCarousel = () => {
                 </motion.div>
               ))}
             </motion.div>
+            {/* Bottom navigation buttons - now hidden on larger screens, visible on small screens */}
+            <div className="sm:hidden flex space-x-2 justify-center mt-4">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={prevSlide}
+                className="bg-teal-700 dark:bg-slate-700 p-2 rounded-full hover:bg-teal-800 dark:hover:bg-slate-800 transition-all"
+              >
+                <ChevronLeftIcon className="h-5 w-5 text-gray-100 dark:text-gray-200" />
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={nextSlide}
+                className="bg-teal-700 dark:bg-slate-700 p-2 rounded-full hover:bg-teal-800 dark:hover:bg-slate-800 transition-all"
+              >
+                <ChevronRightIcon className="h-5 w-5 text-gray-100 dark:text-gray-200" />
+              </motion.button>
+            </div>
           </AnimatePresence>
         )}
       </div>
