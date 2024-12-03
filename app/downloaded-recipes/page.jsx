@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import RecipeCard from "@/components/RecipeCard";
 import Pagination from "@/components/Pagination";
 import ConfirmationModal from "@/components/ConfirmationModal";
@@ -18,18 +18,17 @@ const DownloadedRecipesPage = () => {
     recipeId: null
   });
 
-  // Load recipes from localStorage
-  const loadRecipes = () => {
+  // Memoized function to load recipes
+  const loadRecipes = useCallback(() => {
     try {
       setLoading(true);
-      // Parse recipes, ensuring we're working with parsed JSON
       const storedRecipes = JSON.parse(
         localStorage.getItem("downloadedRecipes") || "[]"
       ).map((recipe) =>
         typeof recipe === "string" ? JSON.parse(recipe) : recipe
       );
 
-      const recipesPerPage = 6; // Number of recipes to show per page
+      const recipesPerPage = 6;
       const startIndex = (currentPage - 1) * recipesPerPage;
       const paginatedRecipes = storedRecipes.slice(
         startIndex,
@@ -46,68 +45,64 @@ const DownloadedRecipesPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    loadRecipes(); // Load recipes on page load and whenever currentPage changes
   }, [currentPage]);
 
-  // Function to handle deleting a recipe
-  const handleDelete = () => {
+  useEffect(() => {
+    loadRecipes(); 
+  }, [loadRecipes]);
+
+  // Memoized delete handler
+  const handleDelete = useCallback(() => {
     if (!deleteConfirmation.recipeId) return;
 
     try {
-      // Retrieve and parse stored recipes
       const storedRecipes = JSON.parse(
         localStorage.getItem("downloadedRecipes") || "[]"
       ).map((recipe) =>
         typeof recipe === "string" ? JSON.parse(recipe) : recipe
       );
 
-      // Filter out the recipe to delete
       const updatedRecipes = storedRecipes.filter(
         (recipe) => recipe.id !== deleteConfirmation.recipeId
       );
 
-      // Save updated recipes back to localStorage
       localStorage.setItem("downloadedRecipes", JSON.stringify(updatedRecipes));
 
-      // Reload recipes and show toast
       loadRecipes();
       toast.success("Recipe deleted successfully");
       
-      // Reset delete confirmation
       setDeleteConfirmation({ isOpen: false, recipeId: null });
     } catch (err) {
       setError("Error deleting recipe: " + err.message);
       toast.error("Failed to delete recipe");
     }
-  };
+  }, [deleteConfirmation.recipeId, loadRecipes]);
 
-  // Open delete confirmation modal
-  const openDeleteConfirmation = (recipeId) => {
+  // Prevent propagation and flickering
+  const openDeleteConfirmation = useCallback((recipeId) => (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     setDeleteConfirmation({ 
       isOpen: true, 
       recipeId: recipeId 
     });
-  };
+  }, []);
 
   // Close delete confirmation modal
-  const closeDeleteConfirmation = () => {
+  const closeDeleteConfirmation = useCallback(() => {
     setDeleteConfirmation({ 
       isOpen: false, 
       recipeId: null 
     });
-  };
+  }, []);
 
   // Handle page change for pagination
-  const handlePageChange = (page) => {
+  const handlePageChange = useCallback((page) => {
     setCurrentPage(page);
-  };
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto container px-4 py-8 min-h-screen">
-      {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={deleteConfirmation.isOpen}
         onClose={closeDeleteConfirmation}
@@ -118,7 +113,6 @@ const DownloadedRecipesPage = () => {
         confirmClassName="bg-teal-500 hover:bg-teal-600 text-white"
       />
 
-      {/* Fixed position back button */}
       <div className="fixed top-4 -left-20 z-50">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
       </div>
@@ -159,8 +153,8 @@ const DownloadedRecipesPage = () => {
                 <div key={recipe.id} className="relative group">
                   <RecipeCard recipe={recipe} />
                   <button
-                    onClick={() => openDeleteConfirmation(recipe.id)}
-                    className="absolute top-2 left-1/2 -translate-x-1/2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                    onMouseDown={openDeleteConfirmation(recipe.id)}
+                    className="absolute top-2 left-1/2 -translate-x-1/2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 will-change-opacity transition-opacity duration-150 ease-in-out hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="3 6 5 6 21 6"></polyline>
