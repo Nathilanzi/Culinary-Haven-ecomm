@@ -48,15 +48,32 @@ export default function Favorites() {
         setFavorites(recipesWithDetails);
 
         // Update localStorage with current favorites
-        localStorage.setItem(
-          "userFavorites",
-          JSON.stringify(recipesWithDetails.map((recipe) => recipe._id))
-        );
+        updateLocalStorageFavorites(recipesWithDetails);
       } catch (error) {
         setError("Error fetching favorites: " + error.message);
       } finally {
         setLoading(false);
       }
+    };
+
+    // Function to update local storage with favorites
+    const updateLocalStorageFavorites = (favoriteRecipes) => {
+      // Clear all previous favorite-related local storage items
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('favorite_')) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      // Set new favorites in local storage
+      favoriteRecipes.forEach(recipe => {
+        localStorage.setItem(`favorite_${recipe._id}`, 'true');
+      });
+
+      // Store full list of favorite recipe IDs
+      localStorage.setItem('userFavorites', JSON.stringify(
+        favoriteRecipes.map(recipe => recipe._id)
+      ));
     };
 
     fetchFavorites();
@@ -67,14 +84,22 @@ export default function Favorites() {
   }, [session, router]);
 
   const handleFavoriteToggle = (recipeId) => {
-    setFavorites(favorites.filter((fav) => fav._id !== recipeId));
-
-    // Update localStorage
-    const currentFavorites = JSON.parse(
-      localStorage.getItem("userFavorites") || "[]"
-    );
-    const updatedFavorites = currentFavorites.filter((id) => id !== recipeId);
-    localStorage.setItem("userFavorites", JSON.stringify(updatedFavorites));
+    // Remove the recipe from favorites
+    setFavorites(favorites.filter(fav => fav._id !== recipeId));
+    
+    // Remove favorite-specific local storage item
+    localStorage.removeItem(`favorite_${recipeId}`);
+    
+    // Update the list of favorite recipe IDs in local storage
+    const currentFavorites = JSON.parse(localStorage.getItem('userFavorites') || '[]');
+    const updatedFavorites = currentFavorites.filter(id => id !== recipeId);
+    
+    // Update or remove userFavorites in local storage
+    if (updatedFavorites.length > 0) {
+      localStorage.setItem('userFavorites', JSON.stringify(updatedFavorites));
+    } else {
+      localStorage.removeItem('userFavorites');
+    }
   };
 
   if (loading) return <LoadingPage />;
@@ -85,10 +110,10 @@ export default function Favorites() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Fixed position back button */}
-      <div className="fixed top-4 -left-20 z-50">
+      <div className="absolute top-3 -left-[6rem] z-10">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
       </div>
-      <h1 className="text-4xl font-bold mb-10 dark:text-white text-center tracking-tight text-gray-700 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
+      <h1 className="text-4xl mt-8 font-bold mb-10 dark:text-white text-center tracking-tight text-gray-700 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
         My Favorite Recipes
       </h1>
 
