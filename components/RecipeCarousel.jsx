@@ -314,7 +314,7 @@ const ResponsiveRecipeCarousel = () => {
                   exit="exit"
                   className="flex-1 max-w-[220px] w-full"
                 >
-                  <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl overflow-hidden transform transition-all duration-300 hover:scale-105">
+                  <div className="bg-white border border-teal-50 dark:border-gray-900 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-xl hover:scale-[1.02] flex flex-col justify-between">
                     <div className="relative h-48 w-full overflow-hidden">
                       <Image
                         src={recipe.images[0]}
@@ -323,8 +323,8 @@ const ResponsiveRecipeCarousel = () => {
                         className="absolute inset-0 w-full h-full object-cover"
                       />
                     </div>
-                    <div className="p-4 bg-white dark:bg-gray-700">
-                      <h3 className="text-lg font-semibold mb-4 text-[#6D9773] dark:text-slate-300 line-clamp-2 h-12">
+                    <div className="p-4 ">
+                      <h3 className="text-lg font-semibold mb-4 text-gray-500 dark:text-slate-300 line-clamp-2 h-12">
                         {recipe.title}
                       </h3>
                       <div className="flex items-center justify-between">

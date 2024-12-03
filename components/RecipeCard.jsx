@@ -19,7 +19,7 @@ function highlightText(text, query) {
   const regex = new RegExp(`(${query})`, "gi");
   return text.split(regex).map((part, index) =>
     part.toLowerCase() === query.toLowerCase() ? (
-      <span key={index} className="bg-red-200">
+      <span key={index} className="bg-teal-100 text-teal-800 font-semibold">
         {part}
       </span>
     ) : (
@@ -90,13 +90,13 @@ export default function RecipeCard({
   return (
     <>
       <div
-        className="bg-white border-2 border-opacity-30 dark:border-gray-800 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-3xl shadow-md overflow-hidden transition-all duration-500 hover:shadow-lg hover:scale-[1.02] flex flex-col justify-between dark:shadow-m dark:hover:shadow-slate-800"
+        className="bg-white border border-teal-50 dark:border-gray-900 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-xl hover:scale-[1.02] flex flex-col justify-between"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Downloaded Indicator */}
         {isDownloaded && (
-          <div className="absolute top-2 left-2 z-10 bg-green-500 text-white px-2 py-1 rounded-full text-xs flex items-center">
+          <div className="absolute top-2 left-2 z-10 bg-teal-500 text-white px-2 py-1 rounded-full text-xs flex items-center">
             <DownloadIcon className="w-3 h-3 mr-1" />
             Offline
           </div>
@@ -127,7 +127,7 @@ export default function RecipeCard({
             {recipe.description.length > 100 ? (
               <>
                 {highlightText(recipe.description.slice(0, 100), searchQuery)}
-                <span className="text-sm text-green-400 cursor-pointer">
+                <span className="text-sm text-teal-200 cursor-pointer">
                   <Link href={`/recipes/${recipe._id}`}>...read more</Link>
                 </span>
               </>
@@ -141,7 +141,7 @@ export default function RecipeCard({
         <div className="p-4 flex-grow flex flex-col justify-between text-center">
           {/* Title */}
           <div>
-            <h3 className="font-bold text-lg text-[#6D9773] dark:text-slate-300 mb-2 line-clamp-2">
+            <h3 className="font-bold text-lg text-gray-500 dark:text-slate-300 mb-2 line-clamp-2">
               {highlightText(recipe.title, searchQuery)}
             </h3>
           </div>
@@ -177,7 +177,7 @@ export default function RecipeCard({
                 viewBox="0 0 512 512"
                 strokeWidth="1.5"
                 stroke="currentColor"
-                className="w-5 h-5 text-[#0C3B2E] dark:text-teal-200"
+                className="w-5 h-5 text-teal-700 dark:text-teal-300"
               >
                 <path
                   strokeLinecap="round"
@@ -209,7 +209,7 @@ export default function RecipeCard({
                 viewBox="0 0 256 256"
                 strokeWidth="1.0"
                 stroke="currentColor"
-                className="w-5 h-5 text-[#0C3B2E] dark:text-teal-200"
+                className="w-5 h-5 text-teal-700 dark:text-teal-300"
               >
                 <path d="M76,40V16a12,12,0,0,1,24,0V40a12,12,0,0,1-24,0Zm52,12a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,128,52Zm40,0a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,168,52Zm83.2002,53.6001L224,126v58a36.04061,36.04061,0,0,1-36,36H68a36.04061,36.04061,0,0,1-36-36V126L4.7998,105.6001A12.0002,12.0002,0,0,1,19.2002,86.3999L32,96V88A20.02229,20.02229,0,0,1,52,68H204a20.02229,20.02229,0,0,1,20,20v8l12.7998-9.6001a12.0002,12.0002,0,0,1,14.4004,19.2002ZM200,92H56v92a12.01375,12.01375,0,0,0,12,12H188a12.01375,12.01375,0,0,0,12-12Z" />
               </svg>
@@ -229,7 +229,7 @@ export default function RecipeCard({
                 fill="none"
                 strokeWidth="2"
                 stroke="currentColor"
-                className="w-5 h-5 text-[#0C3B2E] dark:text-teal-200"
+                className="w-5 h-5 text-teal-700 dark:text-teal-300"
               >
                 <g
                   id="Group_49"
@@ -280,7 +280,7 @@ export default function RecipeCard({
           {/* View Recipe Button */}
           <Link
             href={`/recipes/${recipe._id}`}
-            className="w-[85%] mx-auto block text-center bg-[#DB8C28] dark:bg-teal-600 dark:hover:bg-teal-700 text-white font-semibold py-2 rounded-full shadow hover:bg-[#0C3B2E] transition-colors mt-auto"
+            className="w-[85%] mx-auto block text-center bg-teal-600 hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-600 text-white font-semibold py-2 rounded-full shadow transition-colors mt-auto"
           >
             View Recipe
           </Link>
