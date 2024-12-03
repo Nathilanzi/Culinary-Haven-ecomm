@@ -3,7 +3,7 @@
 // Importing necessary React hooks, routing, icons, and animation libraries
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -231,6 +231,29 @@ const ResponsiveRecipeCarousel = () => {
     },
   };
 
+  const StarRating = ({ rating }) => {
+    // Ensure rating is between 0 and 5
+    const normalizedRating = Math.min(Math.max(rating, 0), 5);
+
+    return (
+      <div className="flex items-center">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <StarIcon
+            key={star}
+            className={`h-5 w-5 transition-colors duration-300 ${
+              star <= Math.round(normalizedRating)
+                ? "text-amber-400 fill-amber-400"
+                : "text-gray-300 dark:text-gray-600"
+            }`}
+          />
+        ))}
+        <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+          {normalizedRating.toFixed(1)}
+        </span>
+      </div>
+    );
+  };
+
   return (
     // Main container with entrance animation
     <motion.div
@@ -327,19 +350,20 @@ const ResponsiveRecipeCarousel = () => {
                       <h3 className="text-lg font-semibold mb-4 text-gray-500 dark:text-slate-300 line-clamp-2 h-12">
                         {recipe.title}
                       </h3>
-                      <div className="flex items-center justify-between">
-                        <span className="text-yellow-500 font-bold">
-                          ⭐{" "}
-                          {recipe.averageRating
-                            ? recipe.averageRating.toFixed(1)
-                            : "N/A"}
-                        </span>
+                      <div className="flex-col items-center justify-between">
+                        {recipe.averageRating ? (
+                          <StarRating rating={recipe.averageRating} />
+                        ) : (
+                          <span className="text-gray-400 italic">
+                            No ratings
+                          </span>
+                        )}
                         {/* Recipe details navigation button */}
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
                           onClick={() => navigateToRecipeDetails(recipe._id)}
-                          className="px-3 py-1 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-full text-sm hover:opacity-90 transition-opacity"
+                          className="px-8 py-1 mt-2 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-full text-sm hover:opacity-90 transition-opacity"
                         >
                           View Recipe
                         </motion.button>
