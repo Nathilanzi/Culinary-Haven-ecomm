@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import ConfirmationModal from "./ConfirmationModal";
 
 // Create a custom hook for favorites management
 const useFavorites = (initialIsFavorited, recipeId) => {
@@ -29,13 +30,36 @@ const useFavorites = (initialIsFavorited, recipeId) => {
       if (response.ok) {
         const newFavoritedState = !isFavorited;
         setIsFavorited(newFavoritedState);
-        
-        // Persist favorite state in localStorage
-        localStorage.setItem(`favorite_${recipeId}`, JSON.stringify(newFavoritedState));
-        
+
+        // Manage localStorage for favorites
+        if (newFavoritedState) {
+          // Adding to favorites
+          localStorage.setItem(`favorite_${recipeId}`, 'true');
+          
+          // Update or create userFavorites list
+          const currentFavorites = JSON.parse(localStorage.getItem('userFavorites') || '[]');
+          if (!currentFavorites.includes(recipeId)) {
+            currentFavorites.push(recipeId);
+            localStorage.setItem('userFavorites', JSON.stringify(currentFavorites));
+          }
+        } else {
+          // Removing from favorites
+          localStorage.removeItem(`favorite_${recipeId}`);
+          
+          // Remove from userFavorites list
+          const currentFavorites = JSON.parse(localStorage.getItem('userFavorites') || '[]');
+          const updatedFavorites = currentFavorites.filter(id => id !== recipeId);
+          
+          if (updatedFavorites.length > 0) {
+            localStorage.setItem('userFavorites', JSON.stringify(updatedFavorites));
+          } else {
+            localStorage.removeItem('userFavorites');
+          }
+        }
+
         // Dispatch event for global state update
         window.dispatchEvent(new Event("favoritesUpdated"));
-        
+
         router.refresh();
         return true;
       }
@@ -50,7 +74,7 @@ const useFavorites = (initialIsFavorited, recipeId) => {
   useEffect(() => {
     const storedFavorite = localStorage.getItem(`favorite_${recipeId}`);
     if (storedFavorite !== null) {
-      setIsFavorited(JSON.parse(storedFavorite));
+      setIsFavorited(true);
     }
   }, [recipeId]);
 
@@ -70,7 +94,7 @@ const FavoritesButton = ({
       setIsModalOpen(true);
       return;
     }
-    
+
     const success = await toggleFavorite();
     if (success) {
       onFavoriteToggle(
@@ -83,7 +107,7 @@ const FavoritesButton = ({
   const handleConfirmRemove = async () => {
     const success = await toggleFavorite();
     setIsModalOpen(false);
-    
+
     if (success) {
       onFavoriteToggle(
         true,
@@ -113,6 +137,16 @@ const FavoritesButton = ({
           />
         </svg>
       </button>
+
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmRemove}
+        title="Remove from Favorites"
+        message="Are you sure you want to remove this recipe from your favorites?"
+        confirmText="Remove"
+        confirmClassName="bg-red-500 hover:bg-red-600 text-white"
+      />
     </>
   );
 };

@@ -47,14 +47,32 @@ export default function Favorites() {
         setFavorites(recipesWithDetails);
         
         // Update localStorage with current favorites
-        localStorage.setItem('userFavorites', JSON.stringify(
-          recipesWithDetails.map(recipe => recipe._id)
-        ));
+        updateLocalStorageFavorites(recipesWithDetails);
       } catch (error) {
         setError("Error fetching favorites: " + error.message);
       } finally {
         setLoading(false);
       }
+    };
+
+    // Function to update local storage with favorites
+    const updateLocalStorageFavorites = (favoriteRecipes) => {
+      // Clear all previous favorite-related local storage items
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('favorite_')) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      // Set new favorites in local storage
+      favoriteRecipes.forEach(recipe => {
+        localStorage.setItem(`favorite_${recipe._id}`, 'true');
+      });
+
+      // Store full list of favorite recipe IDs
+      localStorage.setItem('userFavorites', JSON.stringify(
+        favoriteRecipes.map(recipe => recipe._id)
+      ));
     };
 
     fetchFavorites();
@@ -65,12 +83,22 @@ export default function Favorites() {
   }, [session, router]);
 
   const handleFavoriteToggle = (recipeId) => {
+    // Remove the recipe from favorites
     setFavorites(favorites.filter(fav => fav._id !== recipeId));
     
-    // Update localStorage
+    // Remove favorite-specific local storage item
+    localStorage.removeItem(`favorite_${recipeId}`);
+    
+    // Update the list of favorite recipe IDs in local storage
     const currentFavorites = JSON.parse(localStorage.getItem('userFavorites') || '[]');
     const updatedFavorites = currentFavorites.filter(id => id !== recipeId);
-    localStorage.setItem('userFavorites', JSON.stringify(updatedFavorites));
+    
+    // Update or remove userFavorites in local storage
+    if (updatedFavorites.length > 0) {
+      localStorage.setItem('userFavorites', JSON.stringify(updatedFavorites));
+    } else {
+      localStorage.removeItem('userFavorites');
+    }
   };
 
   if (loading) return <LoadingPage />;
