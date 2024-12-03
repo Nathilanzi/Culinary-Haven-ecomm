@@ -606,6 +606,12 @@ export default async function RecipeDetail({ params }) {
                 )}
               </ul>
             </div>
+
+            {/* Shopping List Section */}
+            <div className="mt-8">
+              <ShoppingList ingredients={recipe.ingredients} />
+            </div>
+
             {/* Instructions Section */}
             <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-gray-700">
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
@@ -629,11 +635,6 @@ export default async function RecipeDetail({ params }) {
                   </li>
                 ))}
               </ol>
-            </div>
-
-            {/* Shopping List Section */}
-            <div className="mt-8">
-              <ShoppingList ingredients={recipe.ingredients} />
             </div>
 
             {/* Review Section */}

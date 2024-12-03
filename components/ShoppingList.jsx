@@ -179,7 +179,7 @@ export default function ShoppingList({ ingredients }) {
       {/* Toggle Visibility Button */}
       <button
         onClick={() => setIsVisible((prev) => !prev)}
-        className="mb-4 bg-teal-600 text-white font-bold py-2 px-4 rounded hover:bg-teal-700 transition-colors dark:bg-[#2D7356] dark:hover:bg-[#256B4C]"
+        className="mb-4 bg-teal-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-teal-700 transition-colors"
       >
         {isVisible ? "Hide Shopping List" : "Show Shopping List"}
       </button>

@@ -224,10 +224,15 @@ function ReviewSection({ recipeId }) {
   };
 
   return (
-    <div className="mt-8">
+    <div className="bg-white p-6 rounded-2xl shadow-sm space-y-6 dark:bg-gray-700">
+      <div className="flex items-center gap-2">
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+          Reviews
+        </h2>
+      </div>
       <button
         onClick={() => setReviewsVisible(!reviewsVisible)}
-        className="mb-4 bg-teal-600 text-white font-bold py-2 px-4 rounded hover:bg-teal-700 transition-colors dark:bg-[#2D7356] dark:hover:bg-[#256B4C]"
+        className="mb-4 bg-teal-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-teal-700 transition-colors"
       >
         {reviewsVisible ? "Hide Reviews" : "Show Reviews"}
       </button>
