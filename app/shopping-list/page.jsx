@@ -16,6 +16,7 @@ import {
 import BackButton from "@/components/BackButton";
 import LoadingPage from "../loading";
 import { motion, AnimatePresence } from "framer-motion";
+import { getIngredientUnit } from "@/components/IngredientUnit";
 
 export default function ShoppingListPage() {
   const { data: session } = useSession();
@@ -466,6 +467,7 @@ export default function ShoppingListPage() {
                         className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
                       >
                         <div className="flex items-center space-x-3">
+                          {/* Purchase Button */}
                           <button
                             onClick={() => markAsPurchased(list._id, index)}
                             className={`
@@ -482,6 +484,8 @@ export default function ShoppingListPage() {
                               <Check className="w-4 h-4 text-white" />
                             )}
                           </button>
+
+                          {/* Ingredient Display */}
                           <span
                             className={`
                               ${
@@ -492,7 +496,9 @@ export default function ShoppingListPage() {
                               transition-colors duration-300
                             `}
                           >
-                            {item.amount} {item.ingredient}
+                            {item.amount}{" "}
+                            {getIngredientUnit(item.ingredient) || ""}{" "}
+                            {item.ingredient}
                           </span>
                         </div>
 
