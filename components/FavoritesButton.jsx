@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import ConfirmationModal from "./ConfirmationModal";
 
 // Create a custom hook for favorites management
 const useFavorites = (initialIsFavorited, recipeId) => {
@@ -114,14 +113,6 @@ const FavoritesButton = ({
           />
         </svg>
       </button>
-
-      <ConfirmationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleConfirmRemove}
-        title="Remove from Favorites?"
-        message="Are you sure you want to remove this recipe from your favorites?"
-      />
     </>
   );
 };
