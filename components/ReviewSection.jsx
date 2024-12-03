@@ -239,7 +239,7 @@ function ReviewSection({ recipeId }) {
       </div>
       <button
         onClick={() => setReviewsVisible(!reviewsVisible)}
-        className="mb-4 bg-teal-600 text-white font-bold py-2 px-4 rounded hover:bg-teal-700 transition-colors dark:bg-[#2D7356] dark:hover:bg-[#256B4C]"
+        className="mb-4 bg-teal-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-teal-700 transition-colors"
       >
         {reviewsVisible ? "Hide Reviews" : "Show Reviews"}
       </button>
