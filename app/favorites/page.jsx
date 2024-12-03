@@ -7,6 +7,7 @@ import FavoritesButton from "@/components/FavoritesButton";
 import RecipeCard from "@/components/RecipeCard";
 import LoadingPage from "../loading";
 import BackButton from "@/components/BackButton";
+import { Heart } from "lucide-react";
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState([]);
@@ -25,12 +26,12 @@ export default function Favorites() {
       try {
         const response = await fetch("/api/favorites?action=list", {
           headers: {
-            "user-id": session.user.id
-          }
+            "user-id": session.user.id,
+          },
         });
-        
+
         if (!response.ok) throw new Error("Failed to fetch favorites");
-        
+
         const data = await response.json();
         // Fetch full recipe details for each favorite
         const recipesWithDetails = await Promise.all(
@@ -39,17 +40,18 @@ export default function Favorites() {
             const recipeData = await recipeResponse.json();
             return {
               ...recipeData,
-              favorited_at: fav.created_at
+              favorited_at: fav.created_at,
             };
           })
         );
-        
+
         setFavorites(recipesWithDetails);
-        
+
         // Update localStorage with current favorites
-        localStorage.setItem('userFavorites', JSON.stringify(
-          recipesWithDetails.map(recipe => recipe._id)
-        ));
+        localStorage.setItem(
+          "userFavorites",
+          JSON.stringify(recipesWithDetails.map((recipe) => recipe._id))
+        );
       } catch (error) {
         setError("Error fetching favorites: " + error.message);
       } finally {
@@ -58,23 +60,26 @@ export default function Favorites() {
     };
 
     fetchFavorites();
-    
+
     // Listen for favorites updates
     window.addEventListener("favoritesUpdated", fetchFavorites);
     return () => window.removeEventListener("favoritesUpdated", fetchFavorites);
   }, [session, router]);
 
   const handleFavoriteToggle = (recipeId) => {
-    setFavorites(favorites.filter(fav => fav._id !== recipeId));
-    
+    setFavorites(favorites.filter((fav) => fav._id !== recipeId));
+
     // Update localStorage
-    const currentFavorites = JSON.parse(localStorage.getItem('userFavorites') || '[]');
-    const updatedFavorites = currentFavorites.filter(id => id !== recipeId);
-    localStorage.setItem('userFavorites', JSON.stringify(updatedFavorites));
+    const currentFavorites = JSON.parse(
+      localStorage.getItem("userFavorites") || "[]"
+    );
+    const updatedFavorites = currentFavorites.filter((id) => id !== recipeId);
+    localStorage.setItem("userFavorites", JSON.stringify(updatedFavorites));
   };
 
   if (loading) return <LoadingPage />;
-  if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
+  if (error)
+    return <div className="text-center mt-8 text-red-500">{error}</div>;
   if (!session) return null;
 
   return (
@@ -88,8 +93,11 @@ export default function Favorites() {
       </h1>
 
       {favorites.length === 0 ? (
-        <div className="text-center text-black dark:text-white py-8">
-          <p>You haven&apos;t saved any favorites yet.</p>
+        <div className="text-center py-12 px-6">
+          <Heart className="mx-auto w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
+          <p className="text-gray-500 dark:text-gray-400">
+            You haven't added any favorites yet. Start by adding some!
+          </p>
         </div>
       ) : (
         <div className="max-w-7xl mx-auto">
@@ -103,7 +111,8 @@ export default function Favorites() {
                   onFavoriteToggle={() => handleFavoriteToggle(recipe._id)}
                   additionalInfo={
                     <p className="text-sm text-gray-500 mt-2">
-                    Added to favorites: {new Date(recipe.favorited_at).toLocaleDateString()}
+                      Added to favorites:{" "}
+                      {new Date(recipe.favorited_at).toLocaleDateString()}
                     </p>
                   }
                 />
