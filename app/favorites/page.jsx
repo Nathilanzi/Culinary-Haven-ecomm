@@ -110,10 +110,10 @@ export default function Favorites() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Fixed position back button */}
-      <div className="fixed top-4 -left-20 z-50">
+      <div className="absolute top-3 -left-[6rem] z-10">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
       </div>
-      <h1 className="text-4xl font-bold mb-10 dark:text-white text-center tracking-tight text-gray-700 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
+      <h1 className="text-4xl mt-8 font-bold mb-10 dark:text-white text-center tracking-tight text-gray-700 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
         My Favorite Recipes
       </h1>
 

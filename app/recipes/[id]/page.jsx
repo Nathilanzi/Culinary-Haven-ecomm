@@ -463,7 +463,7 @@ export default async function RecipeDetail({ params }) {
   return (
     <div className="font-sans pt-16 min-h-screen dark:bg-gray-900">
       {/* Fixed position back button */}
-      <div className="fixed top-4 -left-20 z-50">
+      <div className="absolute top-2 -left-[5rem] z-10">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
       </div>
       <div className="px-4 py-8 lg:py-12 max-w-7xl mx-auto">
