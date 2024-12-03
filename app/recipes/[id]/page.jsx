@@ -16,6 +16,7 @@ import {
   CookIcon,
   NutritionIcon,
   allergenSVGs,
+  Instructions
 } from "@/components/Svg";
 import TextToSpeech from "@/components/TextToSpeech";
 import ShoppingList from "@/components/ShoppingList";
@@ -614,6 +615,7 @@ export default async function RecipeDetail({ params }) {
 
             {/* Instructions Section */}
             <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-gray-700">
+            <Instructions />
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                 Instructions
               </h2>

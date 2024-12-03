@@ -7,6 +7,24 @@
  * @constant
  * @type {React.FC<React.SVGProps<SVGSVGElement>>}
  */
+export const Instructions = () => (
+  <svg
+    fill="currentColor"
+    version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlnsXlink="http://www.w3.org/1999/xlink"
+    viewBox="0 0 246 256"
+    xmlSpace="preserve"
+    className="w-6 h-6 text-teal-700 dark:text-teal-400"
+  >
+    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+    <g id="SVGRepo_iconCarrier">
+      <path d="M92.2,2v107.3C77,110.2,63.4,119.4,57,133.4L2.4,254H79l4.9-16.3c21.1-5.1,36.9-21.1,43.6-41.3h116.1V2H92.2z M233.8,186.5 H112.6c-3.1,14.5-13.8,27.3-28.2,33.2c-0.5,0.2-1,0.3-1.5,0.3c-1.6,0-3-0.9-3.6-2.5c-0.8-2,0.1-4.5,2.2-5.1 c13.5-4.4,24-18.5,24.3-33.5l0-5.7h38.5c5.9,0,10.7-4.8,10.7-10.7v-0.2c0-5.9-4.8-10.7-10.7-10.7l-68.6,0c-2.2,0-3.9-1.8-3.9-3.9 s1.8-3.9,3.9-3.9H102V11.8h131.7V186.5z M193.6,49.1h-51.5v-9.8h51.5V49.1z M215.3,80.7h-94.8v-9.8h94.8V80.7z M215.3,106.3h-94.8 v-9.8h94.8V106.3z M215.3,131.9h-94.8V122h94.8V131.9z"></path>
+    </g>
+  </svg>
+);
+
 export const TimeIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -14,7 +32,7 @@ export const TimeIcon = () => (
     viewBox="0 0 512 512"
     strokeWidth="1.5"
     stroke="currentColor"
-    className="w-6 h-6 text-[#0C3B2E] dark:text-[#A3C9A7]"
+    className="w-6 h-6 text-teal-700 dark:text-teal-400"
   >
     <path
       strokeLinecap="round"
@@ -44,7 +62,7 @@ export const TotalTime = () => (
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className="w-6 h-6 text-[#0C3B2E] dark:text-[#A3C9A7]"
+    className="w-6 h-6 text-teal-700 dark:text-teal-400"
   >
     <g id="SVGRepo_bgCarrier" strokeWidth="1.5"></g>
     <g
@@ -84,7 +102,7 @@ export const ServingsIcon = () => (
     fill="none"
     strokeWidth="1.5"
     stroke="currentColor"
-    className="w-6 h-6 text-[#0C3B2E] dark:text-[#A3C9A7]"
+    className="w-6 h-6 text-teal-700 dark:text-teal-400"
   >
     <g
       id="Group_49"
@@ -95,7 +113,7 @@ export const ServingsIcon = () => (
         id="Path_131"
         data-name="Path 131"
         d="M814.946,1793.095a24,24,0,0,0-24,24h48A24,24,0,0,0,814.946,1793.095Z"
-        fill="currentColor"
+        fill="none"
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -139,7 +157,7 @@ export const CookIcon = () => (
     viewBox="0 0 256 256"
     strokeWidth="1.0"
     stroke="currentColor"
-    className="w-6 h-6 text-[#0C3B2E] dark:text-[#A3C9A7]"
+    className="w-6 h-6 text-teal-700 dark:text-teal-400"
   >
     <path d="M76,40V16a12,12,0,0,1,24,0V40a12,12,0,0,1-24,0Zm52,12a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,128,52Zm40,0a12,12,0,0,0,12-12V16a12,12,0,0,0-24,0V40A12,12,0,0,0,168,52Zm83.2002,53.6001L224,126v58a36.04061,36.04061,0,0,1-36,36H68a36.04061,36.04061,0,0,1-36-36V126L4.7998,105.6001A12.0002,12.0002,0,0,1,19.2002,86.3999L32,96V88A20.02229,20.02229,0,0,1,52,68H204a20.02229,20.02229,0,0,1,20,20v8l12.7998-9.6001a12.0002,12.0002,0,0,1,14.4004,19.2002ZM200,92H56v92a12.01375,12.01375,0,0,0,12,12H188a12.01375,12.01375,0,0,0,12-12Z" />
   </svg>
@@ -157,7 +175,7 @@ export const NutritionIcon = () => (
     viewBox="0 0 24 24"
     strokeWidth="1.5"
     stroke="currentColor"
-    className="w-6 h-6 text-[#0C3B2E] dark:text-[#A3C9A7]"
+    className="w-6 h-6 text-teal-700 dark:text-teal-400"
   >
     <path
       strokeLinecap="round"
@@ -216,7 +234,7 @@ export const allergenSVGs = {
     <svg
       viewBox="0 0 24 24"
       fill="none"
-      className="w-10 h-10"
+      className="w-10 h-10 text-teal-700 dark:text-teal-400"
       xmlns="http://www.w3.org/2000/svg"
     >
       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -236,7 +254,7 @@ export const allergenSVGs = {
     </svg>
   ),
   soy: (
-    <svg viewBox="0 0 24 24" version="1.1" fill="none" className="w-10 h-10">
+    <svg viewBox="0 0 24 24" version="1.1" fill="none" className="w-10 h-10 text-teal-700 dark:text-teal-400">
       <title>Soy Bean</title>
       <g
         id="Soy-Bean"
@@ -249,7 +267,7 @@ export const allergenSVGs = {
         <path
           d="M20,9.19722436 C20,10.3234988 19.437117,11.3752554 18.5,12 C17.562883,12.6247446 17,13.6765012 17,14.8027756 L17,15 C17,16.1754137 16.2000338,17.1999916 15.059715,17.4850713 L14.7489493,17.5627627 C13.6235704,17.8441074 12.64346,18.5348101 12,19.5 C11.3752554,20.437117 10.3234988,21 9.19722436,21 L5,21 C5.64028925,20.3597108 6,19.4912922 6,18.5857864 L6,17.8027756 C6,16.6765012 6.56288303,15.6247446 7.5,15 C8.46518994,14.35654 9.15589261,13.3764296 9.43723732,12.2510507 L9.63619656,11.4552138 C9.85000633,10.5999747 10.6184397,10 11.5,10 C12.4192991,10 13.2596973,9.48060532 13.6708204,8.65835921 L14.1055728,7.78885438 C14.6537369,6.69252624 15.7742679,6 17,6 L17.5857864,6 C18.4912922,6 19.3597108,5.64028925 20,5 L20,9.19722436 Z M8.43933983,18.5606602 C8.16789322,18.2892136 8,17.9142136 8,17.5 C8,16.6715729 8.67157288,16 9.5,16 C9.91421356,16 10.2892136,16.1678932 10.5606602,16.4393398 M12.0857864,14.9142136 C11.7238576,14.5522847 11.5,14.0522847 11.5,13.5 C11.5,12.3954305 12.3954305,11.5 13.5,11.5 C14.0522847,11.5 14.5522847,11.7238576 14.9142136,12.0857864 M15.9393398,10.5606602 C15.6678932,10.2892136 15.5,9.91421356 15.5,9.5 C15.5,8.67157288 16.1715729,8 17,8 C17.4142136,8 17.7892136,8.16789322 18.0606602,8.43933983 M5.5,11 C6.32842712,11 7,10.3284271 7,9.5 C7,8.67157288 6.32842712,8 5.5,8 C4.67157288,8 4,8.67157288 4,9.5 C4,10.3284271 4.67157288,11 5.5,11 Z M5.5,6 C6.32842712,6 7,5.32842712 7,4.5 C7,3.67157288 6.32842712,3 5.5,3 C4.67157288,3 4,3.67157288 4,4.5 C4,5.32842712 4.67157288,6 5.5,6 Z M10.5,7 C11.3284271,7 12,6.32842712 12,5.5 C12,4.67157288 11.3284271,4 10.5,4 C9.67157288,4 9,4.67157288 9,5.5 C9,6.32842712 9.67157288,7 10.5,7 Z"
           id="Shape"
-          stroke="#000000"
+          stroke="CURRENTCOLOR"
         />
       </g>
     </svg>
@@ -264,7 +282,7 @@ export const allergenSVGs = {
       viewBox="0 0 116 256"
       enableBackground="new 0 0 116 256"
       xmlSpace="preserve"
-      className="w-10 h-10"
+      className="w-10 h-10 text-teal-700 dark:text-teal-400"
     >
       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
       <g
@@ -283,7 +301,7 @@ export const allergenSVGs = {
       viewBox="-33.86 0 122.88 122.88"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="Milk"
-      className="w-10 h-10"
+      className="w-10 h-10 dark:text-teal-400 text-teal-700"
     >
       <title>Milk</title>
       <g fillRule="evenodd" clipRule="evenodd" strokeLinecap="round">
@@ -296,7 +314,7 @@ export const allergenSVGs = {
       viewBox="0 0 64 64"
       aria-hidden="true"
       role="img"
-      className="iconify iconify--emojione-monotone w-10 h-10"
+      className="iconify iconify--emojione-monotone w-10 h-10 text-teal-700 dark:text-teal-400"
       preserveAspectRatio="xMidYMid meet"
       fill="currentColor"
     >
@@ -321,7 +339,7 @@ export const allergenSVGs = {
   cream: (
     <svg
       fill="currentColor"
-      className="w-10 h-10"
+      className="w-10 h-10 text-teal-700 dark:text-teal-400"
       version="1.1"
       id="Layer_1"
       viewBox="0 0 512 512"
@@ -350,7 +368,7 @@ export const allergenSVGs = {
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="w-10 h-10"
+      className="w-10 h-10 text-teal-700 dark:text-teal-400"
     >
       <title>Eggs</title>
       <g
@@ -362,7 +380,7 @@ export const allergenSVGs = {
       >
         <path
           d="M8.5,4 C10.6880996,4 12.6236769,6.56725359 13.8016474,9.38507756 C14.6677837,7.99375083 15.7831262,6.96153846 17,6.96153846 C19.7614237,6.96153846 22,12.2770378 22,15.0384615 C22,17.7998853 19.7614237,20.0384615 17,20.0384615 C15.6471612,20.0384615 14.41981,19.501185 13.5196845,18.6283698 C12.3291905,20.0763143 10.5224644,21 8.5,21 C4.91014913,21 2,18.0898509 2,14.5 C2,13.5862198 2.18855842,12.4573062 2.52888881,11.2819886 L2.52888881,11.2819886 L2.6839296,10.7759319 C3.75069954,7.47449151 5.95446938,4 8.5,4 Z M8.5,21 C12.0898509,21 15,18.0898509 15,14.5 C15,13.5862198 14.8114416,12.4573062 14.4711112,11.2819886 L14.3160704,10.7759319 C13.2493005,7.47449151 11.0455306,4 8.5,4 C5.95446938,4 3.75069954,7.47449151 2.6839296,10.7759319 L2.52888881,11.2819886 C2.18855842,12.4573062 2,13.5862198 2,14.5 C2,18.0898509 4.91014913,21 8.5,21 Z"
-          stroke="#000000"
+          stroke="CURRENTCOLOR"
         />
       </g>
     </svg>
@@ -375,7 +393,7 @@ export const allergenSVGs = {
       xmlnsXlink="http://www.w3.org/1999/xlink"
       fill="currentColor"
       transform="rotate(0)matrix(-1, 0, 0, 1, 0, 0)"
-      className="w-10 h-10 text-[#0C3B2E] dark:text-[#A3C9A7]"
+      className="w-10 h-10  text-teal-700 dark:text-teal-400"
     >
       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
       <g
@@ -396,12 +414,12 @@ export const allergenSVGs = {
           <path
             d="M8.36037413,9.37780173 C12.9996449,6.48411516 19.1063134,7.89919075 22,12.5384615 L22,12.5384615 L21.7714102,12.8882815 C21.2212943,13.6925508 20.5550068,14.4118491 19.7936525,15.0224156 C15.9018582,18.1434325 10.3739711,17.8468022 6.83709622,14.5311796 C6.27002204,15.9932862 4.79851304,16.9798163 3.15189288,16.8603536 L3,16.8461538 L3,16.5884428 C3,15.0437123 3.67627478,13.6327133 4.77206207,12.6672238 C3.75338032,11.8768407 3.08250128,10.6671435 3.00709918,9.30699879 L3,9.05027424 L3,8.23076923 L3.20727682,8.23910502 C4.76443449,8.34004935 6.09767297,9.29463397 6.72703405,10.6524074 C7.2233625,10.1730892 7.77122081,9.74527868 8.36037413,9.37780173 Z M14.0372476,17.1902154 L14.1687971,17.1838145 C13.439803,17.9097888 12.5461565,18.4611948 11.5290784,18.759803 C10.7388556,18.9918079 9.94352384,19.0508336 9.17656914,18.9580635 C9.55107882,18.1973838 9.84153946,17.384199 10.0385168,16.536936 C11.3133173,17.0284034 12.6772642,17.249253 14.0372476,17.1902154 Z M15.0132594,7.83862474 L15.1167812,7.99444821 C13.1571593,7.68971933 11.098444,7.96928046 9.22076426,8.89804486 C8.64695948,7.68562475 7.87730735,6.62873797 6.97077654,5.76506832 C7.36191185,5.54761966 7.78075942,5.37001767 8.22293679,5.24019696 C10.8327336,4.47397571 13.4982542,5.59447699 15.0132594,7.83862474 Z"
             id="Combined-Shape"
-            stroke="#000000"
+            stroke="CURRENTCOLOR"
           ></path>
           <path
             d="M17.5,11.6 L17.5,11.5 L17.5,11.5 L17.5,11.6 Z"
             id="Rectangle-Copy-3"
-            stroke="#000000"
+            stroke="CURRENTCOLOR"
             strokeWidth="1.5"
             strokeLinejoin="round"
           ></path>
@@ -414,7 +432,7 @@ export const allergenSVGs = {
       viewBox="0 0 512 512"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
-      className="w-10 h-10 text-[#0C3B2E] dark:text-[#A3C9A7]"
+      className="w-10 h-10 text-teal-700 dark:text-teal-400"
     >
       <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
       <g
@@ -433,7 +451,7 @@ export const allergenSVGs = {
   mustard: (
     <svg
       fill="currentColor"
-      className="w-10 h-10 text-[#0C3B2E] dark:text-[#A3C9A7]"
+      className="w-10 h-1 text-teal-700 dark:text-teal-400"
       version="1.1"
       id="Capa_1"
       viewBox="0 0 426 426"
@@ -459,7 +477,7 @@ export const allergenSVGs = {
       viewBox="0 0 512 512"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
-      className="w-10 h-10 dark:text-[#A3C9A7]"
+      className="w-10 h-10 text-teal-700 dark:text-teal-400"
     >
       <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
       <g
@@ -482,7 +500,7 @@ export const allergenSVGs = {
       data-name="Layer 1"
       id="Layer_1"
       xmlns="http://www.w3.org/2000/svg"
-      className="w-10 h-10 dark:text-[#A3C9A7]"
+      className="w-10 h-10 text-teal-700 dark:text-teal-400"
     >
       <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
       <g
@@ -498,7 +516,7 @@ export const allergenSVGs = {
   ),
   mussel: (
     <svg
-      className="w-10 h-10 dark:text-[#A3C9A7]"
+      className="w-10 h-10 text-teal-700 dark:text-teal-400"
       viewBox="0 0 512 512"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
@@ -519,11 +537,11 @@ export const allergenSVGs = {
   ),
   oyster: (
     <svg
-      className="w-10 h-10 dark:text-[#A3C9A7]"
+      className="w-10 h-10 text-teal-700 dark:text-teal-400"
       viewBox="0 0 512 512"
       xmlns="http://www.w3.org/2000/svg"
-      fill="#fffafa"
-      stroke="#fffafa"
+      fill="currentColor"
+      stroke="currentColor"
     >
       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
       <g
@@ -533,7 +551,7 @@ export const allergenSVGs = {
       ></g>
       <g id="SVGRepo_iconCarrier">
         <path
-          fill="#929090"
+          fill="none"
           d="M384.4 83.82c-24.5 2.92-41.3 20.28-61.9 37.48l-2.2 1.8-2.7.3c-23.9 2.4-47.9 5.8-72.3 8.3 4.6 13.9 6.3 28.4 2.3 42.6 17.8 6.2 35.8 4.7 55.3 1.6l2.8 17.8c-23.1 3.7-48.2 5.8-73.4-6.3l-8-3.8 3.7-8.1c6.2-13.1 4.7-26.8-1.1-42.1-29.3 2.3-59.5 2.6-91.3-2.3-4.5 4-9 8.1-13.4 12.3 10.2 25.4 24.1 61.9 14 92.3l53.2 39.3c42-12 82.3-13.3 121.5-10l-1.6 18c-39-3.4-78.2-2-119.1 10.4l-4.3 1.3-71.9-53.1 3.2-6.7c9.1-19.1.7-51.7-8.8-77.4-11.64 12.3-22.71 25.6-33.27 39.6 10.01 20.4 18.27 41.9 16.39 64.4 14.28 18.4 48.28 40.5 76.38 42.1l-1 18c-37.3-2.1-74.71-27.4-91.97-52l-2.03-2.9.49-3.5c2.17-15.5-2.62-32.1-10.34-49.4-11.36 16.3-22.12 33.5-32.37 51.6 36.67 17.3 68.4 40.5 83.22 68.7 94.9 5.1 191.3-42.4 272.8-45.5 32.8-49.2 71.2-93 94.6-145.5-6.1 3.2-12.3 5.8-19 7.8-14.9 4.5-31.6 5-54 .5l-4.3-.8-2-3.9c-4-7.7-8.5-11.9-13.5-14.2-5.1-2.2-11.3-2.7-19.3-1l-3.8-17.6c4-.8 8-1.3 11.9-1.4 1.2 0 2.5 0 3.8.1 5.1.3 10.1 1.4 14.7 3.5 8 3.6 14.6 9.9 19.7 18.3 18.3 3.2 30.6 2.6 41.7-.7 6.6-2 13.1-5.1 20.2-9-32.2-7.4-63.1-22.1-93-40.88zm24.8 77.68l4 17.6c-27.7 6.3-48.4 18.1-61.1 45.6l-2.2 4.6-5 .5c-24.7 2.8-50.3 9.7-77.1 11.7-26.9 1.9-55.3-1.6-83.7-19.9l9.8-15.2c24.7 16.1 48.1 18.9 72.6 17.1 23-1.7 46.8-7.7 71.7-10.9 15.5-29.6 41.6-44.4 71-51.1zm68.7 27.2c-1.7 2.8-3.4 5.6-5.2 8.4-7.2 24.6-34.7 110.3-73 135.4-24.8 16.2-59.7-.2-88.5 6.6-23.3 5.5-43.7 22.8-65.5 32.6-3.4 8.7-2.1 16.1 1.5 25.2 2.9 7.3 7.4 15.2 11.6 23.8 56.5-34.3 96.7-61.6 197.7-84.6 11.6-50.7 17.3-100.1 21.4-147.4zM56.01 300.3c2.08 26.1 3.9 53.6-7.27 82.3 42.77-2.4 82.36-7.2 110.26-25-3.2-1.8-6.3-3.7-9.3-5.6-14 .9-28.1.9-42.2-.1l-5.3-.4-2.2-4.9c-7.04-15.9-23.06-32.1-43.99-46.3zm120.79 66.6c-27.5 21.8-64.4 28.9-103.04 32.1 49.74 21 100.94 36.5 166.84 25.6-3.4-6.6-7.2-13.5-10.2-21.1-3-7.7-5.1-16.5-4.3-25.7-3.6.6-7.3.9-11 .7-11.3-.5-24.8-5.2-38.3-11.6z"
         ></path>
       </g>
@@ -542,7 +560,7 @@ export const allergenSVGs = {
   celery: (
     <svg
       fill="currentColor"
-      className="w-10 h-10 dark:text-[#A3C9A7]"
+      className="w-10 h-10 text-teal-700 dark:text-teal-400"
       version="1.1"
       id="Layer_1"
       viewBox="0 0 512 512"
