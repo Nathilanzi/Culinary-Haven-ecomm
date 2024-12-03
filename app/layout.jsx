@@ -1,7 +1,7 @@
 import "./globals.css";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import OnlineStatus from "@/components/OnlineStatus"; // Import the OnlineStatus component
+import OnlineStatus from "@/components/OnlineStatus";
 import { ThemeProvider } from "@/ThemeContext";
 import SessionProvider from "@/components/SessionProvider";
 import { getServerSession } from "next-auth/next";
@@ -31,7 +31,6 @@ export const metadata = {
   ],
   authors: [{ name: "Culinary Haven Team" }],
   manifest: "/site.webmanifest",
-  themeColor: "#daf1de",
   viewport:
     "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
   appleWebApp: {
@@ -81,11 +80,6 @@ export const metadata = {
  * structure with a header, footer, and session management. It also sets global metadata for SEO
  * and social sharing purposes.
  *
- * @example
- * // Example usage:
- * <RootLayout>
- *   <div>Your content here</div>
- * </RootLayout>
  */
 export default async function RootLayout({ children }) {
   /**
@@ -116,13 +110,13 @@ export default async function RootLayout({ children }) {
           sizes="16x16"
           href="/favicon-16x16.png"
         />
-         <link
+        <link
           rel="icon"
           type="image/png"
           sizes="192x192"
           href="/android-chrome-192x192.png"
         />
-         <link
+        <link
           rel="icon"
           type="image/png"
           sizes="512x512"
@@ -134,13 +128,15 @@ export default async function RootLayout({ children }) {
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="bg-[#f1f5f9] dark:bg-[#0f172a]">
+      <body className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <SessionProvider session={session}>
           <ThemeProvider>
             <Header />
-            <OnlineStatus /> 
+            <OnlineStatus />
             <PushNotificationManager />
-            <main className="pt-16">{children}</main>
+            <main className="pt-16 min-h-screen">
+              {children}
+            </main>
             <Footer />
             <PWAInstallPrompt />
           </ThemeProvider>
