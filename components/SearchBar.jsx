@@ -423,19 +423,14 @@ const SearchBar = ({ isVisible, onToggle }) => {
                 setShowSuggestions(true);
               }
             }}
-            className={`
-              w-full px-3 py-2 pr-10 rounded-3xl text-sm 
-              text-gray-800 dark:text-gray-200 
-              bg-white dark:bg-slate-800 
-              border border-gray-300 dark:border-slate-600
-              focus:ring-2 focus:outline-none focus:border-teal-500 dark:focus:border-teal-400
-              transition-all duration-300 ease-in-out
-              ${
-                isVisible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-full"
-              }
-            `}
+            className="
+              w-full px-3 py-2
+              bg-white dark:bg-gray-800
+              text-gray-800 dark:text-gray-200
+              border border-gray-300 dark:border-gray-600
+              rounded-3xl shadow-sm
+              outline-none focus:outline-none dark:focus:outline-none
+            "
           />
           <button
             type="button"
@@ -445,8 +440,9 @@ const SearchBar = ({ isVisible, onToggle }) => {
               flex items-center justify-center w-10 h-full
               text-teal-700 dark:text-teal-400
               bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700
-              focus:outline-none focus:ring-2
+              focus:outline-none dark:focus:outline-none outline-none
               transition-all duration-300 ease-in-out
+              border border-gray-300 dark:border-gray-600
               ${
                 isVisible
                   ? "rounded-r-full border border-l-0 border-gray-300 dark:border-slate-600"
