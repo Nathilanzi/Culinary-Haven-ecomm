@@ -17,55 +17,123 @@ import BackButton from "@/components/BackButton";
 import LoadingPage from "../loading";
 import { motion, AnimatePresence } from "framer-motion";
 import { getIngredientUnit } from "@/components/IngredientUnit";
+import Alert from "@/components/Alert";
 
+/**
+ * Shopping List Page Component
+ * Manages user's shopping lists, allowing creation, modification, and interaction
+ *
+ * @component
+ * @returns {React.ReactElement} Rendered shopping list page
+ */
 export default function ShoppingListPage() {
+  // Authentication and routing hooks
   const { data: session } = useSession();
   const router = useRouter();
+
+  // State management for shopping lists and UI interactions
   const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // State for various UI interactions and actions
   const [deleting, setDeleting] = useState({});
   const [removingItem, setRemovingItem] = useState({});
   const [updatingQuantity, setUpdatingQuantity] = useState({});
+
+  // New list creation states
   const [newListName, setNewListName] = useState("");
   const [creatingList, setCreatingList] = useState(false);
+
+  // New item addition states
   const [newItemAmount, setNewItemAmount] = useState(1);
   const [newItemIngredient, setNewItemIngredient] = useState("");
   const [addingManualItem, setAddingManualItem] = useState(null);
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
 
+  // UI interaction states
+  const [isPanelOpen, setIsPanelOpen] = useState(false); // Side panel open state
+
+  // Alert state for user notifications
+  const [alert, setAlert] = useState({
+    isVisible: false, // Whether alert is shown
+    message: "", // Alert message
+    type: "success", // Alert type (success/error)
+  });
+
+  /**
+   * Displays an alert to the user
+   *
+   * @param {string} message - Message to display
+   * @param {string} [type='success'] - Type of alert (success/error)
+   */
+  const showAlert = (message, type = "success") => {
+    // Update alert state to make it visible
+    setAlert({
+      isVisible: true,
+      message,
+      type,
+    });
+  };
+
+  /**
+   * Fetches user's shopping lists from the server
+   *
+   * @async
+   * @throws {Error} If fetching lists fails
+   */
   const fetchLists = async () => {
     try {
+      // Set loading state and reset error
       setLoading(true);
+
+      // Fetch shopping lists for the current user
       const response = await fetch("/api/shopping-list", {
         headers: {
           "user-id": session.user.id,
         },
       });
 
+      // Check if response is successful
       if (!response.ok) throw new Error("Failed to fetch shopping lists");
 
+      // Parse and set lists
       const data = await response.json();
       setLists(data);
     } catch (error) {
+      // Handle fetch error
       setError("Error fetching shopping lists: " + error.message);
+      showAlert("Failed to fetch shopping lists", "error");
     } finally {
+      // Ensure loading state is turned off
       setLoading(false);
     }
   };
 
+  // Initial data fetch and authentication check
   useEffect(() => {
+    // Redirect to signin if no session
     if (!session) {
       router.push("/auth/signin");
       return;
     }
 
+    // Fetch user's shopping lists
     fetchLists();
   }, [session, router]);
 
+  /**
+   * Removes a specific item from a shopping list
+   *
+   * @param {string} id - ID of the shopping list
+   * @param {number} index - Index of the item to remove
+   * @async
+   */
   const removeItem = async (id, index) => {
     try {
+      // Set removing state for UI feedback
       setRemovingItem({ id, index });
+
+      // Send delete request to server
       const response = await fetch(`/api/shopping-list/${id}/items`, {
         method: "DELETE",
         headers: {
@@ -75,14 +143,18 @@ export default function ShoppingListPage() {
         body: JSON.stringify({ index }),
       });
 
+      // Check if response is successful
       if (!response.ok) throw new Error("Failed to remove item");
 
+      // Refresh lists and show success alert
       fetchLists();
-      alert("Item removed successfully!");
+      showAlert("Item removed successfully!");
     } catch (error) {
+      // Handle removal error
       setError("Error removing item: " + error.message);
-      alert("Failed to remove item");
+      showAlert("Failed to remove item", "error");
     } finally {
+      // Reset removing state
       setRemovingItem({ id: null, index: null });
     }
   };
@@ -280,6 +352,13 @@ export default function ShoppingListPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
+      {/* Alert component */}
+      <Alert
+        message={alert.message}
+        type={alert.type}
+        isVisible={alert.isVisible}
+        onClose={() => setAlert({ ...alert, isVisible: false })}
+      />
       {/* Fixed position back button */}
       <div className="absolute top-2 -left-[5rem] z-10">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
