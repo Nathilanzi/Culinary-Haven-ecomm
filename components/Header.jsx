@@ -149,7 +149,7 @@ const Header = () => {
           message: "Successfully signed out",
           type: "success",
         });
-        setTimeout(() => router.push(result.url), 3000);
+        setTimeout(() => router.push(result.url), 100);
       } else {
         throw new Error("Logout failed");
       }
