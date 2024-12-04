@@ -407,7 +407,6 @@ const Header = () => {
                 href="/favorites"
                 className="relative flex items-center text-white"
               >
-                <Heart className="mr-2 w-4 h-4" />
                 Favorites
                 {favoritesCount > 0 && (
                   <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -415,7 +414,14 @@ const Header = () => {
                   </span>
                 )}
               </Link>
+
             </div>
+            <Link
+                  href="/downloaded-recipes"
+                  className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
+                >
+                  Downloads
+                </Link>
             <Link
               href="/shopping-list"
               className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"

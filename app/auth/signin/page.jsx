@@ -283,7 +283,7 @@ export default function SignIn() {
           Don&apos;t have an account?
           <Link
             href="/auth/signup"
-            className="font-medium ml-1 text-teal-600 hover:text-teal-800 dark:text-green-300 dark:hover:text-green-200"
+            className="font-medium ml-1 text-teal-600 hover:text-teal-800 dark:text-teal-300 dark:hover:text-teal-200"
           >
             Create account
           </Link>
