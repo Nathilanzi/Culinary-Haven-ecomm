@@ -32,6 +32,7 @@ export default function ShoppingList({ ingredients }) {
   const [selectedId, setSelectedId] = useState(null); // ID of the currently selected list
   const [listName, setListName] = useState(""); // Name of the new shopping list
   const [isVisible, setIsVisible] = useState(true); // Controls visibility of the shopping list section
+  const [showModal, setShowModal] = useState(false); // Add this state
 
   /**
    * Fetch shopping lists when the session changes.
@@ -131,6 +132,7 @@ export default function ShoppingList({ ingredients }) {
       toast.error("Failed to create shopping list");
     } finally {
       setLoading(false);
+      setShowModal(false);
     }
   };
 
@@ -229,7 +231,7 @@ export default function ShoppingList({ ingredients }) {
                         onChange={(e) =>
                           handleQuantityChange(ingredient, e.target.value)
                         }
-                        className="w-16 p-1 border rounded-md"
+                        className="w-16 p-1 border rounded-md dark:text-white dark:bg-slate-800"
                       />
                     )}
                   </div>
@@ -241,84 +243,113 @@ export default function ShoppingList({ ingredients }) {
           {/* Action Buttons */}
           {selectedItems.length > 0 && (
             <div className="mt-6 space-y-4">
-              {/* List Name Input */}
-              <div className="mb-4">
-                <input
-                  type="text"
-                  placeholder="Enter list name"
-                  value={listName}
-                  onChange={(e) => setListName(e.target.value)}
-                  className="w-full mt-4 p-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-                />
-              </div>
+              <div className="flex gap-4">
+                {/* Create New List Button */}
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="flex-1 bg-teal-500 text-white py-2 px-4 rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-teal-600 dark:hover:bg-teal-700"
+                >
+                  Create New List
+                </button>
 
-              <button
-                onClick={createShoppingList}
-                disabled={loading}
-                className="w-full mt-2 bg-teal-600 text-white py-2 px-4 rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-teal-500 dark:hover:bg-teal-600"
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                    <span>Creating...</span>
-                  </div>
-                ) : (
-                  "Create New List"
-                )}
-              </button>
-
-              {/* Add to Existing List */}
-              {lists.length > 0 && (
-                <div className="relative">
+                {/* Add to Existing List */}
+                {lists.length > 0 && (
                   <button
                     onClick={() => setSelectedId(selectedId ? null : "select")}
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-blue-500 dark:hover:bg-blue-600"
+                    className="flex-1 bg-teal-800 text-white py-2 px-4 rounded-lg hover:bg-teal-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-teal-800 dark:hover:bg-teal-900"
                   >
                     Add to Existing List
                   </button>
+                )}
+              </div>
 
-                  {selectedId === "select" && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10">
-                      <div className="p-2">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Select a list
-                          </span>
-                          <button
-                            onClick={() => setSelectedId(null)}
-                            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                        {lists.map((list) => (
-                          <button
-                            key={list._id}
-                            onClick={() => addItemsToList(list._id)}
-                            disabled={addingToList === list._id}
-                            className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex justify-between items-center"
-                          >
-                            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {list.name ||
-                                `Shopping List ${new Date(
-                                  list.createdAt
-                                ).toLocaleDateString()}`}
-                            </h2>
-
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              List from{" "}
-                              {new Date(list.createdAt).toLocaleDateString()}
-                            </span>
-                            {addingToList === list._id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Plus className="w-4 h-4" />
-                            )}
-                          </button>
-                        ))}
-                      </div>
+              {/* Modal for Create New List */}
+              {showModal && (
+                <div
+                  className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 max-h-screen"
+                  onClick={(e) => {
+                    if (e.target === e.currentTarget) setShowModal(false);
+                  }}
+                >
+                  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-80">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        Create New List
+                      </h2>
+                      <button
+                        onClick={() => setShowModal(false)}
+                        className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
                     </div>
-                  )}
+                    <input
+                      type="text"
+                      placeholder="Enter list name"
+                      value={listName}
+                      onChange={(e) => setListName(e.target.value)}
+                      className="w-full mb-4 p-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                    />
+                    <button
+                      onClick={createShoppingList}
+                      disabled={loading}
+                      className="w-full bg-teal-500 text-white py-2 px-4 rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-teal-500 dark:hover:bg-teal-600"
+                    >
+                      {loading ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span>Creating...</span>
+                        </div>
+                      ) : (
+                        "Create"
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Dropdown for Add to Existing List */}
+              {selectedId === "select" && (
+                <div className="relative mt-2">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10">
+                    <div className="p-2">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Select a list
+                        </span>
+                        <button
+                          onClick={() => setSelectedId(null)}
+                          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      {lists.map((list) => (
+                        <button
+                          key={list._id}
+                          onClick={() => addItemsToList(list._id)}
+                          disabled={addingToList === list._id}
+                          className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex justify-between items-center"
+                        >
+                          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {list.name ||
+                              `Shopping List ${new Date(
+                                list.createdAt
+                              ).toLocaleDateString()}`}
+                          </h2>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            List from{" "}
+                            {new Date(list.createdAt).toLocaleDateString()}
+                          </span>
+                          {addingToList === list._id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Plus className="w-4 h-4" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
