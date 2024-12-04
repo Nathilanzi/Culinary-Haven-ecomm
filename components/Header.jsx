@@ -98,9 +98,6 @@ const Header = () => {
           // Log any errors during fetch
           console.error("Error fetching favorites count:", error);
         }
-      } else {
-        // Reset favorites count when user is not logged in
-        setFavoritesCount(0);
       }
     };
 
@@ -114,7 +111,6 @@ const Header = () => {
     return () =>
       window.removeEventListener("favoritesUpdated", fetchFavoritesCount);
   }, [session]); // Re-run effect if session changes
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (navbarRef.current && !navbarRef.current.contains(event.target)) {
@@ -146,8 +142,6 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       setIsUserMenuOpen(false);
-      // Reset favorites count immediately on logout
-      setFavoritesCount(0);
       const result = await signOut({ redirect: false, callbackUrl: "/" });
       if (result?.url) {
         setNavAlertConfig({
@@ -413,6 +407,7 @@ const Header = () => {
                 href="/favorites"
                 className="relative flex items-center text-white"
               >
+                <Heart className="mr-2 w-4 h-4" />
                 Favorites
                 {favoritesCount > 0 && (
                   <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -421,12 +416,6 @@ const Header = () => {
                 )}
               </Link>
             </div>
-            <Link
-              href="/downloaded-recipes"
-              className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
-            >
-              Downloads
-            </Link>
             <Link
               href="/shopping-list"
               className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
