@@ -98,6 +98,9 @@ const Header = () => {
           // Log any errors during fetch
           console.error("Error fetching favorites count:", error);
         }
+      } else {
+        // Reset favorites count when user is not logged in
+        setFavoritesCount(0);
       }
     };
 
@@ -111,6 +114,7 @@ const Header = () => {
     return () =>
       window.removeEventListener("favoritesUpdated", fetchFavoritesCount);
   }, [session]); // Re-run effect if session changes
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (navbarRef.current && !navbarRef.current.contains(event.target)) {
@@ -142,6 +146,8 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       setIsUserMenuOpen(false);
+      // Reset favorites count immediately on logout
+      setFavoritesCount(0);
       const result = await signOut({ redirect: false, callbackUrl: "/" });
       if (result?.url) {
         setNavAlertConfig({
@@ -414,14 +420,13 @@ const Header = () => {
                   </span>
                 )}
               </Link>
-
             </div>
             <Link
-                  href="/downloaded-recipes"
-                  className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
-                >
-                  Downloads
-                </Link>
+              href="/downloaded-recipes"
+              className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
+            >
+              Downloads
+            </Link>
             <Link
               href="/shopping-list"
               className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
