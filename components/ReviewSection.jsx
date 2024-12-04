@@ -256,22 +256,22 @@ function ReviewSection({ recipeId }) {
               <div className="flex space-x-2">
                 <button
                   onClick={() => handleSortChange("date", "desc")}
-                  className={`px-4 py-2 rounded-lg transition-all duration-300 ease-in-out 
+                  className={`px-4 py-2 font-semibold rounded-lg transition-all duration-300 ease-in-out 
                     ${
                       sortBy === "date" && sortOrder === "desc"
-                        ? "bg-teal-500 text-white"
-                        : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-slate-700 dark:text-gray-200 dark:hover:bg-slate-600"
+                        ? "bg-teal-600 text-white"
+                        : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-slate-600"
                     }`}
                 >
                   Newest
                 </button>
                 <button
                   onClick={() => handleSortChange("date", "asc")}
-                  className={`px-4 py-2 rounded-lg transition-all duration-300 ease-in-out 
+                  className={`px-4 py-2 font-semibold rounded-lg transition-all duration-300 ease-in-out 
                     ${
                       sortBy === "date" && sortOrder === "asc"
                         ? "bg-teal-600 text-white"
-                        : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-slate-700 dark:text-gray-200 dark:hover:bg-slate-600"
+                        : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-slate-600"
                     }`}
                 >
                   Oldest
@@ -287,22 +287,22 @@ function ReviewSection({ recipeId }) {
               <div className="flex space-x-2">
                 <button
                   onClick={() => handleSortChange("rating", "desc")}
-                  className={`px-4 py-2 rounded-lg transition-all duration-300 ease-in-out 
+                  className={`px-4 py-2 font-semibold rounded-lg transition-all duration-300 ease-in-out 
                     ${
                       sortBy === "rating" && sortOrder === "desc"
                         ? "bg-teal-600 text-white"
-                        : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-slate-700 dark:text-gray-200 dark:hover:bg-slate-600"
+                        : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-slate-600"
                     }`}
                 >
                   Highest
                 </button>
                 <button
                   onClick={() => handleSortChange("rating", "asc")}
-                  className={`px-4 py-2 rounded-lg transition-all duration-300 ease-in-out 
+                  className={`px-4 py-2 font-semibold rounded-lg transition-all duration-300 ease-in-out 
                     ${
                       sortBy === "rating" && sortOrder === "asc"
                         ? "bg-teal-600 text-white"
-                        : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-slate-700 dark:text-gray-200 dark:hover:bg-slate-600"
+                        : "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-slate-600"
                     }`}
                 >
                   Lowest
@@ -312,9 +312,10 @@ function ReviewSection({ recipeId }) {
                     setSortBy("date");
                     setSortOrder("desc");
                   }}
-                  className="ml-4 px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-300 ease-in-out dark:bg-red-700 dark:hover:bg-red-600"
+                  className="ml-4 px-4 py-2 font-semibold rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-300 ease-in-out dark:bg-red-700 dark:hover:bg-red-600"
                 >
-                  Reset Filters
+                  <span className="hidden sm:inline">Reset Filters</span>
+                  <span className="inline sm:hidden">Reset</span>
                 </button>
               </div>
             </div>
@@ -490,16 +491,35 @@ function ReviewSection({ recipeId }) {
                 key={review._id}
                 className="border rounded-xl p-5 bg-white shadow-md dark:bg-slate-800/50 dark:border-slate-700 transition-all duration-300 hover:shadow-lg"
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-3">
+                <div className="flex-col items-center justify-between mb-3">
+                  <div className="flex justify-between items-center space-x-3">
+                  {/* <div className="flex justify-between"> */}
                     <strong className="text-gray-800 dark:text-gray-100">
                       {review.username}
                     </strong>
+                    {review.isOwner && (
+                      <div className="flex space-x-4">
+                        <button
+                          onClick={() => loadReviewForEditing(review)}
+                          className="text-teal-600 hover:underline text-sm dark:text-teal-400"
+                          disabled={editingReviewId !== null}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteReview(review._id)}
+                          className="text-red-500 hover:underline text-sm dark:text-red-400"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                    </div>
                     <div className="flex space-x-1">
                       {Array.from({ length: 5 }).map((_, index) => (
                         <Star
                           key={index}
-                          className={`w-5 h-5 ${
+                          className={`w-5 h-5 mt-2 ${
                             index < review.rating
                               ? "fill-yellow-400 text-yellow-400 dark:text-[#FFC857]"
                               : "text-gray-300 dark:text-slate-600"
@@ -507,24 +527,8 @@ function ReviewSection({ recipeId }) {
                         />
                       ))}
                     </div>
-                  </div>
-                  {review.isOwner && (
-                    <div className="flex space-x-4">
-                      <button
-                        onClick={() => loadReviewForEditing(review)}
-                        className="text-teal-600 hover:underline text-sm dark:text-teal-400"
-                        disabled={editingReviewId !== null}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteReview(review._id)}
-                        className="text-red-500 hover:underline text-sm dark:text-red-400"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
+                  {/* </div> */}
+
                 </div>
 
                 {review.comment && (
