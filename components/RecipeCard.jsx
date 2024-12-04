@@ -202,7 +202,14 @@ export default function RecipeCard({
 
           {/* Favorites and Download Buttons */}
           <div className="absolute top-2 right-1 left-1 z-10 flex justify-between">
-            <DownloadButton recipe={recipe} />
+            <DownloadButton
+              recipe={recipe}
+              onAlert={(alertInfo) => {
+                setAlertMessage(alertInfo.message);
+                setAlertType(alertInfo.type);
+                setShowAlert(true);
+              }}
+            />
             <button
               onClick={handleFavoriteClick}
               className="flex items-center space-x-2 p-2 rounded-full bg-white bg-opacity-75 hover:bg-opacity-100 transition-all duration-300"
