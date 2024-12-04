@@ -116,7 +116,6 @@ export default function RecipeCard({
         method: forceRemove || isFavorited ? "DELETE" : "POST",
         headers: {
           "Content-Type": "application/json",
-          "user-id": session.user.id,
         },
         body: JSON.stringify({ recipeId: recipe._id }),
       });
@@ -125,22 +124,14 @@ export default function RecipeCard({
         const newFavoritedState = forceRemove ? false : !isFavorited;
         setIsFavorited(newFavoritedState);
 
-        // Persist favorite state in localStorage
-        localStorage.setItem(
-          `favorite_${recipe._id}`, 
-          JSON.stringify(newFavoritedState)
-        );
-
         // Dispatch event for global state update
         window.dispatchEvent(new Event("favoritesUpdated"));
-
-        router.refresh();
 
         // Show alert based on action
         handleFavoriteToggle(
           true,
-          newFavoritedState 
-            ? "Recipe added to favorites!" 
+          newFavoritedState
+            ? "Recipe added to favorites!"
             : "Recipe removed from favorites!"
         );
 
@@ -153,6 +144,23 @@ export default function RecipeCard({
       return false;
     }
   };
+
+  useEffect(() => {
+    // Check if recipe is favorited via backend
+    const checkFavoriteStatus = async () => {
+      if (session) {
+        try {
+          const response = await fetch(`/api/favorites?recipeId=${recipe._id}`);
+          const data = await response.json();
+          setIsFavorited(data.isFavorited);
+        } catch (error) {
+          console.error("Error checking favorite status:", error);
+        }
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [recipe._id, session]);
 
   /**
    * Handles favorite click - shows confirmation if already favorited
@@ -198,7 +206,9 @@ export default function RecipeCard({
             <button
               onClick={handleFavoriteClick}
               className="flex items-center space-x-2 p-2 rounded-full bg-white bg-opacity-75 hover:bg-opacity-100 transition-all duration-300"
-              aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+              aria-label={
+                isFavorited ? "Remove from favorites" : "Add to favorites"
+              }
             >
               <svg
                 className={`w-6 h-6 ${isFavorited ? "text-red-500" : "text-gray-400"}`}
@@ -295,76 +305,76 @@ export default function RecipeCard({
               <span className="mt-2 font-semibold text-sm dark:text-slate-300">
                 Cook:
               </span>
-                <span className="dark:text-slate-400">{recipe.cook} mins</span>
-              </div>
-
-              {/* Servings */}
-              <div className="flex flex-col items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="64px"
-                  height="64px"
-                  viewBox="0 -4.83 52 52"
-                  fill="none"
-                  strokeWidth="2"
-                  stroke="currentColor"
-                  className="w-5 h-5 text-teal-700 dark:text-teal-300"
-                >
-                  <g
-                    id="Group_49"
-                    data-name="Group 49"
-                    transform="translate(-788.946 -1785.428)"
-                  >
-                    <path
-                      id="Path_131"
-                      data-name="Path 131"
-                      d="M814.946,1793.095a24,24,0,0,0-24,24h48A24,24,0,0,0,814.946,1793.095Z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="5"
-                    ></path>
-                    <line
-                      id="Line_51"
-                      data-name="Line 51"
-                      x2="48"
-                      transform="translate(790.946 1825.761)"
-                      fill="currentColor"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="5"
-                    ></line>
-                    <line
-                      id="Line_52"
-                      data-name="Line 52"
-                      y2="5.667"
-                      transform="translate(814.946 1787.428)"
-                      fill="currentColor"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="5"
-                    ></line>
-                  </g>
-                </svg>
-                <span className="mt-2 font-semibold text-sm dark:text-slate-300">
-                  Serves:
-                </span>
-                <span className="dark:text-slate-400">
-                  {recipe.servings} people
-                </span>
-              </div>
+              <span className="dark:text-slate-400">{recipe.cook} mins</span>
             </div>
 
-            {/* View Recipe Button */}
-            <Link
-              href={`/recipes/${recipe._id}`}
-              className="w-[85%] mx-auto block text-center bg-teal-600 hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-600 text-white font-semibold py-2 rounded-full shadow transition-colors mt-auto"
-            >
-              View Recipe
-            </Link>
+            {/* Servings */}
+            <div className="flex flex-col items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64px"
+                height="64px"
+                viewBox="0 -4.83 52 52"
+                fill="none"
+                strokeWidth="2"
+                stroke="currentColor"
+                className="w-5 h-5 text-teal-700 dark:text-teal-300"
+              >
+                <g
+                  id="Group_49"
+                  data-name="Group 49"
+                  transform="translate(-788.946 -1785.428)"
+                >
+                  <path
+                    id="Path_131"
+                    data-name="Path 131"
+                    d="M814.946,1793.095a24,24,0,0,0-24,24h48A24,24,0,0,0,814.946,1793.095Z"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="5"
+                  ></path>
+                  <line
+                    id="Line_51"
+                    data-name="Line 51"
+                    x2="48"
+                    transform="translate(790.946 1825.761)"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="5"
+                  ></line>
+                  <line
+                    id="Line_52"
+                    data-name="Line 52"
+                    y2="5.667"
+                    transform="translate(814.946 1787.428)"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="5"
+                  ></line>
+                </g>
+              </svg>
+              <span className="mt-2 font-semibold text-sm dark:text-slate-300">
+                Serves:
+              </span>
+              <span className="dark:text-slate-400">
+                {recipe.servings} people
+              </span>
+            </div>
           </div>
+
+          {/* View Recipe Button */}
+          <Link
+            href={`/recipes/${recipe._id}`}
+            className="w-[85%] mx-auto block text-center bg-teal-600 hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-600 text-white font-semibold py-2 rounded-full shadow transition-colors mt-auto"
+          >
+            View Recipe
+          </Link>
         </div>
+      </div>
 
       {/* Confirmation Modal for Removing Favorites */}
       <ConfirmationModal

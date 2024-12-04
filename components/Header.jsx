@@ -45,7 +45,6 @@ const Header = () => {
     type: "success",
   });
 
-
   /**
    * Toggles the visibility of the navigation menu.
    */
@@ -63,31 +62,55 @@ const Header = () => {
    * @async
    * @function updateFavoritesCount
    */
-  const updateFavoritesCount = useCallback(async () => {
-    if (session) {
-      try {
-        const response = await fetch("/api/favorites?action=count");
-        const data = await response.json();
-        setFavoritesCount(data.count);
-      } catch (error) {
-        console.error("Error fetching favorites count:", error);
-      }
-    } else {
-      setFavoritesCount(0);
-    }
-  }, [session]);
-
+  /**
+   * useEffect hook to fetch and update the count of user's favorite items
+   *
+   * This effect does the following:
+   * 1. Fetches the number of favorites for the logged-in user
+   * 2. Sets up an event listener to refresh the favorites count
+   * 3. Cleans up the event listener when the component unmounts or dependencies change
+   *
+   * @effect
+   * @fires favoritesUpdated - Custom event that triggers favorites count refresh
+   * @listens window#favoritesUpdated
+   *
+   * @dependencies {Object} session - User session object that determines if favorites should be fetched
+   */
   useEffect(() => {
-    updateFavoritesCount();
+    /**
+     * Asynchronously fetches the count of user's favorite items
+     *
+     * @async
+     * @function fetchFavoritesCount
+     * @throws {Error} Logs error if favorites count fetch fails
+     */
+    const fetchFavoritesCount = async () => {
+      // Only fetch favorites count if user is logged in
+      if (session) {
+        try {
+          // Make API call to get favorites count
+          const response = await fetch("/api/favorites?action=count");
+          const data = await response.json();
 
-    // Set up an event listener for favorites updates
-    window.addEventListener("favoritesUpdated", updateFavoritesCount);
-
-    return () => {
-      window.removeEventListener("favoritesUpdated", updateFavoritesCount);
+          // Update favorites count state
+          setFavoritesCount(data.count);
+        } catch (error) {
+          // Log any errors during fetch
+          console.error("Error fetching favorites count:", error);
+        }
+      }
     };
-  }, [updateFavoritesCount]);
 
+    // Initial fetch of favorites count
+    fetchFavoritesCount();
+
+    // Add event listener to refresh favorites count
+    window.addEventListener("favoritesUpdated", fetchFavoritesCount);
+
+    // Cleanup function to remove event listener
+    return () =>
+      window.removeEventListener("favoritesUpdated", fetchFavoritesCount);
+  }, [session]); // Re-run effect if session changes
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (navbarRef.current && !navbarRef.current.contains(event.target)) {
@@ -306,18 +329,20 @@ const Header = () => {
                 Recipes
               </Link>
 
-              <Link
-                href="/favorites"
-                className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
-              >
-                <Heart className="mr-2 h-4 w-4" />
-                Favorites
-                {favoritesCount > 0 && (
-                  <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {favoritesCount}
-                  </span>
-                )}
-              </Link>
+              {session && (
+                <Link
+                  href="/favorites"
+                  className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
+                >
+                  <Heart className="mr-2 w-4 h-4" />
+                  Favorites
+                  {favoritesCount > 0 && (
+                    <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {favoritesCount}
+                    </span>
+                  )}
+                </Link>
+              )}
 
               <div className="flex justify-center">
                 <Link
@@ -380,17 +405,20 @@ const Header = () => {
               Recipes
             </Link>
             <div className="flex ml-3">
-              <Link
-                href="/favorites"
-                className={"relative flex items-center text-white"}
-              >
-                Favorites
-                {favoritesCount > 0 && (
-                  <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {favoritesCount}
-                  </span>
-                )}
-              </Link>
+              {session && (
+                <Link
+                  href="/favorites"
+                  className="relative flex items-center text-white"
+                >
+                  <Heart className="mr-2 w-4 h-4" />
+                  Favorites
+                  {favoritesCount > 0 && (
+                    <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {favoritesCount}
+                    </span>
+                  )}
+                </Link>
+              )}
             </div>
             <Link
               href="/shopping-list"
