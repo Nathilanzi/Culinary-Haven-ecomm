@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import FavoritesButton from "@/components/FavoritesButton";
 import RecipeCard from "@/components/RecipeCard";
 import LoadingPage from "../loading";
 import BackButton from "@/components/BackButton";
@@ -24,56 +23,17 @@ export default function Favorites() {
 
     const fetchFavorites = async () => {
       try {
-        const response = await fetch("/api/favorites?action=list", {
-          headers: {
-            "user-id": session.user.id,
-          },
-        });
+        const response = await fetch("/api/favorites");
 
         if (!response.ok) throw new Error("Failed to fetch favorites");
 
         const data = await response.json();
-        // Fetch full recipe details for each favorite
-        const recipesWithDetails = await Promise.all(
-          data.favorites.map(async (fav) => {
-            const recipeResponse = await fetch(`/api/recipes/${fav.recipeId}`);
-            const recipeData = await recipeResponse.json();
-            return {
-              ...recipeData,
-              favorited_at: fav.created_at,
-            };
-          })
-        );
-
-        setFavorites(recipesWithDetails);
-
-        // Update localStorage with current favorites
-        updateLocalStorageFavorites(recipesWithDetails);
+        setFavorites(data.favorites);
       } catch (error) {
         setError("Error fetching favorites: " + error.message);
       } finally {
         setLoading(false);
       }
-    };
-
-    // Function to update local storage with favorites
-    const updateLocalStorageFavorites = (favoriteRecipes) => {
-      // Clear all previous favorite-related local storage items
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('favorite_')) {
-          localStorage.removeItem(key);
-        }
-      });
-
-      // Set new favorites in local storage
-      favoriteRecipes.forEach(recipe => {
-        localStorage.setItem(`favorite_${recipe._id}`, 'true');
-      });
-
-      // Store full list of favorite recipe IDs
-      localStorage.setItem('userFavorites', JSON.stringify(
-        favoriteRecipes.map(recipe => recipe._id)
-      ));
     };
 
     fetchFavorites();
@@ -83,22 +43,22 @@ export default function Favorites() {
     return () => window.removeEventListener("favoritesUpdated", fetchFavorites);
   }, [session, router]);
 
-  const handleFavoriteToggle = (recipeId) => {
-    // Remove the recipe from favorites
-    setFavorites(favorites.filter(fav => fav._id !== recipeId));
-    
-    // Remove favorite-specific local storage item
-    localStorage.removeItem(`favorite_${recipeId}`);
-    
-    // Update the list of favorite recipe IDs in local storage
-    const currentFavorites = JSON.parse(localStorage.getItem('userFavorites') || '[]');
-    const updatedFavorites = currentFavorites.filter(id => id !== recipeId);
-    
-    // Update or remove userFavorites in local storage
-    if (updatedFavorites.length > 0) {
-      localStorage.setItem('userFavorites', JSON.stringify(updatedFavorites));
-    } else {
-      localStorage.removeItem('userFavorites');
+  const handleFavoriteToggle = async (recipeId) => {
+    try {
+      const response = await fetch("/api/favorites", {
+        method: "DELETE",
+        body: JSON.stringify({ recipeId }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to remove favorite");
+
+      // Trigger a refresh of favorites
+      window.dispatchEvent(new Event("favoritesUpdated"));
+    } catch (error) {
+      console.error("Error removing favorite:", error);
     }
   };
 
