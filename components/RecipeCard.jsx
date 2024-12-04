@@ -55,26 +55,19 @@ export default function RecipeCard({
 
   // Check if recipe is downloaded
   useEffect(() => {
-    const checkDownloadStatus = () => {
+    if (recipe) {
       const downloadedRecipes = JSON.parse(
         localStorage.getItem("downloadedRecipes") || "[]"
-      ).map((r) => (typeof r === "string" ? JSON.parse(r) : r));
-
-      const downloaded = downloadedRecipes.some(
-        (savedRecipe) => savedRecipe.id === recipe._id
+      )
+        .map((r) => (typeof r === "string" ? JSON.parse(r) : r))
+        .filter((r) => r && r.id); // Ensure the recipe object is valid and has an id
+  
+      const existingRecipe = downloadedRecipes.find(
+        (savedRecipe) => savedRecipe.id === recipe.id
       );
-
-      setIsDownloaded(downloaded);
-    };
-
-    checkDownloadStatus();
-
-    // Listen for download events
-    window.addEventListener("recipesDownloaded", checkDownloadStatus);
-
-    return () => {
-      window.removeEventListener("recipesDownloaded", checkDownloadStatus);
-    };
+  
+      setIsDownloaded(!!existingRecipe);
+    }
   }, [recipe]);
 
   /**

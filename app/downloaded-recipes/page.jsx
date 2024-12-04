@@ -124,7 +124,7 @@ const DownloadedRecipesPage = () => {
               {recipes.map((recipe) => (
                 <div key={recipe.id} className="relative group">
                   <RecipeCard recipe={recipe} />
-                  {deleteConfirmation.id === recipe.id ? (
+                  {deleteConfirmation?.id !== null && deleteConfirmation?.id === recipe.id ? (
                     <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-red-100 border border-red-300 rounded-lg p-2 z-10 shadow-lg">
                       <div className="flex items-center space-x-2">
                         <p className="text-red-700 text-sm">Delete?</p>

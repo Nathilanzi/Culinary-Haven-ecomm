@@ -36,16 +36,17 @@ export default function DownloadButton({ recipe }) {
    * Check for existing downloaded recipes on component mount
    */
   useEffect(() => {
-    // Check if the recipe is already downloaded when component mounts
     if (recipe) {
       const downloadedRecipes = JSON.parse(
         localStorage.getItem("downloadedRecipes") || "[]"
-      ).map((r) => (typeof r === "string" ? JSON.parse(r) : r));
-
+      )
+        .map((r) => (typeof r === "string" ? JSON.parse(r) : r)) // Parse strings into objects if needed
+        .filter((r) => r && r.id); // Ensure each object is valid and has an `id`
+  
       const existingRecipe = downloadedRecipes.find(
         (savedRecipe) => savedRecipe.id === recipe.id
       );
-
+  
       setIsDownloaded(!!existingRecipe);
     }
   }, [recipe]);
@@ -58,73 +59,62 @@ export default function DownloadButton({ recipe }) {
    * @async
    */
   const handleDownload = async () => {
-    // Early validation check
-    if (!recipe) {
-      toast.error("No recipe data available");
+    if (!recipe || !recipe.id) {
+      toast.error("Invalid recipe data");
       return;
     }
-
+  
     setIsSyncing(true);
-
+  
     try {
-      // Prepare recipe for saving with additional metadata
       const recipeToSave = {
         ...recipe,
-        id: recipe.id || Date.now().toString(),
+        id: recipe.id,
         downloadedAt: new Date().toISOString(),
         version: recipe.version || "1.0",
       };
-
-      // Retrieve existing downloaded recipes
+  
       const downloadedRecipes = JSON.parse(
         localStorage.getItem("downloadedRecipes") || "[]"
-      ).map((r) => (typeof r === "string" ? JSON.parse(r) : r));
-
-      // Find existing recipe index
+      )
+        .map((r) => (typeof r === "string" ? JSON.parse(r) : r))
+        .filter((r) => r && r.id); // Filter out invalid entries
+  
       const existingRecipeIndex = downloadedRecipes.findIndex(
         (savedRecipe) => savedRecipe.id === recipeToSave.id
       );
-
+  
       if (existingRecipeIndex !== -1) {
-        // Update existing recipe if versions differ
         if (
-          downloadedRecipes[existingRecipeIndex].version !==
-          recipeToSave.version
+          downloadedRecipes[existingRecipeIndex].version !== recipeToSave.version
         ) {
           downloadedRecipes[existingRecipeIndex] = recipeToSave;
-          toast.info("Recipe updated to latest version");
+          toast.info("Recipe updated to the latest version.");
         } else {
-          toast.warning("Recipe already saved!");
+          toast.warning("Recipe already downloaded.");
           setIsSyncing(false);
           return;
         }
       } else {
-        // Add new recipe
         downloadedRecipes.push(recipeToSave);
-        toast.success("Recipe saved successfully!");
+        toast.success("Recipe downloaded successfully!");
       }
-
-      // Save updated recipes to local storage
+  
       localStorage.setItem(
         "downloadedRecipes",
         JSON.stringify(downloadedRecipes)
       );
-
-      // Update downloaded state
+  
       setIsDownloaded(true);
-
-      // Simulate sync delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Dispatch event for other components
       window.dispatchEvent(new Event("recipesDownloaded"));
     } catch (error) {
       console.error("Error saving recipe:", error);
-      toast.error("Failed to save recipe. Please try again.");
+      toast.error("Failed to save recipe.");
     } finally {
       setIsSyncing(false);
     }
   };
+  
 
   // Don't render if no recipe is provided
   if (!recipe) return null;
