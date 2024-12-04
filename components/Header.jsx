@@ -325,7 +325,7 @@ const Header = () => {
                   className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
                 >
                   <ShoppingCart className="mr-2 h-4 w-4" />
-                  Shopping List
+                  Shopping Lists
                 </Link>
               </div>
 
@@ -396,7 +396,7 @@ const Header = () => {
               href="/shopping-list"
               className="block px-3 py-2 text-white hover:bg-teal-600 rounded-lg transition-colors"
             >
-              Shopping List
+              Shopping Lists
             </Link>
             {status === "authenticated" ? (
               <>

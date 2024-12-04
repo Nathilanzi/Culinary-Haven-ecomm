@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { getIngredientUnit } from "./IngredientUnit";
 
 /**
  * ShoppingList Component
@@ -60,7 +61,7 @@ export default function ShoppingList({ ingredients }) {
       setFetchingLists(false);
     }
   };
-  
+
   /**
    * Toggles the selection of an ingredient.
    * Adds or removes the ingredient from the selectedItems array.
@@ -78,7 +79,6 @@ export default function ShoppingList({ ingredients }) {
     });
   };
 
-  
   /**
    * Updates the quantity of a selected ingredient.
    * @param {string} ingredient - The name of the ingredient.
@@ -93,7 +93,7 @@ export default function ShoppingList({ ingredients }) {
     );
   };
 
-   /**
+  /**
    * Creates a new shopping list with the selected items.
    * Requires user authentication.
    */
@@ -179,7 +179,7 @@ export default function ShoppingList({ ingredients }) {
       {/* Toggle Visibility Button */}
       <button
         onClick={() => setIsVisible((prev) => !prev)}
-        className="mb-4 bg-teal-600 text-white font-bold py-2 px-4 rounded hover:bg-teal-700 transition-colors dark:bg-[#2D7356] dark:hover:bg-[#256B4C]"
+        className="mb-4 bg-teal-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-teal-600 transition-colors"
       >
         {isVisible ? "Hide Shopping List" : "Show Shopping List"}
       </button>
@@ -189,47 +189,53 @@ export default function ShoppingList({ ingredients }) {
         <>
           {/* Ingredient Selection */}
           <div className="space-y-4">
-            {Object.entries(ingredients).map(([ingredient, amount]) => (
-              <div
-                key={ingredient}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors dark:bg-gray-800 dark:hover:bg-gray-700"
-              >
-                <span className="text-gray-700 dark:text-gray-300">
-                  {amount} {ingredient}
-                </span>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => toggleItem(ingredient, amount)}
-                    className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300"
-                  >
+            {Object.entries(ingredients).map(([ingredient, amount]) => {
+              const unit = getIngredientUnit(ingredient);
+              return (
+                <div
+                  key={ingredient}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors dark:bg-gray-800 dark:hover:bg-gray-700"
+                >
+                  <span>
+                    <span className="text-gray-700 dark:text-gray-300 font-medium">
+                      {amount} {unit ? `${unit}` : ""}
+                    </span>
+                    <span> {ingredient}</span>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => toggleItem(ingredient, amount)}
+                      className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300"
+                    >
+                      {selectedItems.find(
+                        (item) => item.ingredient === ingredient
+                      ) ? (
+                        <MinusCircle className="w-6 h-6" />
+                      ) : (
+                        <PlusCircle className="w-6 h-6" />
+                      )}
+                    </button>
                     {selectedItems.find(
                       (item) => item.ingredient === ingredient
-                    ) ? (
-                      <MinusCircle className="w-6 h-6" />
-                    ) : (
-                      <PlusCircle className="w-6 h-6" />
+                    ) && (
+                      <input
+                        type="number"
+                        min="1"
+                        value={
+                          selectedItems.find(
+                            (item) => item.ingredient === ingredient
+                          ).amount
+                        }
+                        onChange={(e) =>
+                          handleQuantityChange(ingredient, e.target.value)
+                        }
+                        className="w-16 p-1 border rounded-md"
+                      />
                     )}
-                  </button>
-                  {selectedItems.find(
-                    (item) => item.ingredient === ingredient
-                  ) && (
-                    <input
-                      type="number"
-                      min="1"
-                      value={
-                        selectedItems.find(
-                          (item) => item.ingredient === ingredient
-                        ).amount
-                      }
-                      onChange={(e) =>
-                        handleQuantityChange(ingredient, e.target.value)
-                      }
-                      className="w-16 p-1 border rounded-md"
-                    />
-                  )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Action Buttons */}

@@ -1,35 +1,9 @@
 "use client";
 
-/**
- * Favorites Component
- *
- * @description Displays a user's favorite recipes with real-time updates and functionality
- * to toggle favorite status. Uses session-based authentication to fetch and display
- * the list of favorite recipes, showing additional recipe details.
- *
- * @module Favorites
- * @returns {JSX.Element|null} - Returns the JSX layout for the Favorites page or redirects
- * unauthenticated users to the sign-in page.
- *
- * @example
- * // Usage
- * import Favorites from "@/app/favorites";
- *
- * export default function Page() {
- *   return <Favorites />;
- * }
- *
- * @requires useSession - Hook from `next-auth/react` for session management.
- * @requires useRouter - Hook from `next/navigation` for client-side routing.
- * @requires FavoritesButton - Component for toggling favorites.
- * @requires RecipeCard - Component for displaying individual recipe details.
- * @requires LoadingPage - Component for displaying a loading spinner.
- * @requires BackButton - Component for navigating back to the previous page.
- */
-
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import FavoritesButton from "@/components/FavoritesButton";
 import RecipeCard from "@/components/RecipeCard";
 import LoadingPage from "../loading";
 import BackButton from "@/components/BackButton";
@@ -42,17 +16,6 @@ export default function Favorites() {
   const { data: session } = useSession();
   const router = useRouter();
 
-  /**
-   * Fetches and updates the user's favorite recipes.
-   *
-   * @function fetchFavorites
-   * @async
-   * @description Makes a call to the `/api/favorites` endpoint to retrieve a list
-   * of the user's favorite recipes. For each recipe ID, it fetches full recipe details
-   * from the `/api/recipes/:id` endpoint.
-   *
-   * @returns {Promise<void>} - Updates state with fetched favorites or logs errors.
-   */
   useEffect(() => {
     if (!session) {
       router.push("/auth/signin");
@@ -83,11 +46,34 @@ export default function Favorites() {
         );
 
         setFavorites(recipesWithDetails);
+
+        // Update localStorage with current favorites
+        updateLocalStorageFavorites(recipesWithDetails);
       } catch (error) {
         setError("Error fetching favorites: " + error.message);
       } finally {
         setLoading(false);
       }
+    };
+
+    // Function to update local storage with favorites
+    const updateLocalStorageFavorites = (favoriteRecipes) => {
+      // Clear all previous favorite-related local storage items
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('favorite_')) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      // Set new favorites in local storage
+      favoriteRecipes.forEach(recipe => {
+        localStorage.setItem(`favorite_${recipe._id}`, 'true');
+      });
+
+      // Store full list of favorite recipe IDs
+      localStorage.setItem('userFavorites', JSON.stringify(
+        favoriteRecipes.map(recipe => recipe._id)
+      ));
     };
 
     fetchFavorites();
@@ -97,15 +83,23 @@ export default function Favorites() {
     return () => window.removeEventListener("favoritesUpdated", fetchFavorites);
   }, [session, router]);
 
-  /**
-   * Handles the removal of a recipe from the favorites list.
-   *
-   * @function handleFavoriteToggle
-   * @param {string} recipeId - The unique identifier of the recipe to be removed.
-   * @returns {void} - Updates the state by filtering out the unfavorited recipe.
-   */
   const handleFavoriteToggle = (recipeId) => {
-    setFavorites(favorites.filter((fav) => fav._id !== recipeId));
+    // Remove the recipe from favorites
+    setFavorites(favorites.filter(fav => fav._id !== recipeId));
+    
+    // Remove favorite-specific local storage item
+    localStorage.removeItem(`favorite_${recipeId}`);
+    
+    // Update the list of favorite recipe IDs in local storage
+    const currentFavorites = JSON.parse(localStorage.getItem('userFavorites') || '[]');
+    const updatedFavorites = currentFavorites.filter(id => id !== recipeId);
+    
+    // Update or remove userFavorites in local storage
+    if (updatedFavorites.length > 0) {
+      localStorage.setItem('userFavorites', JSON.stringify(updatedFavorites));
+    } else {
+      localStorage.removeItem('userFavorites');
+    }
   };
 
   if (loading) return <LoadingPage />;
@@ -114,12 +108,12 @@ export default function Favorites() {
   if (!session) return null;
 
   return (
-    <div className="container mx-auto px-4 py-8 min-h-screen">
+    <div className="container mx-auto px-4 py-8">
       {/* Fixed position back button */}
-      <div className="fixed top-4 -left-20 z-50">
+      <div className="absolute top-3 -left-[6rem] z-10">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
       </div>
-      <h1 className="text-4xl font-bold mb-10 dark:text-white text-center tracking-tight text-gray-700 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
+      <h1 className="text-4xl mt-8 font-bold mb-10 dark:text-white text-center tracking-tight text-gray-700 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
         My Favorite Recipes
       </h1>
 
@@ -139,7 +133,7 @@ export default function Favorites() {
                   recipe={recipe}
                   showFavoriteButton
                   isFavorited={true}
-                  onFavoriteToggle={handleFavoriteToggle}
+                  onFavoriteToggle={() => handleFavoriteToggle(recipe._id)}
                   additionalInfo={
                     <p className="text-sm text-gray-500 mt-2">
                       Added to favorites:{" "}

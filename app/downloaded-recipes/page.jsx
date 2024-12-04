@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import RecipeCard from "@/components/RecipeCard";
 import Pagination from "@/components/Pagination";
+import ConfirmationModal from "@/components/ConfirmationModal";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
-import { Trash2, Download } from "lucide-react";
 
 const DownloadedRecipesPage = () => {
   const [recipes, setRecipes] = useState([]);
@@ -13,20 +13,22 @@ const DownloadedRecipesPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [deleteConfirmation, setDeleteConfirmation] = useState({ id: null });
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
+    isOpen: false,
+    recipeId: null
+  });
 
-  // Load recipes from localStorage
-  const loadRecipes = () => {
+  // Memoized function to load recipes
+  const loadRecipes = useCallback(() => {
     try {
       setLoading(true);
-      // Parse recipes, ensuring we're working with parsed JSON
       const storedRecipes = JSON.parse(
         localStorage.getItem("downloadedRecipes") || "[]"
       ).map((recipe) =>
         typeof recipe === "string" ? JSON.parse(recipe) : recipe
       );
 
-      const recipesPerPage = 6; // Number of recipes to show per page
+      const recipesPerPage = 6;
       const startIndex = (currentPage - 1) * recipesPerPage;
       const paginatedRecipes = storedRecipes.slice(
         startIndex,
@@ -43,50 +45,74 @@ const DownloadedRecipesPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    loadRecipes(); // Load recipes on page load and whenever currentPage changes
   }, [currentPage]);
 
-  // Function to handle deleting a recipe
-  const handleDelete = (recipeId) => {
+  useEffect(() => {
+    loadRecipes(); 
+  }, [loadRecipes]);
+
+  // Memoized delete handler
+  const handleDelete = useCallback(() => {
+    if (!deleteConfirmation.recipeId) return;
+
     try {
-      // Retrieve and parse stored recipes
       const storedRecipes = JSON.parse(
         localStorage.getItem("downloadedRecipes") || "[]"
       ).map((recipe) =>
         typeof recipe === "string" ? JSON.parse(recipe) : recipe
       );
 
-      // Filter out the recipe to delete
       const updatedRecipes = storedRecipes.filter(
-        (recipe) => recipe.id !== recipeId
+        (recipe) => recipe.id !== deleteConfirmation.recipeId
       );
 
-      // Save updated recipes back to localStorage
       localStorage.setItem("downloadedRecipes", JSON.stringify(updatedRecipes));
 
-      // Reload recipes and show toast
       loadRecipes();
       toast.success("Recipe deleted successfully");
       
-      // Reset delete confirmation
-      setDeleteConfirmation({ id: null });
+      setDeleteConfirmation({ isOpen: false, recipeId: null });
     } catch (err) {
       setError("Error deleting recipe: " + err.message);
       toast.error("Failed to delete recipe");
     }
-  };
+  }, [deleteConfirmation.recipeId, loadRecipes]);
+
+  // Prevent propagation and flickering
+  const openDeleteConfirmation = useCallback((recipeId) => (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDeleteConfirmation({ 
+      isOpen: true, 
+      recipeId: recipeId 
+    });
+  }, []);
+
+  // Close delete confirmation modal
+  const closeDeleteConfirmation = useCallback(() => {
+    setDeleteConfirmation({ 
+      isOpen: false, 
+      recipeId: null 
+    });
+  }, []);
 
   // Handle page change for pagination
-  const handlePageChange = (page) => {
+  const handlePageChange = useCallback((page) => {
     setCurrentPage(page);
-  };
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto container px-4 py-8 min-h-screen">
-      {/* Fixed position back button */}
+      <ConfirmationModal
+        isOpen={deleteConfirmation.isOpen}
+        onClose={closeDeleteConfirmation}
+        onConfirm={handleDelete}
+        title="Delete Recipe"
+        message="Are you sure you want to delete this recipe? This action cannot be undone."
+        confirmText="Confirm"
+        confirmClassName="bg-teal-500 hover:bg-teal-600 text-white"
+      />
+
       <div className="fixed top-4 -left-20 z-50">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
       </div>
@@ -113,7 +139,9 @@ const DownloadedRecipesPage = () => {
         <>
           {recipes.length === 0 ? (
             <div className="text-center py-12 px-6">
-              <Download className="mx-auto w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
+              <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
               <p className="text-gray-500 dark:text-gray-400">
                 You haven't downloaded any recipes yet. Start by downloading
                 one!
@@ -124,32 +152,15 @@ const DownloadedRecipesPage = () => {
               {recipes.map((recipe) => (
                 <div key={recipe.id} className="relative group">
                   <RecipeCard recipe={recipe} />
-                  {deleteConfirmation.id === recipe.id ? (
-                    <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-red-100 border border-red-300 rounded-lg p-2 z-10 shadow-lg">
-                      <div className="flex items-center space-x-2">
-                        <p className="text-red-700 text-sm">Delete?</p>
-                        <button
-                          onClick={() => handleDelete(recipe.id)}
-                          className="bg-red-500 text-white rounded-full px-2 py-1 text-xs hover:bg-red-600 transition-colors"
-                        >
-                          Confirm
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirmation({ id: null })}
-                          className="bg-gray-200 text-gray-700 rounded-full px-2 py-1 text-xs hover:bg-gray-300 transition-colors"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setDeleteConfirmation({ id: recipe.id })}
-                      className="absolute top-2 left-1/2 -translate-x-1/2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
+                  <button
+                    onMouseDown={openDeleteConfirmation(recipe.id)}
+                    className="absolute top-2 left-1/2 -translate-x-1/2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 will-change-opacity transition-opacity duration-150 ease-in-out hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                  </button>
                 </div>
               ))}
             </div>

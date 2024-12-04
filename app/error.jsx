@@ -61,15 +61,20 @@ export default function ErrorPage({ statusCode = 500 }) {
 
         {/* Error Message */}
         <motion.h2
-          className="text-3xl font-semibold text-gray-800 mb-4"
+          className="text-3xl font-semibold dark:text-gray-200 text-gray-700 mb-4"
           variants={itemVariants}
         >
-          Oops! Something went wrong
+          Oops! Internal Server Error
         </motion.h2>
 
-        <motion.p className="text-gray-600 mb-8" variants={itemVariants}>
-          We're sorry, but an unexpected error occurred. Don't worry, our team
-          has been notified.
+        <motion.p
+          className="text-gray-600 dark:text-gray-200 mb-8"
+          variants={itemVariants}
+        >
+          An internal server error occurred. This means there was an unexpected
+          condition that prevented the server from fulfilling the request. Our
+          technical team has been automatically notified and is working to
+          resolve the issue.
         </motion.p>
 
         {/* Action Buttons */}
@@ -90,7 +95,7 @@ export default function ErrorPage({ statusCode = 500 }) {
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Link
               href="/recipes"
-              className="flex items-center px-6 py-3 bg-white text-teal-600 border border-teal-200 rounded-full shadow-lg hover:bg-teal-50 transition-colors"
+              className="flex items-center px-6 py-3 bg-teal-600 text-white rounded-full shadow-lg hover:bg-teal-700 transition-colors"
             >
               <Home className="mr-2" />
               Go Home
