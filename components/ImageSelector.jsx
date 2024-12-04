@@ -36,52 +36,51 @@ export default function ImageSelector({ images }) {
   return (
     <div className="relative">
       {/* Main Selected Image */}
-      <div
-        className="px-4 py-12 rounded-xl flex items-center justify-center bg-gray-100"
-        style={{ height: "500px" }} // Adjust height as needed
-      >
-        <Image
-          src={images[currentIndex]}
-          alt="Selected"
-          width={fixedImageSize.width}
-          height={fixedImageSize.height}
-          className="w-full h-full rounded object-cover"
-        />
-      </div>
-
-      {/* Arrow Buttons */}
-      {images.length > 1 && (
-        <div className="group">
-          <ArrowButtons
-            onPrevClick={handlePrevClick}
-            onNextClick={handleNextClick}
-            className="border border-red-600"
+      <div className="m-2 lg:m-10 md:m-10 rounded-xl bg-gray-100 dark:bg-gray-700">
+        <div
+          className="rounded-xl flex lg:h-[400px] sm:h-[250px] md:h-[400px]"
+        >
+          <Image
+            src={images[currentIndex]}
+            alt="Selected"
+            width={fixedImageSize.width}
+            height={fixedImageSize.height}
+            className="w-full h-full rounded-t-xl object-cover"
           />
         </div>
-      )}
 
-      {/* Thumbnail Images */}
-      {images.length > 1 && (
-        <div className="mt-4 flex flex-wrap justify-center gap-4 mx-auto">
-          {images.map((img, index) => (
-            <div
-              key={index}
-              className={`w-[100px] h-[100px] flex items-center justify-center bg-gray-200 rounded-xl p-2 cursor-pointer ${
-                currentIndex === index ? "ring-2 ring-teal-500" : ""
-              }`}
-              onClick={() => setCurrentIndex(index)}
-            >
-              <Image
-                src={img}
-                alt={`Thumbnail ${index + 1}`}
-                width={100}
-                height={100}
-                className="w-full h-full object-cover rounded"
-              />
-            </div>
-          ))}
-        </div>
-      )}
+        {/* Arrow Buttons */}
+        {images.length > 1 && (
+          <ArrowButtons
+              onPrevClick={handlePrevClick}
+              onNextClick={handleNextClick}
+              className="absolute top-1/2 left-4 transform -translate-y-1/2 rounded-full p-2 focus:outline-none"
+          />
+        )}
+
+        {/* Thumbnail Images */}
+        {images.length > 1 && (
+          <div className="m-6 flex flex-wrap justify-center gap-4">
+            {images.map((img, index) => (
+              <div
+                key={index}
+                className={`w-[50px] h-[50px] lg:w-[100px] lg:h-[100px] md:w-[90px] md:h-[90px] flex items-center justify-center rounded-lg shadow-sm cursor-pointer transition-transform duration-300 hover:scale-105 mb-6 ${
+                  currentIndex === index ? "scale-110 shadow-lg" : "opacity-65"
+                }`}
+                onClick={() => setCurrentIndex(index)}
+              >
+                <Image
+                  src={img}
+                  alt={`Thumbnail ${index + 1}`}
+                  width={100}
+                  height={100}
+                  className="w-full h-full object-cover mb-8 mt-8"
+                />
+              </div>
+            ))}
+          </div>  
+        )}
+      </div>
     </div>
   );
 }

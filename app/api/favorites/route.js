@@ -61,14 +61,42 @@ export async function GET(request) {
       return NextResponse.json({ count });
     }
 
-    // Fetch all favorites for the user
+    // Fetch all favorites for the user with recipe details
     const favorites = await db
       .collection("favorites")
-      .find({ userEmail })
-      .sort({ created_at: -1 })
+      .aggregate([
+        {
+          $match: { userEmail },
+        },
+        {
+          $lookup: {
+            from: "recipes",
+            localField: "recipeId",
+            foreignField: "_id",
+            as: "recipeDetails",
+          },
+        },
+        {
+          $unwind: "$recipeDetails",
+        },
+        {
+          $project: {
+            recipeDetails: 1,
+            created_at: 1,
+          },
+        },
+        {
+          $sort: { created_at: -1 },
+        },
+      ])
       .toArray();
 
-    return NextResponse.json({ favorites });
+    return NextResponse.json({
+      favorites: favorites.map((fav) => ({
+        ...fav.recipeDetails,
+        favorited_at: fav.created_at,
+      })),
+    });
   } catch (error) {
     console.error("Error fetching favorites:", error);
     return NextResponse.json(
@@ -160,6 +188,7 @@ export async function DELETE(request) {
     const deleteResult = await db
       .collection("favorites")
       .deleteOne({ userEmail, recipeId });
+
     if (deleteResult.deletedCount === 0) {
       return NextResponse.json(
         { error: "Favorite not found" },
