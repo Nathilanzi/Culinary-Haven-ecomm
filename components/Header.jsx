@@ -329,20 +329,18 @@ const Header = () => {
                 Recipes
               </Link>
 
-              {session && (
-                <Link
-                  href="/favorites"
-                  className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
-                >
-                  <Heart className="mr-2 w-4 h-4" />
-                  Favorites
-                  {favoritesCount > 0 && (
-                    <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {favoritesCount}
-                    </span>
-                  )}
-                </Link>
-              )}
+              <Link
+                href="/favorites"
+                className="text-white relative flex items-center hover:text-teal-200 transition-colors duration-200 text-sm font-medium"
+              >
+                <Heart className="mr-2 w-4 h-4" />
+                Favorites
+                {favoritesCount > 0 && (
+                  <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {favoritesCount}
+                  </span>
+                )}
+              </Link>
 
               <div className="flex justify-center">
                 <Link
@@ -405,20 +403,18 @@ const Header = () => {
               Recipes
             </Link>
             <div className="flex ml-3">
-              {session && (
-                <Link
-                  href="/favorites"
-                  className="relative flex items-center text-white"
-                >
-                  <Heart className="mr-2 w-4 h-4" />
-                  Favorites
-                  {favoritesCount > 0 && (
-                    <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {favoritesCount}
-                    </span>
-                  )}
-                </Link>
-              )}
+              <Link
+                href="/favorites"
+                className="relative flex items-center text-white"
+              >
+                <Heart className="mr-2 w-4 h-4" />
+                Favorites
+                {favoritesCount > 0 && (
+                  <span className="absolute -top-2 -right-5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {favoritesCount}
+                  </span>
+                )}
+              </Link>
             </div>
             <Link
               href="/shopping-list"
