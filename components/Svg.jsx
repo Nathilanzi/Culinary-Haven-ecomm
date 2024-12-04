@@ -451,7 +451,7 @@ export const allergenSVGs = {
   mustard: (
     <svg
       fill="currentColor"
-      className="w-10 h-1 text-teal-700 dark:text-teal-400"
+      className="w-10 h-10 text-teal-700 dark:text-teal-400"
       version="1.1"
       id="Capa_1"
       viewBox="0 0 426 426"
