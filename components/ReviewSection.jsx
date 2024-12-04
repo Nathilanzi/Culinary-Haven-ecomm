@@ -341,6 +341,17 @@ function ReviewSection({ recipeId }) {
             </div>
           )}
 
+          {reviews.length === 0 && (
+            <div className="text-center py-3 bg-gray-50 rounded-xl dark:bg-slate-800/50">
+              <p className="text-gray-500 dark:text-gray-400">
+                No reviews yet.{" "}
+                {session
+                  ? "Be the first to review this recipe!"
+                  : "Sign in to be the first to review this recipe!"}
+              </p>
+            </div>
+          )}
+
           {session && canAddReview && !editingReviewId && (
             <div className="mb-8 p-6 bg-gray-50 rounded-xl shadow-sm dark:bg-slate-800/50">
               <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
@@ -534,17 +545,6 @@ function ReviewSection({ recipeId }) {
                 </div>
               </div>
             ))}
-
-            {reviews.length === 0 && (
-              <div className="text-center py-8 bg-gray-50 rounded-xl dark:bg-slate-800/50">
-                <p className="text-gray-500 dark:text-gray-400 mb-4">
-                  No reviews yet.{" "}
-                  {session
-                    ? "Be the first to review this recipe!"
-                    : "Sign in to be the first to review this recipe!"}
-                </p>
-              </div>
-            )}
           </div>
         </>
       )}
