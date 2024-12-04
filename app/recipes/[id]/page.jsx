@@ -245,8 +245,7 @@ export default async function RecipeDetail({ params }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 relative">
           {/* Image Gallery Section */}
           <div className="w-full lg:h-fit lg:sticky lg:top-20 lg:self-start">
-            {/* Updated classes */}
-            <div className="bg-white rounded-2xl p-2 shadow-sm overflow-hidden dark:bg-gray-800">
+            <div className="group relative bg-white rounded-2xl p-2 shadow-sm overflow-hidden dark:bg-gray-800">
               <ImageSelector images={recipe.images} />
             </div>
           </div>
