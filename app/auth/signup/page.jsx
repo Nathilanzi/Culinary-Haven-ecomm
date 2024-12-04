@@ -116,7 +116,7 @@ export default function SignUp() {
   const handleGoogleSignUp = () => {
     // Set loading state and initiate Google sign-in
     setLoading(true);
-    signIn("google", { callbackUrl: "/", redirect: true });
+    signIn("google", { callbackUrl: "/recipes", redirect: true });
   };
 
   // Render signup page
@@ -299,7 +299,7 @@ export default function SignUp() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-950 hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-950 dark:bg-teal-700 dark:hover:bg-teal-600 dark:focus:ring-teal-600"
+            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-800 hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-950 dark:bg-teal-700 dark:hover:bg-teal-600 dark:focus:ring-teal-600"
           >
             {loading ? "Creating account..." : "Create account"}
           </button>
@@ -310,7 +310,7 @@ export default function SignUp() {
           Already have an account?
           <Link
             href="/auth/signin"
-            className="font-medium ml-1 text-green-900 hover:text-green-800 dark:text-green-300 dark:hover:text-green-200"
+            className="font-medium ml-1 text-teal-800 hover:text-teal-900 dark:text-teal-700 dark:hover:text-teal-600"
           >
             Sign in
           </Link>

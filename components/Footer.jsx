@@ -1,3 +1,18 @@
+import Link from "next/link";
+
+/**
+ * Footer component that displays the footer section of the website.
+ *
+ * The footer includes:
+ * - Navigation links for "About Us", "Contact", and "Terms of Service"
+ * - Social media icons with links to Facebook, Twitter, and Instagram
+ * - Copyright information with the current year
+ * - A decorative border with a tagline "Crafted with passion for food lovers everywhere"
+ *
+ * The component uses Tailwind CSS for styling and is responsive, displaying a grid layout on larger screens and a single-column layout on smaller screens.
+ *
+ * @returns {JSX.Element} The rendered footer component.
+ */
 export default function Footer() {
   return (
     <footer className="bg-teal-800 dark:bg-teal-900 text-gray-100">
@@ -8,28 +23,28 @@ export default function Footer() {
           <nav className="flex justify-center md:justify-start">
             <ul className="flex flex-wrap gap-6 text-sm">
               <li>
-                <a
+                <Link
                   href="/about"
                   className="text-white hover:text-teal-200 transition-colors duration-200"
                 >
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/contact"
                   className="hover:text-[#6D9773] transition-colors duration-200"
                 >
                   Contact
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/terms"
                   className="hover:text-[#6D9773] transition-colors duration-200"
                 >
                   Terms of Service
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
@@ -88,17 +103,3 @@ export default function Footer() {
     </footer>
   );
 }
-
-/**
- * Footer component that displays the footer section of the website.
- *
- * The footer includes:
- * - Navigation links for "About Us", "Contact", and "Terms of Service"
- * - Social media icons with links to Facebook, Twitter, and Instagram
- * - Copyright information with the current year
- * - A decorative border with a tagline "Crafted with passion for food lovers everywhere"
- *
- * The component uses Tailwind CSS for styling and is responsive, displaying a grid layout on larger screens and a single-column layout on smaller screens.
- *
- * @returns {JSX.Element} The rendered footer component.
- */

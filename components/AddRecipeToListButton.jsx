@@ -14,7 +14,7 @@ import { ListPlus } from "lucide-react";
  * @param {string} props.shoppingListId - The ID of the shopping list to which ingredients will be added.
  * @returns {JSX.Element} The rendered button component.
  */
-const AddRecipeToListButton = ({ ingredients, shoppingListId }) => {
+const AddRecipeToListButton = ({ ingredients, shoppingListId, recipeName }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [notification, setNotification] = useState(null);
 
@@ -56,7 +56,7 @@ const AddRecipeToListButton = ({ ingredients, shoppingListId }) => {
         },
         body: JSON.stringify({
           items,
-          name: `Shopping List ${new Date().toLocaleDateString()}`,
+          name: `Shopping List for ${recipeName}`,
         }),
       });
 
@@ -99,9 +99,9 @@ const AddRecipeToListButton = ({ ingredients, shoppingListId }) => {
       <button
         onClick={addIngredientsToList}
         disabled={isLoading}
-        className="flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
+        className="flex items-center px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
       >
-        <ListPlus className="w-4 h-4 mr-2" />
+        <ListPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
         {isLoading ? "Adding..." : "Add All to Shopping List"}
       </button>
 

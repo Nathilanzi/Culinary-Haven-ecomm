@@ -37,25 +37,66 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url);
     const action = searchParams.get("action");
+    const recipeId = searchParams.get("recipeId");
     const userEmail = session.user.email;
 
     const client = await clientPromise;
     const db = client.db("devdb");
     await ensureFavoritesCollection(db);
 
+    // Check if specific recipe is favorited
+    if (recipeId) {
+      const favorite = await db.collection("favorites").findOne({
+        userEmail,
+        recipeId,
+      });
+      return NextResponse.json({ isFavorited: !!favorite });
+    }
+
+    // Count favorites
     if (action === "count") {
       const count = await db
         .collection("favorites")
         .countDocuments({ userEmail });
       return NextResponse.json({ count });
-    } else {
-      const favorites = await db
-        .collection("favorites")
-        .find({ userEmail })
-        .sort({ created_at: -1 })
-        .toArray();
-      return NextResponse.json({ favorites });
     }
+
+    // Fetch all favorites for the user with recipe details
+    const favorites = await db
+      .collection("favorites")
+      .aggregate([
+        {
+          $match: { userEmail },
+        },
+        {
+          $lookup: {
+            from: "recipes",
+            localField: "recipeId",
+            foreignField: "_id",
+            as: "recipeDetails",
+          },
+        },
+        {
+          $unwind: "$recipeDetails",
+        },
+        {
+          $project: {
+            recipeDetails: 1,
+            created_at: 1,
+          },
+        },
+        {
+          $sort: { created_at: -1 },
+        },
+      ])
+      .toArray();
+
+    return NextResponse.json({
+      favorites: favorites.map((fav) => ({
+        ...fav.recipeDetails,
+        favorited_at: fav.created_at,
+      })),
+    });
   } catch (error) {
     console.error("Error fetching favorites:", error);
     return NextResponse.json(
@@ -92,11 +133,17 @@ export async function POST(request) {
       );
     }
 
-    await db.collection("favorites").insertOne({
-      userEmail,
-      recipeId,
-      created_at: new Date(),
-    });
+    await db.collection("favorites").updateOne(
+      { userEmail, recipeId },
+      {
+        $setOnInsert: {
+          userEmail,
+          recipeId,
+          created_at: new Date(),
+        },
+      },
+      { upsert: true }
+    );
 
     return NextResponse.json({ message: "Recipe added to favorites" });
   } catch (error) {
@@ -141,6 +188,7 @@ export async function DELETE(request) {
     const deleteResult = await db
       .collection("favorites")
       .deleteOne({ userEmail, recipeId });
+
     if (deleteResult.deletedCount === 0) {
       return NextResponse.json(
         { error: "Favorite not found" },

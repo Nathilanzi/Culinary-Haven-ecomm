@@ -23,7 +23,7 @@ export default function SignIn() {
   const searchParams = useSearchParams(); // URL search parameters
 
   // Get callback URL or default to root
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const callbackUrl = searchParams.get("callbackUrl") || "/recipes";
 
   // State management for form and authentication
   const [loading, setLoading] = useState(false); // Loading state during sign-in
@@ -79,6 +79,7 @@ export default function SignIn() {
         redirect: false,
         email: formData.email,
         password: formData.password,
+        callbackUrl,
       });
 
       if (result?.error) {
@@ -89,19 +90,8 @@ export default function SignIn() {
           message: "Invalid email or password. Please try again.",
           type: "error",
         });
-      } else {
-        // Successful sign-in
-        setAlert({
-          show: true,
-          message: "Successfully logged in! Redirecting...",
-          type: "success",
-        });
-
-        // Redirect after a short delay
-        setTimeout(() => {
-          router.push(callbackUrl);
-          router.refresh();
-        }, 3000);
+      } else if (result?.url) {
+        router.push(result.url); // Redirect to the callback URL
       }
     } catch (error) {
       // Handle unexpected errors
@@ -121,6 +111,14 @@ export default function SignIn() {
     setLoading(true); // Set loading state
     signIn("google", { callbackUrl, redirect: true }); // Initiate Google OAuth
   };
+
+  useEffect(() => {
+    if (status === "authenticated" && session) {
+      router.push(callbackUrl); // Redirect directly
+    } else if (status === "unauthenticated") {
+      router.refresh(); // Refresh to force the session update
+    }
+  }, [session, status, router, callbackUrl]);
 
   // Loading state render
   if (status === "loading") {
@@ -272,7 +270,7 @@ export default function SignIn() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-950 hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-950 dark:bg-teal-700 dark:hover:bg-teal-600 dark:focus:ring-teal-600"
+            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-800 hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-950 dark:bg-teal-700 dark:hover:bg-teal-600 dark:focus:ring-teal-600"
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>
@@ -283,7 +281,7 @@ export default function SignIn() {
           Don&apos;t have an account?
           <Link
             href="/auth/signup"
-            className="font-medium ml-1 text-green-900 hover:text-green-800 dark:text-green-300 dark:hover:text-green-200"
+            className="font-medium ml-1 text-teal-800 hover:text-teal-900 dark:text-teal-700 dark:hover:text-teal-600"
           >
             Create account
           </Link>

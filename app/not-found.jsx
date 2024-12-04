@@ -53,7 +53,7 @@ export default function NotFoundPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 p-4 overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 overflow-hidden">
       <motion.div
         className="text-center max-w-md w-full relative"
         variants={containerVariants}
@@ -75,7 +75,7 @@ export default function NotFoundPage() {
           animate="animate"
         >
           <Search
-            className="text-teal-400 opacity-30"
+            className="text-teal-400 dark:text-teal-300 opacity-30"
             size={120}
             strokeWidth={1}
           />
@@ -83,13 +83,16 @@ export default function NotFoundPage() {
 
         {/* Error Message */}
         <motion.h2
-          className="text-3xl font-semibold text-gray-800 mb-4"
+          className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4"
           variants={itemVariants}
         >
           Page Not Found
         </motion.h2>
 
-        <motion.p className="text-gray-600 mb-8" variants={itemVariants}>
+        <motion.p
+          className="text-gray-600 dark:text-gray-200 mb-8"
+          variants={itemVariants}
+        >
           Looks like you've wandered into uncharted territory. The page you're
           searching for might have been moved or doesn't exist.
         </motion.p>

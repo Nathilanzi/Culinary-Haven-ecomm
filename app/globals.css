@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: #f1f5f9; /* Slate-100 for light mode */
+  --background: #ffffff; /* Slate-100 for light mode */
   --foreground: #0C3B2E; /* Dark green for text */
   --card-bg: #ffffff; /* White for card background */
   --navbar-bg: #2563eb; /* Teal-800 for light mode */

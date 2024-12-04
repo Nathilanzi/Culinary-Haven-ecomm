@@ -105,7 +105,7 @@ export default function Pagination({
         className={`relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 text-xs sm:text-sm font-medium transition-all duration-200 
         ${
           page === 1
-            ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
+            ? "bg-teal-600 text-white shadow-lg shadow-emerald-500/30"
             : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-700"
         } 
         ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
@@ -144,7 +144,7 @@ export default function Pagination({
           className={`relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 text-xs sm:text-sm font-medium transition-all duration-200 
           ${
             page === i
-              ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
+              ? "bg-teal-600 text-white shadow-lg shadow-emerald-500/30"
               : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-700"
           } 
           ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
@@ -179,7 +179,7 @@ export default function Pagination({
           className={`relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 text-xs sm:text-sm font-medium transition-all duration-200 
           ${
             page === totalPages
-              ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30"
+              ? "bg-teal-600 text-white shadow-lg shadow-emerald-500/30"
               : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-700"
           } 
           ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
@@ -209,7 +209,7 @@ export default function Pagination({
           ${
             page === 1 || isLoading
               ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-              : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-500"
+              : "bg-slate-300 hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-600"
           } 
           rounded-lg border border-gray-200 dark:border-gray-800 hover:border-emerald-300 hover:shadow-md`}
           aria-label="Go to previous page"
@@ -240,7 +240,7 @@ export default function Pagination({
           ${
             page === totalPages || isLoading
               ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-              : "bg-white hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-500"
+              : "bg-slate-300 hover:bg-gray-50 text-gray-700 dark:hover:text-emerald-500 dark:text-white dark:bg-gray-600"
           } 
           rounded-lg border border-gray-200 dark:border-gray-800 hover:border-emerald-300 hover:shadow-md`}
           aria-label="Go to next page"

@@ -110,7 +110,7 @@ export default function SortOrder({ currentSort, currentOrder }) {
 
     // Update state and navigate
     setSelectedSort(tempSort);
-    router.push(`/?${params.toString()}`);
+    router.push(`/recipes/?${params.toString()}`);
     setIsOpen(false);
   };
 
