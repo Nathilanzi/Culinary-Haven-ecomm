@@ -201,16 +201,16 @@ const RecipeEdit = ({ recipe }) => {
       )}
 
       {!session && (
-        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded dark:bg-yellow-900/50 dark:border-yellow-800">
-          <p className="dark:text-gray-300">
+        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg dark:bg-yellow-900/20 dark:border-yellow-800">
+          <p className="text-gray-700 dark:text-gray-300">
             Please{" "}
             <button
               onClick={() => signIn()}
-              className="flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
+              className="text-teal-600 hover:underline dark:text-teal-400"
             >
               sign in
             </button>{" "}
-            to edit the recipe.
+            to edit the recipe description.
           </p>
         </div>
       )}
