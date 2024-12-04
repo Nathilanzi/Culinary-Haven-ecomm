@@ -79,6 +79,7 @@ export default function SignIn() {
         redirect: false,
         email: formData.email,
         password: formData.password,
+        callbackUrl,
       });
 
       if (result?.error) {
@@ -89,19 +90,8 @@ export default function SignIn() {
           message: "Invalid email or password. Please try again.",
           type: "error",
         });
-      } else {
-        // Successful sign-in
-        setAlert({
-          show: true,
-          message: "Successfully logged in! Redirecting...",
-          type: "success",
-        });
-
-        // Redirect after a short delay
-        setTimeout(() => {
-          router.push(callbackUrl);
-          router.refresh();
-        }, 3000);
+      } else if (result?.url) {
+        router.push(result.url); // Redirect to the callback URL
       }
     } catch (error) {
       // Handle unexpected errors
@@ -121,6 +111,14 @@ export default function SignIn() {
     setLoading(true); // Set loading state
     signIn("google", { callbackUrl, redirect: true }); // Initiate Google OAuth
   };
+
+  useEffect(() => {
+    if (status === "authenticated" && session) {
+      router.push(callbackUrl); // Redirect directly
+    } else if (status === "unauthenticated") {
+      router.refresh(); // Refresh to force the session update
+    }
+  }, [session, status, router, callbackUrl]);
 
   // Loading state render
   if (status === "loading") {
@@ -283,7 +281,7 @@ export default function SignIn() {
           Don&apos;t have an account?
           <Link
             href="/auth/signup"
-            className="font-medium ml-1 text-teal-600 hover:text-teal-800 dark:text-green-300 dark:hover:text-green-200"
+            className="font-medium ml-1 text-teal-800 hover:text-teal-900 dark:text-teal-700 dark:hover:text-teal-600"
           >
             Create account
           </Link>
