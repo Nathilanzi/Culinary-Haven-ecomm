@@ -81,14 +81,6 @@ export default function RecipeCard({
     };
   }, [recipe]);
 
-  // Check favorite status on component mount
-  useEffect(() => {
-    const storedFavorite = localStorage.getItem(`favorite_${recipe._id}`);
-    if (storedFavorite !== null) {
-      setIsFavorited(JSON.parse(storedFavorite));
-    }
-  }, [recipe._id]);
-
   /**
    * Handles the favorite toggle action and shows appropriate alert
    * @param {boolean} success - Whether the favorite toggle was successful
@@ -114,9 +106,7 @@ export default function RecipeCard({
     try {
       const response = await fetch("/api/favorites", {
         method: forceRemove || isFavorited ? "DELETE" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ recipeId: recipe._id }),
       });
 
