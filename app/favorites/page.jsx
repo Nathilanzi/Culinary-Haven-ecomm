@@ -88,7 +88,9 @@ export default function Favorites() {
                 key={recipe._id}
                 recipe={recipe}
                 initialIsFavorited={true}
-                additionalInfo={`Added: ${new Date(recipe.favorited_at).toLocaleDateString()}`}
+                additionalInfo={`Added: ${new Date(
+                  recipe.favorited_at
+                ).toLocaleDateString()}`}
               />
             ))}
           </div>

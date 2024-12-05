@@ -115,14 +115,14 @@ export default async function Home({ searchParams: rawSearchParams }) {
   const tags = Array.isArray(searchParams["tags[]"])
     ? searchParams["tags[]"]
     : searchParams["tags[]"]
-      ? [searchParams["tags[]"]]
-      : [];
+    ? [searchParams["tags[]"]]
+    : [];
 
   const ingredients = Array.isArray(searchParams["ingredients[]"])
     ? searchParams["ingredients[]"]
     : searchParams["ingredients[]"]
-      ? [searchParams["ingredients[]"]]
-      : [];
+    ? [searchParams["ingredients[]"]]
+    : [];
 
   // Fetch all data concurrently
   const [recipesData, categories, availableTags, availableIngredients] =

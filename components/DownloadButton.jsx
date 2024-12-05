@@ -60,10 +60,11 @@ export default function DownloadButton({ recipe, onAlert }) {
   const handleDownload = async () => {
     // Early validation check
     if (!recipe) {
-      onAlert && onAlert({
-        message: "No recipe data available",
-        type: "error"
-      });
+      onAlert &&
+        onAlert({
+          message: "No recipe data available",
+          type: "error",
+        });
       return;
     }
 
@@ -95,25 +96,28 @@ export default function DownloadButton({ recipe, onAlert }) {
           recipeToSave.version
         ) {
           downloadedRecipes[existingRecipeIndex] = recipeToSave;
-          onAlert && onAlert({
-            message: "Recipe updated to latest version",
-            type: "info"
-          });
+          onAlert &&
+            onAlert({
+              message: "Recipe updated to latest version",
+              type: "info",
+            });
         } else {
-          onAlert && onAlert({
-            message: "Recipe already saved!",
-            type: "warning"
-          });
+          onAlert &&
+            onAlert({
+              message: "Recipe already saved!",
+              type: "warning",
+            });
           setIsSyncing(false);
           return;
         }
       } else {
         // Add new recipe
         downloadedRecipes.push(recipeToSave);
-        onAlert && onAlert({
-          message: "Recipe saved successfully!",
-          type: "success"
-        });
+        onAlert &&
+          onAlert({
+            message: "Recipe saved successfully!",
+            type: "success",
+          });
       }
 
       // Save updated recipes to local storage
@@ -132,10 +136,11 @@ export default function DownloadButton({ recipe, onAlert }) {
       window.dispatchEvent(new Event("recipesDownloaded"));
     } catch (error) {
       console.error("Error saving recipe:", error);
-      onAlert && onAlert({
-        message: "Failed to save recipe. Please try again.",
-        type: "error"
-      });
+      onAlert &&
+        onAlert({
+          message: "Failed to save recipe. Please try again.",
+          type: "error",
+        });
     } finally {
       setIsSyncing(false);
     }
