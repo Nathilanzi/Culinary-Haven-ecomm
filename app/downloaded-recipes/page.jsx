@@ -93,7 +93,7 @@ const DownloadedRecipesPage = () => {
             setSearchTerm(e.target.value);
             setCurrentPage(1); // Reset to first page on new search
           }}
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 dark:text-black"
         />
       </div>
 
