@@ -12,12 +12,14 @@ import {
   Share2,
   PlusCircle,
   NotebookPen,
+  Undo2,
 } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import LoadingPage from "../loading";
 import { motion, AnimatePresence } from "framer-motion";
 import { getIngredientUnit } from "@/components/IngredientUnit";
 import Alert from "@/components/Alert";
+import ConfirmationModal from "@/components/ConfirmationModal";
 
 /**
  * Shopping List Page Component
@@ -51,13 +53,19 @@ export default function ShoppingListPage() {
   const [addingManualItem, setAddingManualItem] = useState(null);
 
   // UI interaction states
-  const [isPanelOpen, setIsPanelOpen] = useState(false); // Side panel open state
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+
+  // Confirmation and undo states
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [listToDelete, setListToDelete] = useState(null);
+  const [undoItem, setUndoItem] = useState(null);
+  const [undoTimer, setUndoTimer] = useState(null);
 
   // Alert state for user notifications
   const [alert, setAlert] = useState({
-    isVisible: false, // Whether alert is shown
-    message: "", // Alert message
-    type: "success", // Alert type (success/error)
+    isVisible: false,
+    message: "",
+    type: "success",
   });
 
   /**
@@ -67,7 +75,6 @@ export default function ShoppingListPage() {
    * @param {string} [type='success'] - Type of alert (success/error)
    */
   const showAlert = (message, type = "success") => {
-    // Update alert state to make it visible
     setAlert({
       isVisible: true,
       message,
@@ -83,87 +90,45 @@ export default function ShoppingListPage() {
    */
   const fetchLists = async () => {
     try {
-      // Set loading state and reset error
       setLoading(true);
-
-      // Fetch shopping lists for the current user
       const response = await fetch("/api/shopping-list", {
         headers: {
           "user-id": session.user.id,
         },
       });
 
-      // Check if response is successful
       if (!response.ok) throw new Error("Failed to fetch shopping lists");
 
-      // Parse and set lists
       const data = await response.json();
       setLists(data);
     } catch (error) {
-      // Handle fetch error
       setError("Error fetching shopping lists: " + error.message);
       showAlert("Failed to fetch shopping lists", "error");
     } finally {
-      // Ensure loading state is turned off
       setLoading(false);
     }
   };
 
-  // Initial data fetch and authentication check
-  useEffect(() => {
-    // Redirect to signin if no session
-    if (!session) {
-      router.push("/auth/signin");
-      return;
-    }
-
-    // Fetch user's shopping lists
-    fetchLists();
-  }, [session, router]);
-
   /**
-   * Removes a specific item from a shopping list
+   * Initiates the delete list process with confirmation
    *
-   * @param {string} id - ID of the shopping list
-   * @param {number} index - Index of the item to remove
-   * @async
+   * @param {string} id - ID of the shopping list to delete
    */
-  const removeItem = async (id, index) => {
-    try {
-      // Set removing state for UI feedback
-      setRemovingItem({ id, index });
-
-      // Send delete request to server
-      const response = await fetch(`/api/shopping-list/${id}/items`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "user-id": session.user.id,
-        },
-        body: JSON.stringify({ index }),
-      });
-
-      // Check if response is successful
-      if (!response.ok) throw new Error("Failed to remove item");
-
-      // Refresh lists and show success alert
-      fetchLists();
-      showAlert("Item removed successfully!");
-    } catch (error) {
-      // Handle removal error
-      setError("Error removing item: " + error.message);
-      showAlert("Failed to remove item", "error");
-    } finally {
-      // Reset removing state
-      setRemovingItem({ id: null, index: null });
-    }
+  const confirmDeleteList = (id) => {
+    setListToDelete(id);
+    setShowDeleteConfirmation(true);
   };
 
-  const deleteList = async (id) => {
-    try {
-      setDeleting((prev) => ({ ...prev, [id]: true }));
+  /**
+   * Handles the confirmed deletion of a shopping list
+   */
+  const handleConfirmedDelete = async () => {
+    if (!listToDelete) return;
 
-      const response = await fetch(`/api/shopping-list/${id}`, {
+    try {
+      setDeleting((prev) => ({ ...prev, [listToDelete]: true }));
+
+      const response = await fetch(`/api/shopping-list/${listToDelete}`, {
         method: "DELETE",
         headers: {
           "user-id": session.user.id,
@@ -173,14 +138,111 @@ export default function ShoppingListPage() {
       if (!response.ok) throw new Error("Failed to delete shopping list");
 
       fetchLists();
+      showAlert("Shopping list deleted successfully!");
     } catch (error) {
       setError("Error deleting list: " + error.message);
-      alert("Failed to delete shopping list");
+      showAlert("Failed to delete shopping list", "error");
     } finally {
-      setDeleting((prev) => ({ ...prev, [id]: false }));
+      setDeleting((prev) => ({ ...prev, [listToDelete]: false }));
+      setShowDeleteConfirmation(false);
+      setListToDelete(null);
     }
   };
 
+  /**
+   * Removes a specific item from a shopping list with undo functionality
+   *
+   * @param {string} id - ID of the shopping list
+   * @param {number} index - Index of the item to remove
+   * @async
+   */
+  const removeItem = async (id, index) => {
+    try {
+      setRemovingItem({ id, index });
+
+      const list = lists.find((l) => l._id === id);
+      const removedItem = list.items[index];
+
+      const response = await fetch(`/api/shopping-list/${id}/items`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "user-id": session.user.id,
+        },
+        body: JSON.stringify({ index }),
+      });
+
+      if (!response.ok) throw new Error("Failed to remove item");
+
+      setUndoItem({ listId: id, item: removedItem, index });
+
+      if (undoTimer) clearTimeout(undoTimer);
+
+      const timer = setTimeout(() => {
+        setUndoItem(null);
+      }, 10000);
+
+      setUndoTimer(timer);
+
+      fetchLists();
+      showAlert("Item removed. Undo available for 10 seconds.");
+    } catch (error) {
+      setError("Error removing item: " + error.message);
+      showAlert("Failed to remove item", "error");
+    } finally {
+      setRemovingItem({ id: null, index: null });
+    }
+  };
+
+  /**
+   * Undoes the last item removal
+   */
+  const undoItemRemoval = async () => {
+    if (!undoItem) return;
+
+    try {
+      const { listId, item, index } = undoItem;
+      const list = lists.find((l) => l._id === listId);
+
+      if (!list) {
+        throw new Error("List not found");
+      }
+
+      const updatedItems = [...list.items];
+      updatedItems.splice(index, 0, item);
+
+      const response = await fetch(
+        `/api/shopping-list/${listId}`, // Fixed: using listId instead of id
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "user-id": session.user.id,
+          },
+          body: JSON.stringify({ items: updatedItems }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to undo item removal");
+
+      if (undoTimer) clearTimeout(undoTimer);
+      setUndoTimer(null);
+      setUndoItem(null);
+
+      fetchLists();
+      showAlert("Item restored successfully!");
+    } catch (error) {
+      setError("Error restoring item: " + error.message);
+      showAlert("Failed to restore item", "error");
+    }
+  };
+
+  /**
+   * Marks an item as purchased or not purchased
+   *
+   * @param {string} id - ID of the shopping list
+   * @param {number} itemIndex - Index of the item to mark
+   */
   const markAsPurchased = async (id, itemIndex) => {
     try {
       const list = lists.find((l) => l._id === id);
@@ -208,6 +270,13 @@ export default function ShoppingListPage() {
     }
   };
 
+  /**
+   * Updates the quantity of an item in a shopping list
+   *
+   * @param {string} id - ID of the shopping list
+   * @param {number} index - Index of the item to update
+   * @param {number} newQuantity - New quantity for the item
+   */
   const updateQuantity = async (id, index, newQuantity) => {
     try {
       setUpdatingQuantity({ id, index });
@@ -238,7 +307,12 @@ export default function ShoppingListPage() {
     }
   };
 
-  // Function to generate the WhatsApp sharing link
+  /**
+   * Generates a WhatsApp sharing link for a shopping list
+   *
+   * @param {Object} list - The shopping list to share
+   * @returns {string} WhatsApp sharing URL
+   */
   const generateWhatsAppLink = (list) => {
     const listText = list.items
       .map(
@@ -253,6 +327,9 @@ export default function ShoppingListPage() {
     return `https://wa.me/?text=${message}`;
   };
 
+  /**
+   * Creates a new shopping list
+   */
   const createShoppingList = async () => {
     if (!session) {
       alert("Please sign in to create a shopping list");
@@ -278,34 +355,20 @@ export default function ShoppingListPage() {
 
       setNewListName("");
       fetchLists();
-      alert("Shopping list created successfully!");
+      showAlert("Shopping list created successfully!");
     } catch (error) {
       console.error("Error creating shopping list:", error);
-      alert("Failed to create shopping list");
+      showAlert("Failed to create shopping list", "error");
     } finally {
       setCreatingList(false);
     }
   };
 
-  useEffect(() => {
-    if (!session) {
-      router.push("/auth/signin");
-      return;
-    }
-
-    fetchLists();
-  }, [session, router]);
-
-  // Loading state
-  if (loading) return <LoadingPage />;
-
-  // Error state
-  if (error)
-    return <div className="text-center mt-8 text-red-500">{error}</div>;
-
-  // Ensure session exists (redundant with useEffect, but added for type safety)
-  if (!session) return null;
-
+  /**
+   * Adds a manual item to a shopping list
+   *
+   * @param {string} id - ID of the shopping list
+   */
   const addManualItem = async (id) => {
     if (!newItemIngredient.trim()) {
       alert("Please enter an item name");
@@ -336,22 +399,72 @@ export default function ShoppingListPage() {
 
       if (!response.ok) throw new Error("Failed to add manual item");
 
-      // Reset input fields
       setNewItemIngredient("");
       setNewItemAmount(1);
 
-      // Refresh lists
       fetchLists();
     } catch (error) {
       setError("Error adding manual item: " + error.message);
-      alert("Failed to add item to shopping list");
+      showAlert("Failed to add item to shopping list", "error");
     } finally {
       setAddingManualItem(null);
     }
   };
 
+  // Initial data fetch and authentication check
+  useEffect(() => {
+    if (!session) {
+      router.push("/auth/signin");
+      return;
+    }
+
+    fetchLists();
+  }, [session, router]);
+
+  // Loading state
+  if (loading) return <LoadingPage />;
+
+  // Error state
+  if (error)
+    return <div className="text-center mt-8 text-red-500">{error}</div>;
+
+  // Ensure session exists (redundant with useEffect, but added for type safety)
+  if (!session) return null;
+
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
+      {/* Confirmation Modal for List Deletion */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onConfirm={handleConfirmedDelete}
+        title="Delete Shopping List"
+        message="Are you sure you want to delete this shopping list? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
+
+      {/* Undo Item Removal Banner */}
+      {undoItem && (
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 100, opacity: 0 }}
+          className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 flex flex-col items-center space-y-2"
+        >
+          <span className="text-sm text-center">
+            Removed: {undoItem.item.amount} {undoItem.item.ingredient}
+          </span>
+          <button
+            onClick={undoItemRemoval}
+            className="flex items-center space-x-2 text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300"
+          >
+            <Undo2 className="w-5 h-5" />
+            <span>Undo</span>
+          </button>
+        </motion.div>
+      )}
+
       {/* Alert component */}
       <Alert
         message={alert.message}
@@ -359,6 +472,7 @@ export default function ShoppingListPage() {
         isVisible={alert.isVisible}
         onClose={() => setAlert({ ...alert, isVisible: false })}
       />
+
       {/* Fixed position back button */}
       <div className="absolute top-2 -left-[5rem] z-10">
         <BackButton className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-2 hover:bg-white transition-colors dark:bg-gray-800 dark:hover:bg-gray-700" />
@@ -494,7 +608,7 @@ export default function ShoppingListPage() {
                         <Share2 className="w-5 h-5" />
                       </a>
                       <button
-                        onClick={() => deleteList(list._id)}
+                        onClick={() => confirmDeleteList(list._id)}
                         disabled={deleting[list._id]}
                         className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50 transition-colors"
                       >
