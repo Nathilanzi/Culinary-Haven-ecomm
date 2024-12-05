@@ -75,14 +75,6 @@ export default function RecipeCard({
     }
   }, [recipe]);
 
-  // Check favorite status on component mount
-  useEffect(() => {
-    const storedFavorite = localStorage.getItem(`favorite_${recipe._id}`);
-    if (storedFavorite !== null) {
-      setIsFavorited(JSON.parse(storedFavorite));
-    }
-  }, [recipe._id]);
-
   /**
    * Handles the favorite toggle action and shows appropriate alert
    * @param {boolean} success - Whether the favorite toggle was successful
@@ -108,9 +100,7 @@ export default function RecipeCard({
     try {
       const response = await fetch("/api/favorites", {
         method: forceRemove || isFavorited ? "DELETE" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ recipeId: recipe._id }),
       });
 
@@ -196,7 +186,14 @@ export default function RecipeCard({
 
           {/* Favorites and Download Buttons */}
           <div className="absolute top-2 right-1 left-1 z-10 flex justify-between">
-            <DownloadButton recipe={recipe} />
+            <DownloadButton
+              recipe={recipe}
+              onAlert={(alertInfo) => {
+                setAlertMessage(alertInfo.message);
+                setAlertType(alertInfo.type);
+                setShowAlert(true);
+              }}
+            />
             <button
               onClick={handleFavoriteClick}
               className="flex items-center space-x-2 p-2 rounded-full bg-white bg-opacity-75 hover:bg-opacity-100 transition-all duration-300"
@@ -205,7 +202,9 @@ export default function RecipeCard({
               }
             >
               <svg
-                className={`w-6 h-6 ${isFavorited ? "text-red-500" : "text-gray-400"}`}
+                className={`w-6 h-6 ${
+                  isFavorited ? "text-red-500" : "text-gray-400"
+                }`}
                 fill={isFavorited ? "currentColor" : "none"}
                 viewBox="0 0 24 24"
                 stroke="currentColor"
