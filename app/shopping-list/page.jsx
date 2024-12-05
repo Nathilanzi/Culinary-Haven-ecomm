@@ -199,19 +199,20 @@ export default function ShoppingListPage() {
    */
   const undoItemRemoval = async () => {
     if (!undoItem) return;
-  
+
     try {
       const { listId, item, index } = undoItem;
       const list = lists.find((l) => l._id === listId);
-      
+
       if (!list) {
         throw new Error("List not found");
       }
-  
+
       const updatedItems = [...list.items];
       updatedItems.splice(index, 0, item);
-  
-      const response = await fetch(`/api/shopping-list/${listId}`, // Fixed: using listId instead of id
+
+      const response = await fetch(
+        `/api/shopping-list/${listId}`, // Fixed: using listId instead of id
         {
           method: "PATCH",
           headers: {
@@ -221,13 +222,13 @@ export default function ShoppingListPage() {
           body: JSON.stringify({ items: updatedItems }),
         }
       );
-  
+
       if (!response.ok) throw new Error("Failed to undo item removal");
-  
+
       if (undoTimer) clearTimeout(undoTimer);
       setUndoTimer(null);
       setUndoItem(null);
-  
+
       fetchLists();
       showAlert("Item restored successfully!");
     } catch (error) {
@@ -432,8 +433,8 @@ export default function ShoppingListPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
-            {/* Confirmation Modal for List Deletion */}
-            <ConfirmationModal
+      {/* Confirmation Modal for List Deletion */}
+      <ConfirmationModal
         isOpen={showDeleteConfirmation}
         onClose={() => setShowDeleteConfirmation(false)}
         onConfirm={handleConfirmedDelete}
@@ -463,7 +464,6 @@ export default function ShoppingListPage() {
           </button>
         </motion.div>
       )}
-
 
       {/* Alert component */}
       <Alert
@@ -640,14 +640,14 @@ export default function ShoppingListPage() {
                       className="flex-grow px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-emerald-500"
                     />
                     <button
-                      onClick={() => confirmDeleteList(list._id)}
-                      disabled={deleting[list._id]}
-                      className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50 transition-colors"
+                      onClick={() => addManualItem(list._id)}
+                      disabled={addingManualItem === list._id}
+                      className="text-emerald-500 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-300 disabled:opacity-50 transition-colors"
                     >
-                      {deleting[list._id] ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                      {addingManualItem === list._id ? (
+                        <Loader2 className="w-6 h-6 animate-spin" />
                       ) : (
-                        <Trash2 className="w-5 h-5" />
+                        <PlusCircle className="w-6 h-6" />
                       )}
                     </button>
                   </div>
