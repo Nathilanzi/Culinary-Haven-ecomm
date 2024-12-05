@@ -1,3 +1,8 @@
+/**
+ * @file DownloadedRecipesPage Component
+ * @description A React component for managing and displaying a list of downloaded recipes with search, pagination, and delete functionality. The component utilizes offline storage to cache recipes and notify users about offline status.
+ */
+
 "use client";
 
 import { useState, useMemo } from "react";
@@ -8,13 +13,17 @@ import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
 import { useOfflineStorage } from "@/app/hooks/useOfflineStorage";
 
+/**
+ * DownloadedRecipesPage Component
+ * @returns {JSX.Element} The main page for managing downloaded recipes.
+ */
 const DownloadedRecipesPage = () => {
-  const { 
-    data: recipes, 
-    setData: setRecipes, 
-    filterData, 
-    isOffline 
-  } = useOfflineStorage('downloadedRecipes', []);
+  const {
+    data: recipes,
+    setData: setRecipes,
+    filterData,
+    isOffline,
+  } = useOfflineStorage("downloadedRecipes", []);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,33 +32,41 @@ const DownloadedRecipesPage = () => {
     recipeId: null,
   });
 
-  // Memoized filtered and paginated recipes
+  /**
+   * Process recipes to apply search filtering and pagination.
+   * @returns {Object} Processed recipes and total pages.
+   */
   const processedRecipes = useMemo(() => {
-    // First, filter based on search term
-    const filteredRecipes = filterData(recipe => 
-      recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (Array.isArray(recipe.ingredients) &&
-        recipe.ingredients.some(ing => 
-          ing.toLowerCase().includes(searchTerm.toLowerCase())
-        ))
+    // Filter recipes based on the search term.
+    const filteredRecipes = filterData(
+      (recipe) =>
+        recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (Array.isArray(recipe.ingredients) &&
+          recipe.ingredients.some((ing) =>
+            ing.toLowerCase().includes(searchTerm.toLowerCase())
+          ))
     );
 
-    // Then paginate
+    // Paginate the filtered recipes.
     const recipesPerPage = 6;
     const startIndex = (currentPage - 1) * recipesPerPage;
     const paginatedRecipes = filteredRecipes.slice(
-      startIndex, 
+      startIndex,
       startIndex + recipesPerPage
     );
 
     return {
       recipes: paginatedRecipes,
-      totalPages: Math.ceil(filteredRecipes.length / recipesPerPage)
+      totalPages: Math.ceil(filteredRecipes.length / recipesPerPage),
     };
   }, [recipes, searchTerm, currentPage]);
 
+  /**
+   * Handle the deletion of a recipe.
+   * @param {string} recipeId - The ID of the recipe to delete.
+   */
   const handleDelete = (recipeId) => {
-    const updatedRecipes = recipes.filter(recipe => recipe.id !== recipeId);
+    const updatedRecipes = recipes.filter((recipe) => recipe.id !== recipeId);
     setRecipes(updatedRecipes);
     toast.success("Recipe deleted successfully");
     setDeleteConfirmation({ isOpen: false, recipeId: null });
@@ -85,13 +102,13 @@ const DownloadedRecipesPage = () => {
 
       {/* Search Input */}
       <div className="mb-6">
-        <input 
+        <input
           type="text"
           placeholder="Search recipes..."
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
-            setCurrentPage(1); // Reset to first page on new search
+            setCurrentPage(1);
           }}
           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 dark:text-black"
         />
@@ -114,10 +131,9 @@ const DownloadedRecipesPage = () => {
             />
           </svg>
           <p className="text-gray-500 dark:text-gray-400">
-            {searchTerm 
-              ? "No recipes match your search" 
-              : "You haven't downloaded any recipes yet. Start by downloading one!"
-            }
+            {searchTerm
+              ? "No recipes match your search"
+              : "You haven't downloaded any recipes yet. Start by downloading one!"}
           </p>
         </div>
       ) : (
@@ -126,10 +142,10 @@ const DownloadedRecipesPage = () => {
             <div key={recipe.id} className="relative group">
               <RecipeCard recipe={recipe} />
               <button
-                onClick={() => 
-                  setDeleteConfirmation({ 
-                    isOpen: true, 
-                    recipeId: recipe.id 
+                onClick={() =>
+                  setDeleteConfirmation({
+                    isOpen: true,
+                    recipeId: recipe.id,
                   })
                 }
                 className="absolute top-2 left-1/2 -translate-x-1/2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 will-change-opacity transition-opacity duration-150 ease-in-out hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
