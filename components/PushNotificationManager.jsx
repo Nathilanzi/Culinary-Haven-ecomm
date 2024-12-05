@@ -14,9 +14,7 @@ const urlBase64ToUint8Array = (base64String) => {
   // Add padding to the base64 string if necessary
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   // Replace URL-safe characters with standard base64 characters
-  const base64 = (base64String + padding)
-    .replace(/-/g, "+")
-    .replace(/_/g, "/");
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
 
   // Decode the base64 string to raw binary data
   const rawData = window.atob(base64);
@@ -110,8 +108,9 @@ export default function PushNotificationManager() {
     async function registerPushNotifications() {
       try {
         // Register the service worker
-        const registration =
-          await navigator.serviceWorker.register("/service-worker.js");
+        const registration = await navigator.serviceWorker.register(
+          "/service-worker.js"
+        );
         // Check for an existing subscription
         const existingSubscription =
           await registration.pushManager.getSubscription();

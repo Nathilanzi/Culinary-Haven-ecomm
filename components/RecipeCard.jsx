@@ -208,7 +208,9 @@ export default function RecipeCard({
               }
             >
               <svg
-                className={`w-6 h-6 ${isFavorited ? "text-red-500" : "text-gray-400"}`}
+                className={`w-6 h-6 ${
+                  isFavorited ? "text-red-500" : "text-gray-400"
+                }`}
                 fill={isFavorited ? "currentColor" : "none"}
                 viewBox="0 0 24 24"
                 stroke="currentColor"
