@@ -8,9 +8,15 @@ The Recipe App is a cutting-edge platform designed to revolutionize how users di
 https://culinary-haven-a.vercel.app/
 <br>
 
-![]()
-![]()
-![]()
+![Landing Page](/public/screenshots/ScreenshotLandingPage.png)
+![Recommended](/public/screenshots/ScreenshotRecommended.png)
+![Home Page](/public/screenshots/ScreenshotHomePage.png)
+![Recipe Details](/public/screenshots/ScreenshotRecipeDetails.png)
+![Download Page](/public/screenshots/ScreenshotDownloads.png)
+![Favorite Page](/public/screenshots/ScreenshotFavorite.png)
+![Shopping Lists Page](/public/screenshots/ScreenshotShoppingLists.png)
+![Install Notification](/public/screenshots/ScreenshotInstallNotification.png)
+
 
 ## Project Structure:
 

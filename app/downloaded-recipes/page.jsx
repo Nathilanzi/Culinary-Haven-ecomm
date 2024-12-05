@@ -15,7 +15,7 @@ const DownloadedRecipesPage = () => {
   const [error, setError] = useState("");
   const [deleteConfirmation, setDeleteConfirmation] = useState({
     isOpen: false,
-    recipeId: null
+    recipeId: null,
   });
 
   // Memoized function to load recipes
@@ -38,7 +38,6 @@ const DownloadedRecipesPage = () => {
 
       setRecipes(paginatedRecipes);
       setTotalPages(totalPageCount);
-
     } catch (err) {
       setError("Error loading recipes: " + err.message);
       toast.error("Failed to load recipes");
@@ -48,7 +47,7 @@ const DownloadedRecipesPage = () => {
   }, [currentPage]);
 
   useEffect(() => {
-    loadRecipes(); 
+    loadRecipes();
   }, [loadRecipes]);
 
   // Memoized delete handler
@@ -70,7 +69,7 @@ const DownloadedRecipesPage = () => {
 
       loadRecipes();
       toast.success("Recipe deleted successfully");
-      
+
       setDeleteConfirmation({ isOpen: false, recipeId: null });
     } catch (err) {
       setError("Error deleting recipe: " + err.message);
@@ -79,20 +78,23 @@ const DownloadedRecipesPage = () => {
   }, [deleteConfirmation.recipeId, loadRecipes]);
 
   // Prevent propagation and flickering
-  const openDeleteConfirmation = useCallback((recipeId) => (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDeleteConfirmation({ 
-      isOpen: true, 
-      recipeId: recipeId 
-    });
-  }, []);
+  const openDeleteConfirmation = useCallback(
+    (recipeId) => (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDeleteConfirmation({
+        isOpen: true,
+        recipeId: recipeId,
+      });
+    },
+    []
+  );
 
   // Close delete confirmation modal
   const closeDeleteConfirmation = useCallback(() => {
-    setDeleteConfirmation({ 
-      isOpen: false, 
-      recipeId: null 
+    setDeleteConfirmation({
+      isOpen: false,
+      recipeId: null,
     });
   }, []);
 
@@ -139,8 +141,19 @@ const DownloadedRecipesPage = () => {
         <>
           {recipes.length === 0 ? (
             <div className="text-center py-12 px-6">
-              <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="mx-auto w-16 h-16 text-gray-300 dark:text-gray-600 mb-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
               </svg>
               <p className="text-gray-500 dark:text-gray-400">
                 You haven't downloaded any recipes yet. Start by downloading
@@ -156,7 +169,17 @@ const DownloadedRecipesPage = () => {
                     onMouseDown={openDeleteConfirmation(recipe.id)}
                     className="absolute top-2 left-1/2 -translate-x-1/2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 will-change-opacity transition-opacity duration-150 ease-in-out hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <polyline points="3 6 5 6 21 6"></polyline>
                       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                     </svg>
