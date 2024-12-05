@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 /**
  * Custom hook for managing offline-first data storage and retrieval
@@ -19,8 +19,8 @@ export function useOfflineStorage(storageKey, initialValue = []) {
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     // Initial data load
     try {
@@ -29,13 +29,13 @@ export function useOfflineStorage(storageKey, initialValue = []) {
         setData(JSON.parse(storedData));
       }
     } catch (error) {
-      console.error('Error loading stored data:', error);
+      console.error("Error loading stored data:", error);
     }
 
     // Cleanup event listeners
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, [storageKey]);
 
@@ -48,7 +48,7 @@ export function useOfflineStorage(storageKey, initialValue = []) {
       localStorage.setItem(storageKey, JSON.stringify(newData));
       setData(newData);
     } catch (error) {
-      console.error('Error saving data:', error);
+      console.error("Error saving data:", error);
     }
   };
 
@@ -65,6 +65,6 @@ export function useOfflineStorage(storageKey, initialValue = []) {
     data,
     setData: saveData,
     filterData,
-    isOffline
+    isOffline,
   };
 }
